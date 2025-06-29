@@ -6,8 +6,8 @@ const AdminDashboard = () => {
     <>
       <AdminNavbar />
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <h1 className="text-3xl font-bold text-gray-800">
-          Welcome, Admin 👋
+        <h1 className="text-3xl font-bold text-blue-800">
+          Welcome to the Admin Dashboard 👋
         </h1>
       </div>
     </>

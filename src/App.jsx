@@ -27,6 +27,8 @@ import EmployeeDashboard from "./pages/employee/Dashboard";
 import TaskSubmission from "./pages/employee/TaskSubmission";
 import AssignedTasks from './components/AssignedTasks';
 
+import UpdateTaskForm from './components/UpdateTask';
+
 function App() {
   const location = useLocation();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -59,6 +61,7 @@ function App() {
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/manage-users" element={<ManageUsers />} />
         <Route path="/admin/view-reports" element={<ViewReports />} />
+<<<<<<< HEAD
         <Route path="/admin/tasks" element={<TasksPage />} />
         <Route path="/admin/assigned-tasks" element={<ViewTasksPage />} />
         
@@ -66,12 +69,16 @@ function App() {
 
 
 
+=======
+        <Route path="/updatetask/:id" element={<UpdateTaskForm />} />
+>>>>>>> origin/feature/task-ui
 
 
         {/* Manager Routes */}
         <Route path="/manager/dashboard" element={<ManagerDashboard />} />
         <Route path="/manager/task-form" element={<TaskForm />} />
         <Route path="/manager/team-view" element={<TeamView />} />
+
 
         {/* Employee Routes */}
         <Route path="/employee/dashboard" element={<EmployeeDashboard />} />

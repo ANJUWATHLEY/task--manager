@@ -7,12 +7,10 @@ const TasksPage = () => {
   const [role, setRole] = useState('');
 
   useEffect(() => {
-    
-    
+
     const storedRole = localStorage.getItem('role');
     setRole(storedRole);
-
-
+  
   }, []);
 
   const handleAddTask = (task) => {
