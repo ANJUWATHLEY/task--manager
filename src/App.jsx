@@ -4,7 +4,6 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import NavbarPublic from './components/NavbarPublic';
 import NavbarPrivate from './components/NavbarPrivate';
-
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
@@ -17,15 +16,16 @@ import AdminDashboard from "./pages/admin/Dashboard";
 import ManageUsers from "./pages/admin/ManageUsers";
 import ViewReports from "./pages/admin/ViewReports";
 import TasksPage from './pages/admin/TasksPage';
-
+import ViewTasksPage from './pages/admin/ViewTasksPage';
 
 import ManagerDashboard from "./pages/manager/Dashboard";
 import TaskForm from "./pages/manager/TaskForm";
 import TeamView from "./pages/manager/TeamView";
 
 import EmployeeDashboard from "./pages/employee/Dashboard";
-import AssignedTasks from "./pages/employee/AssignedTasks";
+
 import TaskSubmission from "./pages/employee/TaskSubmission";
+import AssignedTasks from './components/AssignedTasks';
 
 function App() {
   const location = useLocation();
@@ -53,12 +53,20 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/verify-otp" element={<VerifyOtpPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="/tasks" element={<TasksPage />} />
+        {/* <Route path="/tasks" element={<TasksPage />} /> */}
 
         {/* Admin Routes */}
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/manage-users" element={<ManageUsers />} />
         <Route path="/admin/view-reports" element={<ViewReports />} />
+        <Route path="/admin/tasks" element={<TasksPage />} />
+        <Route path="/admin/assigned-tasks" element={<ViewTasksPage />} />
+        
+
+
+
+
+
 
         {/* Manager Routes */}
         <Route path="/manager/dashboard" element={<ManagerDashboard />} />
@@ -67,8 +75,11 @@ function App() {
 
         {/* Employee Routes */}
         <Route path="/employee/dashboard" element={<EmployeeDashboard />} />
-        <Route path="/employee/assigned-tasks" element={<AssignedTasks />} />
+        <Route path="/assigned-tasks" element={<AssignedTasks />} />
         <Route path="/employee/task-submission" element={<TaskSubmission />} />
+
+
+
       </Routes>
     </>
   );

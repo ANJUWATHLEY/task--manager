@@ -1,10 +1,16 @@
-import React from 'react';
+// src/pages/admin/Dashboard.jsx
+import AdminNavbar from '../../components/AdminNavbar';
 
 const AdminDashboard = () => {
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold text-blue-700">Admin Dashboard</h1>
-    </div>
+    <>
+      <AdminNavbar />
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <h1 className="text-3xl font-bold text-gray-800">
+          Welcome, Admin 👋
+        </h1>
+      </div>
+    </>
   );
 };
 

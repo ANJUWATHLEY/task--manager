@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // ✅ Add this
-import axios from '../../api/axiosInstance';
+import axios from '../api/axiosInstance';
 
 const AssignedTasks = () => {
   const [tasks, setTasks] = useState([]);

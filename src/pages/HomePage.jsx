@@ -7,36 +7,46 @@ const HomePage = () => {
         {/* Left: Text Content */}
         <div>
           <h1 className="text-4xl md:text-5xl font-bold text-gray-800 leading-tight mb-6">
-            Build your work’s <br />
+            Build your work's <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
               foundation with tasks
             </span>
           </h1>
-
+          
           <p className="text-lg text-gray-600 mb-8">
             Plan, organize, and collaborate on any project with tasks that adapt to any workflow or type of work.
           </p>
-
-          <div className="flex space-x-4">
+          
+          <div className="flex flex-col sm:flex-row gap-4">
             <Link
               to="/signup"
-              className="px-6 py-3 rounded-lg text-white font-semibold bg-gradient-to-r from-blue-500 to-purple-600 shadow-md hover:scale-105 transition"
+              className="group relative px-8 py-4 rounded-xl text-white font-semibold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 overflow-hidden"
             >
-              Get Started Free
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <span className="relative z-10 flex items-center justify-center">
+                <span className="mr-2">✨</span>
+                Get Started Free
+                <span className="ml-2">→</span>
+              </span>
             </Link>
+            
             <Link
               to="/login"
-              className="px-6 py-3 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition"
+              className="group px-8 py-4 rounded-xl border-2 border-gray-200 text-gray-700 font-semibold hover:border-purple-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 hover:text-purple-700 transform hover:scale-105 transition-all duration-300 shadow-md hover:shadow-lg"
             >
-              Login
+              <span className="flex items-center justify-center">
+                <span className="mr-2">🔐</span>
+                Login
+                <span className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">→</span>
+              </span>
             </Link>
           </div>
-
+          
           <p className="mt-4 text-sm text-gray-500">
             ⭐ 25,000+ reviews from trusted users
           </p>
         </div>
-
+        
         {/* Right: Optional Illustration */}
         <div className="hidden md:block">
           <img
