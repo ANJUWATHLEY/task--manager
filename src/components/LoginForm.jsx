@@ -27,7 +27,7 @@ const LoginForm = () => {
 
       // ✅ Role-based redirect
       if (user.role === 'admin') {
-        navigate('/tasks');
+        navigate('/admin/dashboard');
       } else {
         navigate('/dashboard');
       }

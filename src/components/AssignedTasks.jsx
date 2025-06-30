@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from '../../api/axiosInstance.js'; // ✅ Final correct path
+import axios from '../api/axiosInstance';
 
 const AssignedTasks = () => {
   const [tasks, setTasks] = useState([]);
@@ -8,17 +8,19 @@ const AssignedTasks = () => {
   const role = localStorage.getItem('role');
   const Navigate = useNavigate();
 
+  // ✅ Fetch tasks
   const fetchTasks = async () => {
     try {
-      const res = await axios.get('manager/tasks', {
+      const res = await axios.get('admin/tasks', {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
 
-      console.log(res.data);
+      // ✅ Ensure data is always an array
+      const data = Array.isArray(res.data) ? res.data : res.data.tasks || [];
 
-      const Formattasks = res.data.map((item) => ({
+      const Formattasks = data.map((item) => ({
         ...item,
         assign_date: item.assign_date?.split('T')[0] || '',
         deadline_date: item.deadline_date?.split('T')[0] || ''
@@ -27,15 +29,43 @@ const AssignedTasks = () => {
       setTasks(Formattasks);
 
     } catch (err) {
-      console.error(' Task Fetch Error:', err.response?.data || err.message);
+      console.error('❌ Task Fetch Error:', err.response?.data || err.message);
     }
   };
 
+  // ✅ Delete task
   async function taskdelete(id) {
-    console.log('gelllo');
-    await axios.delete(`/manager/deletetask/${id}`);
-    fetchTasks();
+    try {
+      await axios.delete(`/admin/deletetask/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      fetchTasks();
+    } catch (error) {
+      console.error('❌ Delete Error:', error.response?.data || error.message);
+    }
   }
+
+  // ✅ Update status
+  const handleStatusUpdate = async (taskId, newStatus) => {
+    try {
+      const res = await axios.put(`/task/inprocess/${taskId}`, {
+        status: newStatus,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      console.log('✅ Status updated:', res.data);
+      alert(`Task marked as "${newStatus}"`);
+      fetchTasks();
+    } catch (error) {
+      console.error('❌ Error updating task:', error.response?.data || error.message);
+      alert('Failed to update task status.');
+    }
+  };
 
   useEffect(() => {
     fetchTasks();
@@ -43,13 +73,13 @@ const AssignedTasks = () => {
 
   return (
     <div className="p-6 min-h-screen bg-gradient-to-br from-blue-100 to-purple-100">
-      {/* 🔹 Header with Button */}
+      {/* 🔹 Header */}
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-blue-700">Assigned Tasks</h2>
 
         {(role === 'admin' || role === 'manager') && (
           <button
-            onClick={() => Navigate('/Tasks')}
+            onClick={() => Navigate('/admin/tasks')}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition"
           >
             + Add New Task
@@ -92,15 +122,18 @@ const AssignedTasks = () => {
                 </div>
               ) : (
                 <div className="flex gap-2 mt-2">
-                  <button className="bg-sky-200 hover:bg-sky-600 text-white px-5 py-2 rounded text-xs">
-                    in-process
+                  <button
+                    className="bg-sky-500 hover:bg-sky-700 text-white px-5 py-2 rounded text-xs"
+                    onClick={() => handleStatusUpdate(task.id, 'In Process')}
+                  >
+                    In-Process
                   </button>
 
                   <button
-                    className="bg-green-500 hover:bg-green-800 text-white px-3 py-1 rounded text-xs"
-                    onClick={() => console.log("Completed")}
+                    className="bg-green-500 hover:bg-green-700 text-white px-3 py-1 rounded text-xs"
+                    onClick={() => handleStatusUpdate(task.id, 'Completed')}
                   >
-                    completed
+                    Completed
                   </button>
                 </div>
               )}

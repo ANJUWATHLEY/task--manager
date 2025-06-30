@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import TaskForm from '../../components/TaskForm';
 
 
-const TasksPage = () => {
+const CreateTasksPage= () => {
   const [tasks, setTasks] = useState([]);
   const [role, setRole] = useState('');
 
@@ -11,7 +11,7 @@ const TasksPage = () => {
     const storedRole = localStorage.getItem('role');
     setRole(storedRole);
   
-  }, []);
+  }, []); 
 
   const handleAddTask = (task) => {
     setTasks((prev) => [...prev, task]);
@@ -54,4 +54,4 @@ const TasksPage = () => {
   );
 };
 
-export default TasksPage;
+export default CreateTasksPage;

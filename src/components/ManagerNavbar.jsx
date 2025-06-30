@@ -1,7 +1,7 @@
-// src/components/AdminNavbar.jsx
+// src/components/ManagerNavbar.jsx
 import { Link, useNavigate } from 'react-router-dom';
 
-const AdminNavbar = () => {
+const ManagerNavbar = () => {
   const navigate = useNavigate();
   const handleLogout = () => {
     localStorage.clear();
@@ -10,14 +10,13 @@ const AdminNavbar = () => {
 
   return (
     <nav className="flex justify-between items-center px-6 py-4 bg-white shadow-md">
-      <Link to="/admin/dashboard" className="text-2xl font-bold text-purple-600">
-        🧑‍💼 Admin Panel
+      <Link to="/manager/dashboard" className="text-2xl font-bold text-blue-600">
+        👨‍💼 Manager Panel
       </Link>
       <div className="space-x-6 text-gray-700 font-medium">
-        <Link to="/admin/dashboard">Dashbord</Link>
-        <Link to="/admin/tasks">Tasks</Link>
-        <Link to="/admin/view-tasks">View Tasks</Link>
-        <Link to="/admin/user">User</Link>
+        <Link to="/manager/dashboard">Dashbord</Link>
+        <Link to="/manager/team-view">Task View</Link>
+        <Link to="/assigned-tasks">Team View </Link>
         <button
           onClick={handleLogout}
           className="px-4 py-1 border text-red-600 border-red-600 rounded hover:bg-red-100"
@@ -29,4 +28,4 @@ const AdminNavbar = () => {
   );
 };
 
-export default AdminNavbar;
+export default ManagerNavbar;

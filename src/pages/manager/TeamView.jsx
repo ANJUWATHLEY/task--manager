@@ -1,5 +1,8 @@
 import React from 'react';
 
+
+
+// useless
 const TeamView = () => {
   return (
     <div className="p-6">

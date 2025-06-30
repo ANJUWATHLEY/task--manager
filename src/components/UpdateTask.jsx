@@ -16,7 +16,7 @@ const UpdateTaskForm = () => {
         try {
             console.log(id);
 
-            const res = await instanceAxios.put(`manager/updatetask/${id}`, data);
+            const res = await instanceAxios.put(`admin/updatetask/${id}`, data);
             console.log(res);
             alert('✅ Task updated successfully');
             Navigate('/employee/assigned-tasks')
