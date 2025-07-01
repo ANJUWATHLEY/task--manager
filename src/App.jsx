@@ -17,7 +17,7 @@ import ManageUsers from './pages/admin/ManageUsers';
 import ViewReports from './pages/admin/ViewReports';
 import CreateTasksPage from './pages/admin/CreateTasksPage';
 import ViewTasksPage from './pages/admin/ViewTasksPage';
-import User from './pages/admin/User';
+// import User from './pages/admin/User';
 
 import ManagerDashboard from './pages/manager/Dashboard';
 import TaskForm from './pages/manager/TaskForm';
@@ -55,18 +55,16 @@ function App() {
 
   // ✅ Clean Navbar rendering logic
   const renderNavbar = () => {
-    if (noNavbarRoutes.includes(location.pathname)) return null;
+  if (noNavbarRoutes.includes(location.pathname)) return null;
+  if (!isLoggedIn) return <NavbarPublic />;
 
-    if (!isLoggedIn) return <NavbarPublic />;
+  if (role === 'employee') return <EmployeeNavbar />;
+  if (role === 'admin') return <AdminNavbar />;
+  if (role === 'manager') return <ManagerNavbar />;
 
-    if (role === 'employee') return <EmployeeNavbar />;
-    if (role === 'admin' ) return <AdminDashboard />;
-    
-    if (role === 'manager' ) return <ManagerDashboard />;
+  return null;
+};
 
-
-    return null; // fallback
-  };
 
   return (
     <>
@@ -87,7 +85,7 @@ function App() {
         <Route path="/admin/view-reports" element={<ViewReports />} />
         <Route path="/admin/tasks" element={<CreateTasksPage />} />
         <Route path="/admin/view-tasks" element={<ViewTasksPage />} />
-        <Route path="/admin/user" element={<User />} />
+        {/* <Route path="/admin/user" element={<User />} /> */}
 
         {/* Manager Routes */}
         <Route path="/manager/dashboard" element={<ManagerDashboard />} />

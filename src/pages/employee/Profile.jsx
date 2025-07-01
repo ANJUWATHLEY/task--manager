@@ -20,7 +20,7 @@ const Profile = () => {
 
   return (
     <>
-      <EmployeeNavbar />
+     
       <div className="p-6 bg-gray-50 min-h-screen">
         <h2 className="text-2xl font-bold mb-4 text-gray-800">🙋 My Profile</h2>
         {profile ? (

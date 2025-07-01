@@ -24,7 +24,7 @@ const CreateTasksPage= () => {
           <TaskForm onSubmit={handleAddTask} />
         ) : (
           <p className="text-center text-red-500 font-semibold">
-            Only Managers can assign tasks 🚫
+            Only Admin can assign tasks 🚫
           </p>
         )}
 

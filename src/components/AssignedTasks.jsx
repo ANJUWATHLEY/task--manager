@@ -48,18 +48,18 @@ const AssignedTasks = () => {
   }
 
   // ✅ Update status
-  const handleStatusUpdate = async (taskId, newStatus) => {
+  const handleStatusUpdateInProcess = async (taskId) => {
+
+    
     try {
       const res = await axios.put(`/task/inprocess/${taskId}`, {
-        status: newStatus,
+        status: "inprocess" ,
       }, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      console.log('✅ Status updated:', res.data);
-      alert(`Task marked as "${newStatus}"`);
       fetchTasks();
     } catch (error) {
       console.error('❌ Error updating task:', error.response?.data || error.message);
@@ -67,6 +67,25 @@ const AssignedTasks = () => {
     }
   };
 
+  const handleStatusUpdateCompleted = async (taskId) => {
+
+    
+    try {
+      const res = await axios.put(`/task/inprocess/${taskId}`, {
+        status: "completed" ,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      fetchTasks();
+    } catch (error) {
+      console.error('❌ Error updating task:', error.response?.data || error.message);
+      alert('Failed to update task status.');
+    }
+  };
+  
   useEffect(() => {
     fetchTasks();
   }, []);
@@ -122,19 +141,41 @@ const AssignedTasks = () => {
                 </div>
               ) : (
                 <div className="flex gap-2 mt-2">
+
+{
+  task.status === 'pending' ?   <button
+                    className="bg-red-700 hover:bg-blue-800 text-white px-5 py-2 rounded text-xs"
+                    onClick={() => handleStatusUpdateInProcess(task.id)}
+                 
+                 >
+                   accept 
+                  </button>
+                   : 
+
                   <button
                     className="bg-sky-500 hover:bg-sky-700 text-white px-5 py-2 rounded text-xs"
-                    onClick={() => handleStatusUpdate(task.id, 'In Process')}
-                  >
+                    >
                     In-Process
                   </button>
 
+                   
+  
+}
+                  
+
                   <button
                     className="bg-green-500 hover:bg-green-700 text-white px-3 py-1 rounded text-xs"
-                    onClick={() => handleStatusUpdate(task.id, 'Completed')}
+                    onClick={() => handleStatusUpdateCompleted(task.id )}
                   >
                     Completed
                   </button>
+                 
+                
+
+
+
+
+
                 </div>
               )}
             </li>

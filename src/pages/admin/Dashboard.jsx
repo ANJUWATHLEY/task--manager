@@ -7,7 +7,7 @@ const AdminDashboard = () => {
 
   return (
     <>
-      <AdminNavbar />
+  
 
       {/* Show welcome message only on dashboard */}
       {isDashboardPage && (
