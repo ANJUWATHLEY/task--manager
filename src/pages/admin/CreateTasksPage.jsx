@@ -19,7 +19,7 @@ const CreateTasksPage = () => {
           </>
         ) : (
           <p className="text-center text-red-500 font-semibold text-lg">
-            🚫 Only Admins can access this page.
+             Only Admins can access this page.
           </p>
         )}
       </div>

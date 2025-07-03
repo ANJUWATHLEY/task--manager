@@ -11,7 +11,7 @@ const EmployeeNavbar = () => {
   return (
     <nav className="flex justify-between items-center px-6 py-4 bg-white shadow-md">
       <Link to="/employee/dashboard" className="text-2xl font-bold text-green-600">
-        👷 Employee Panel
+         Employee Panel
       </Link>
       <div className="space-x-6 text-gray-700 font-medium">
         <Link to="/employee/dashboard">Dashboard</Link>

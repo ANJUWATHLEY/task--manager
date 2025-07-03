@@ -19,7 +19,7 @@ import CreateTasksPage from './pages/admin/CreateTasksPage';
 import ViewTasksPage from './pages/admin/ViewTasksPage';
 import User from './pages/admin/User';
 import ViewSingleTask from './pages/admin/ViewSingleTask';
-
+import InviteTaskPage from './components/InviteTaskPage';
 
 
 
@@ -36,6 +36,7 @@ import AssignedTasks from './components/AssignedTasks';
 import UpdateTaskForm from './components/UpdateTask';
 import ManagerNavbar from './components/ManagerNavbar';
 import AdminNavbar from './components/AdminNavbar';
+
 
 function App() {
   const location = useLocation();
@@ -90,10 +91,11 @@ function App() {
         <Route path="/admin/tasks" element={<CreateTasksPage />} />
         <Route path="/admin/view-tasks" element={<ViewTasksPage />} />
         <Route path="/admin/user" element={<User />} />
-       
 
-        
+        <Route path="/invite/:token" element={<InviteTaskPage />} />
+
         <Route path="/admin/viewtask/:taskId" element={<ViewSingleTask />} />
+
 
 
 

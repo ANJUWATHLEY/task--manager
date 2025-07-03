@@ -8,7 +8,7 @@ const EmployeeDashboard = () => {
   
   <div className="p-6">
     <h1 className="text-3xl font-bold text-green-700">
-      Welcome to Employee Dashboard 👷‍♂️
+      Welcome to Employee Dashboard 
     </h1>
   </div>
 </>
