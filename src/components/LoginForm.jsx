@@ -20,7 +20,8 @@ const LoginForm = () => {
       // ✅ Save token & role
       localStorage.setItem('token', token);
       localStorage.setItem('role', user.role);
-
+      localStorage.setItem('id',user.id)
+      
       alert('Login successful ✅');
       setEmail('');
       setPassword('');

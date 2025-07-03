@@ -17,7 +17,11 @@ import ManageUsers from './pages/admin/ManageUsers';
 import ViewReports from './pages/admin/ViewReports';
 import CreateTasksPage from './pages/admin/CreateTasksPage';
 import ViewTasksPage from './pages/admin/ViewTasksPage';
-// import User from './pages/admin/User';
+import User from './pages/admin/User';
+import ViewSingleTask from './pages/admin/ViewSingleTask';
+
+
+
 
 import ManagerDashboard from './pages/manager/Dashboard';
 import TaskForm from './pages/manager/TaskForm';
@@ -85,12 +89,19 @@ function App() {
         <Route path="/admin/view-reports" element={<ViewReports />} />
         <Route path="/admin/tasks" element={<CreateTasksPage />} />
         <Route path="/admin/view-tasks" element={<ViewTasksPage />} />
-        {/* <Route path="/admin/user" element={<User />} /> */}
+        <Route path="/admin/user" element={<User />} />
+       
+
+        
+        <Route path="/admin/viewtask/:taskId" element={<ViewSingleTask />} />
+
+
 
         {/* Manager Routes */}
         <Route path="/manager/dashboard" element={<ManagerDashboard />} />
         <Route path="/manager/task-form" element={<TaskForm />} />
         <Route path="/manager/team-view" element={<TeamView />} />
+        
 
         {/* Employee Routes */}
         <Route path="/employee/dashboard" element={<EmployeeDashboard />} />

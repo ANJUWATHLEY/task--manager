@@ -6,13 +6,12 @@ const TaskForm = () => {
   const [users, setUsers] = useState([]);
   const [filterRole, setFilterRole] = useState('all');
   const [assignedUserIds, setAssignedUserIds] = useState([]);
-
   const { register, reset, formState: { errors } } = useForm();
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await axiosInstance.get('/admin/emplyee');
+        const res = await axiosInstance.get('/admin/allemploye');
         setUsers(res.data);
       } catch (error) {
         console.error('❌ Failed to fetch users:', error);
@@ -36,19 +35,13 @@ const TaskForm = () => {
       userid: userId
     };
 
-    if (
-      !payload.title ||
-      !payload.description ||
-      !payload.assine_date ||
-      !payload.deadline_date ||
-      !payload.role
-    ) {
+    if (!payload.title || !payload.description || !payload.assine_date || !payload.deadline_date || !payload.role) {
       alert('Please fill in all fields before assigning.');
       return;
     }
 
     try {
-      await axiosInstance.post('/admin/task', payload);
+      await axiosInstance.post('/admin/createtask', payload);
       setAssignedUserIds((prev) => [...prev, userId]);
       alert('✅ Task assigned successfully!');
       reset();
@@ -58,51 +51,47 @@ const TaskForm = () => {
     }
   };
 
-  // Filter users based on selected role from form
-  const filteredUsers = users.filter(
-    (user) => filterRole === 'all' || user.role === filterRole
-  );
+  const filteredUsers = users.filter((user) => filterRole === 'all' || user.role === filterRole);
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 px-6 py-10 bg-gray-100 min-h-screen">
-      
-      {/* Task Assignment Form */}
-      <form className="bg-white w-full max-w-xl p-8 rounded-2xl shadow-lg space-y-5 border">
-        <h2 className="text-2xl font-bold text-center text-purple-700">📋 Assign Task</h2>
+    <div className="flex flex-col lg:flex-row gap-6 w-full">
+      {/* Left: Form */}
+      <form className="bg-white w-full lg:w-1/2 p-6 rounded-xl shadow-md space-y-5 border border-gray-200">
+        <h2 className="text-2xl font-bold text-center text-purple-700">Assign Task</h2>
 
         <input
           {...register('title', { required: true })}
           placeholder="Enter Task Title"
-          className="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+          className="w-full border px-4 py-2 rounded-md"
         />
         {errors.title && <p className="text-red-500 text-sm">Task title is required</p>}
 
         <input
           {...register('description', { required: true })}
           placeholder="Enter Task Description"
-          className="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+          className="w-full border px-4 py-2 rounded-md"
         />
         {errors.description && <p className="text-red-500 text-sm">Description is required</p>}
 
         <input
           type="date"
           {...register('assine_date', { required: true })}
-          className="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+          className="w-full border px-4 py-2 rounded-md"
         />
         {errors.assine_date && <p className="text-red-500 text-sm">Assign date is required</p>}
 
         <input
           type="date"
           {...register('deadline_date', { required: true })}
-          className="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+          className="w-full border px-4 py-2 rounded-md"
         />
         {errors.deadline_date && <p className="text-red-500 text-sm">Deadline is required</p>}
 
         <select
           {...register('role', { required: true })}
-          className="w-full border border-gray-300 px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
           value={filterRole}
           onChange={(e) => setFilterRole(e.target.value)}
+          className="w-full border px-4 py-2 rounded-md"
         >
           <option value="all">All</option>
           <option value="manager">Manager</option>
@@ -110,35 +99,34 @@ const TaskForm = () => {
         </select>
         {errors.role && <p className="text-red-500 text-sm">Role is required</p>}
 
-        <p className="text-center text-gray-600 text-sm">⬇️ Select user below to assign this task</p>
+        <p className="text-center text-gray-600 text-sm">⬇️ Select a user to assign this task</p>
       </form>
 
-      {/* Filtered Users */}
-      <div className="flex-1">
-        <h1 className="text-2xl font-bold mb-6 text-gray-800">Available Users</h1>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-6">
+      {/* Right: Scrollable User Cards */}
+      <div className="w-full lg:w-1/2 max-h-[600px] overflow-y-auto bg-white p-6 rounded-xl shadow-md border border-gray-200">
+        <h2 className="text-2xl font-bold mb-4 text-purple-700">Available Users</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {filteredUsers.map((user) => (
             <div
               key={user.id}
-              className="relative bg-black shadow-md rounded-2xl px-10 p-6 w-full hover:shadow-xl transition-all border border-gray-200"
+              className="relative bg-white p-4 border rounded-lg shadow-sm hover:shadow-md transition"
             >
               {assignedUserIds.includes(user.id) && (
-                <span className="absolute top-2 right-2 text-xs bg-red-800 text-white px-2 py-1 rounded-full">
-                  Task Assigned
-                </span>
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-green-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow">
+                  ✅ Assigned
+                </div>
               )}
 
-              <h2 className="text-xl font-bold text-gray-800">{user.user_name}</h2>
-              <p className="text-sm text-gray-500 mt-2">
-                Role: <span className="font-semibold text-blue-600">{user.role}</span>
+              <h2 className="text-lg font-bold text-purple-700">{user.user_name}</h2>
+              <p className="text-sm text-gray-600 mt-2">
+                Role: <span className="text-blue-600 font-semibold">{user.role}</span>
               </p>
 
               <button
-                className="mt-3 bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700"
+                className="mt-4 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded w-full text-sm"
                 onClick={() => handleAssignTask(user.id)}
               >
-                Select
+                Assign Task
               </button>
             </div>
           ))}
