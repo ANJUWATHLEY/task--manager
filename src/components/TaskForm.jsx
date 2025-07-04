@@ -7,6 +7,8 @@ const TaskForm = () => {
   const [filterRole, setFilterRole] = useState('all');
   const [assignedUserIds, setAssignedUserIds] = useState([]);
   const { register, reset, formState: { errors } } = useForm();
+  
+
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -32,9 +34,13 @@ const TaskForm = () => {
       assine_date: taskData.assine_date,
       deadline_date: taskData.deadline_date,
       role: taskData.role,
-      userid: userId
+      userid: userId,
+      priority: taskData.priority
     };
 
+
+    console.log(payload);
+    
     if (!payload.title || !payload.description || !payload.assine_date || !payload.deadline_date || !payload.role) {
       alert('Please fill in all fields before assigning.');
       return;
@@ -86,6 +92,22 @@ const TaskForm = () => {
           className="w-full border px-4 py-2 rounded-md"
         />
         {errors.deadline_date && <p className="text-red-500 text-sm">Deadline is required</p>}
+
+       <select
+     {...register('priority', { required: true })}
+     className="w-full border px-4 py-2 rounded-md"
+>
+  <option value="">Select Priority</option>
+  <option value="High">High</option>
+  <option value="Medium">Medium</option>
+  <option value="Low">Low</option>
+</select>
+{errors.priority && <p className="text-red-500 text-sm">Priority is required</p>}
+
+
+
+
+
 
         <select
           {...register('role', { required: true })}
