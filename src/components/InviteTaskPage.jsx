@@ -1,32 +1,37 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
-import axiosInstance from "../api/axiosInstance";
+import axiosInstance from "../api/axiosInstance.js";
 
 const InviteTaskPage = () => {
   const { token } = useParams();
-
   const navigate = useNavigate();
+
   const [taskInfo, setTaskInfo] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    try {
-      const url = axiosInstance.get("/invites/:token");
-console.log(url);
+    const validateInvite = async () => {
+      try {
+        // Make API call to backend to verify token (replace :token with actual token)
+        const response = await axiosInstance.get(`/invites/${token}`);
+        console.log("Backend response:", response.data);
 
-      const decoded = jwtDecode(token);
-      console.log(decoded);
+        // Decode token (optional if backend already returns task info)
+        const decoded = jwtDecode(token);
+        console.log("Decoded token:", decoded);
 
-      setTaskInfo(decoded);
-    } catch (err) {
-      console.error("Invalid or expired token:", err);
-      setError("❌ Invalid or expired invite link.");
-    }
+        setTaskInfo(decoded);
+      } catch (err) {
+        console.error("Invalid or expired token:", err.message);
+        setError("❌ Invalid or expired invite link.");
+      }
+    };
+
+    if (token) validateInvite();
   }, [token]);
 
   const handleJoin = () => {
-    // You can redirect to any route or trigger an API here
     navigate(`/employee/task/${taskInfo.taskId}`);
   };
 
@@ -54,12 +59,8 @@ console.log(url);
         </h2>
 
         <div className="text-left text-gray-700 space-y-2">
-          <p>
-            <strong>📝 Task:</strong> {taskInfo.taskname}
-          </p>
-          <p>
-            <strong>🆔 Task ID:</strong> {taskInfo.taskId}
-          </p>
+          <p><strong>📝 Task:</strong> {taskInfo.taskname}</p>
+          <p><strong>🆔 Task ID:</strong> {taskInfo.taskId}</p>
         </div>
 
         <button
