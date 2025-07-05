@@ -13,7 +13,7 @@ import {
 const AdminDashboard = () => {
   const [employees, setEmployees] = useState([]);
   const [tasks, setTasks] = useState([]);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true); // Sidebar initially open
   const token = localStorage.getItem('token');
 
   useEffect(() => {
@@ -49,69 +49,60 @@ const AdminDashboard = () => {
   const pendingTasks = tasks.filter((task) => task.status?.toLowerCase() === 'pending');
   const inProgressTasks = tasks.filter((task) => task.status?.toLowerCase() === 'inprocess');
 
-
   const taskStatusData = [
     { name: 'Completed', value: completedTasks.length, color: '#10b981' },
- { name: 'In Process', value: inProgressTasks.length, color: '#f97316' },
-
+    { name: 'In Process', value: inProgressTasks.length, color: '#f97316' },
     { name: 'Pending', value: pendingTasks.length, color: '#6366f1' },
-   
   ];
-const monthlyCompletedData = Array.from({ length: 12 }, (_, i) => {
-  const month = new Date(0, i).toLocaleString('default', { month: 'short' });
-  const count = completedTasks.filter(task => {
-    if (!task.updated_at) return false;
-    const taskMonth = new Date(task.updated_at).getMonth();
-    return taskMonth === i;
-  }).length;
-  return { month, completed: count };
-});
 
+  const monthlyCompletedData = Array.from({ length: 12 }, (_, i) => {
+    const month = new Date(0, i).toLocaleString('default', { month: 'short' });
+    const count = completedTasks.filter(task => {
+      if (!task.updated_at) return false;
+      const taskMonth = new Date(task.updated_at).getMonth();
+      return taskMonth === i;
+    }).length;
+    return { month, completed: count };
+  });
 
   return (
-    <div className="min-h-screen flex bg-white-100 relative">
-      {/* Sidebar Toggle */}
-      <button
-        className="absolute top-4 left-4 z-50 text-white bg-[#1c0c36] px-4 py-2 rounded flex items-center gap-2 shadow-md hover:bg-[#291444]"
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-      >
-        <Menu size={20} />
-        <span className="hidden sm:inline">Open Menu</span>
-      </button>
+    <div className="min-h-screen flex bg-white relative">
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 h-full z-40 transition-transform duration-300 transform ${sidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full'
-          } bg-[#1c0c36] text-white p-6 shadow-lg`}
+        className={`transition-all duration-300 h-screen bg-[#1c0c36] text-white p-4 shadow-lg flex flex-col ${sidebarOpen ? 'w-64' : 'w-16'}`}
       >
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h2 className="text-lg font-semibold">Jackson D.</h2>
-            <p className="text-sm text-purple-400">Admin</p>
-          </div>
-          <button onClick={() => setSidebarOpen(false)}>
-            <X size={24} />
-          </button>
-        </div>
+        {/* Toggle Button */}
+        <button
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="mb-6 text-white hover:bg-[#291444]  rounded self-start"
+        >
+          {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
 
-        <nav className="space-y-6 mt-6">
-          <Link to="/admin/dashboard" className="flex items-center gap-3 text-purple-300 hover:text-white text-lg" onClick={() => setSidebarOpen(false)}>
-            <LayoutDashboard size={20} /> Dashboard
+        {/* Sidebar Links */}
+        <nav className="space-y-6">
+          <Link to="/admin/dashboard" className="flex items-center gap-3 text-purple-300 hover:text-white text-lg">
+            <LayoutDashboard size={20} />
+            {sidebarOpen && <span>Dashboard</span>}
           </Link>
-          <Link to="/admin/tasks" className="flex items-center gap-3 text-purple-300 hover:text-white text-lg" onClick={() => setSidebarOpen(false)}>
-            <ListChecks size={20} /> Tasks
+          <Link to="/admin/tasks" className="flex items-center gap-3 text-purple-300 hover:text-white text-lg">
+            <ListChecks size={20} />
+            {sidebarOpen && <span>Tasks</span>}
           </Link>
-          <Link to="/admin/view-tasks" className="flex items-center gap-3 text-purple-300 hover:text-white text-lg" onClick={() => setSidebarOpen(false)}>
-            <ClipboardCheck size={20} /> View Tasks
+          <Link to="/admin/view-tasks" className="flex items-center gap-3 text-purple-300 hover:text-white text-lg">
+            <ClipboardCheck size={20} />
+            {sidebarOpen && <span>View Tasks</span>}
           </Link>
-          <Link to="/admin/user" className="flex items-center gap-3 text-purple-300 hover:text-white text-lg" onClick={() => setSidebarOpen(false)}>
-            <UserCog size={20} /> Users
+          <Link to="/admin/user" className="flex items-center gap-3 text-purple-300 hover:text-white text-lg">
+            <UserCog size={20} />
+            {sidebarOpen && <span>Users</span>}
           </Link>
         </nav>
       </aside>
 
-      {/* Main Dashboard */}
-      <main className="flex-1 p-8 bg-gradient-to-tr from-[#1f0836] via-[#2c0e58] to-[#3a0a6e] text-white min-h-screen">
+      {/* Main Content */}
+      <main className="flex-1 p-8 bg-gradient-to-tr from-[#1f0836] via-[#2c0e58] to-[#3a0a6e] text-white min-h-screen transition-all duration-300">
         <h1 className="text-4xl font-bold text-center mb-10 tracking-wider">Admin Dashboard</h1>
 
         {/* Stat Cards */}
@@ -147,7 +138,7 @@ const monthlyCompletedData = Array.from({ length: 12 }, (_, i) => {
           </div>
         </div>
 
-        {/* Charts */}
+        {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-12">
           {/* Task Status Pie */}
           <div className="bg-[#1e293b] p-6 rounded-xl shadow-md">

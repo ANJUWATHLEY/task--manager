@@ -4,7 +4,7 @@ const NavbarPublic = () => {
   return (
     <nav className="flex items-center justify-between px-6 py-4 bg-white shadow-md">
       <div className="text-2xl font-bold text-purple-600">
-        <Link to="/">📝 TaskFlow</Link>
+        <Link to="/">TaskFlow</Link>
       </div>
       <div className="space-x-4">
         <Link
