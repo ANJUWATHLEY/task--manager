@@ -12,7 +12,7 @@ const InviteTaskPage = () => {
 
   useEffect( async () => {
     try {
-      const url =  await axiosInstance.get("/invites/:token");
+      const url =  await axiosInstance.get("/invite/${token}");
 console.log(url);
 
       
