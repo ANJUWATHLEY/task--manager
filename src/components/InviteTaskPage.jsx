@@ -14,7 +14,7 @@ const InviteTaskPage = () => {
   useEffect(() => {
     const validateInvite = async () => {
       try {
-        const response = await axiosInstance.get(/invites/${token});
+        const response = await axiosInstance.get( `/invites/${token}`);
         console.log("Backend response:", response.data);
 
         const decoded = jwtDecode(token);
