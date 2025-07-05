@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import axiosInstance from "../api/axiosInstance.js";
+import Cookies from "js-cookie"; // ✅ Import js-cookie
 
 const InviteTaskPage = () => {
   const { token } = useParams();
@@ -13,15 +14,17 @@ const InviteTaskPage = () => {
   useEffect(() => {
     const validateInvite = async () => {
       try {
-        // Make API call to backend to verify token (replace :token with actual token)
-        const response = await axiosInstance.get(`/invites/${token}`);
+        const response = await axiosInstance.get(/invites/${token});
         console.log("Backend response:", response.data);
 
-        // Decode token (optional if backend already returns task info)
         const decoded = jwtDecode(token);
         console.log("Decoded token:", decoded);
 
         setTaskInfo(decoded);
+
+        // ✅ Set token in cookies
+        Cookies.set("inviteToken", token, { expires: 1 }); // expires in 1 day
+
       } catch (err) {
         console.error("Invalid or expired token:", err.message);
         setError("❌ Invalid or expired invite link.");
@@ -32,7 +35,7 @@ const InviteTaskPage = () => {
   }, [token]);
 
   const handleJoin = () => {
-    navigate(`/employee/task/${taskInfo.taskId}`);
+    navigate(/employee/task/${taskInfo.taskId});
   };
 
   if (error) {
