@@ -35,7 +35,7 @@ const InviteTaskPage = () => {
   }, [token]);
 
   const handleJoin = () => {
-    navigate(/employee/task/${taskInfo.taskId});
+    navigate(`/employee/task/${taskInfo.taskId}`);
   };
 
   if (error) {
