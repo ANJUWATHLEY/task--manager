@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
-import axiosInstance from "../api/axiosInstance";
+import axiosInstance from "../api/axiosInstance.js";
 
 const InviteTaskPage = () => {
   const { token } = useParams();
@@ -10,11 +10,12 @@ const InviteTaskPage = () => {
   const [taskInfo, setTaskInfo] = useState(null);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
+  useEffect( async () => {
     try {
-      const url = axiosInstance.get("/invites/:token");
+      const url =  await axiosInstance.get("/invites/:token");
 console.log(url);
 
+      
       const decoded = jwtDecode(token);
       console.log(decoded);
 
