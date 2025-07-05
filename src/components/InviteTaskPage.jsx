@@ -14,6 +14,9 @@ const InviteTaskPage = () => {
 
   useEffect(() => {
     try {
+
+      const url = axiosInstance.get("/invites/:token");
+console.log(url);
       
       const decoded = jwtDecode(token);
       console.log(decoded);
