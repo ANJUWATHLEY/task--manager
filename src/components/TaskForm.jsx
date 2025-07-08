@@ -1,68 +1,78 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import axiosInstance from '../api/axiosInstance.js';
+import { ClipboardCopy, CheckCircle } from 'lucide-react';
+import { toast } from 'react-toastify';
 
 const TaskForm = () => {
   const [users, setUsers] = useState([]);
   const [filterRole, setFilterRole] = useState('all');
   const [assignedUserIds, setAssignedUserIds] = useState([]);
-  const { register, reset, formState: { errors } } = useForm();
-  
+  const [selectedUserId, setSelectedUserId] = useState(null);
 
+  const hasFetchedOnce = useRef(false); // ✅ prevent double toast
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm();
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const res = await axiosInstance.get('/admin/allemploye');
         setUsers(res.data);
+
+        if (!hasFetchedOnce.current) {
+          toast.success("✅ Users loaded successfully");
+          hasFetchedOnce.current = true;
+        }
       } catch (error) {
         console.error('❌ Failed to fetch users:', error);
+        toast.error("❌ Failed to load users");
       }
     };
+
     fetchUsers();
   }, []);
 
-  const handleAssignTask = async (userId) => {
-    const form = document.querySelector('form');
-    const formData = new FormData(form);
-    const taskData = Object.fromEntries(formData.entries());
-
-    const payload = {
-      title: taskData.title,
-      description: taskData.description,
-      status: taskData.status,
-      assine_date: taskData.assine_date,
-      deadline_date: taskData.deadline_date,
-      role: taskData.role,
-      userid: userId,
-      priority: taskData.priority
-    };
-
-
-    console.log(payload);
-    
-    if (!payload.title || !payload.description || !payload.assine_date || !payload.deadline_date || !payload.role) {
-      alert('Please fill in all fields before assigning.');
+  const onSubmit = async (data) => {
+    if (!selectedUserId) {
+      toast.error('❌ Please select a user to assign the task.');
       return;
     }
 
+    const payload = {
+      ...data,
+      userid: selectedUserId,
+    };
+
     try {
       await axiosInstance.post('/admin/createtask', payload);
-      setAssignedUserIds((prev) => [...prev, userId]);
-      alert('✅ Task assigned successfully!');
+      setAssignedUserIds((prev) => [...prev, selectedUserId]);
+      toast.success("✅ Task assigned successfully!");
+
       reset();
+      setSelectedUserId(null);
     } catch (error) {
       console.error('❌ Task assignment failed:', error);
-      alert('Failed to assign task.');
+      toast.error('❌ Failed to assign task. Please try again.');
     }
   };
 
-  const filteredUsers = users.filter((user) => filterRole === 'all' || user.role === filterRole);
+  const filteredUsers = users.filter(
+    (user) => filterRole === 'all' || user.role === filterRole
+  );
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 w-full">
       {/* Left: Form */}
-      <form className="bg-white w-full lg:w-1/2 p-6 rounded-xl shadow-md space-y-5 border border-gray-200">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="bg-white w-full lg:w-1/2 p-6 rounded-xl shadow-md space-y-5 border border-gray-200"
+      >
         <h2 className="text-2xl font-bold text-center text-purple-700">Assign Task</h2>
 
         <input
@@ -93,21 +103,16 @@ const TaskForm = () => {
         />
         {errors.deadline_date && <p className="text-red-500 text-sm">Deadline is required</p>}
 
-       <select
-     {...register('priority', { required: true })}
-     className="w-full border px-4 py-2 rounded-md"
->
-  <option value="">Select Priority</option>
-  <option value="High">High</option>
-  <option value="Medium">Medium</option>
-  <option value="Low">Low</option>
-</select>
-{errors.priority && <p className="text-red-500 text-sm">Priority is required</p>}
-
-
-
-
-
+        <select
+          {...register('priority', { required: true })}
+          className="w-full border px-4 py-2 rounded-md"
+        >
+          <option value="">Select Priority</option>
+          <option value="High">High</option>
+          <option value="Medium">Medium</option>
+          <option value="Low">Low</option>
+        </select>
+        {errors.priority && <p className="text-red-500 text-sm">Priority is required</p>}
 
         <select
           {...register('role', { required: true })}
@@ -121,7 +126,18 @@ const TaskForm = () => {
         </select>
         {errors.role && <p className="text-red-500 text-sm">Role is required</p>}
 
-        <p className="text-center text-gray-600 text-sm">⬇️ Select a user to assign this task</p>
+        <p className="text-center text-gray-600 text-sm">
+          ⬇️ Select a user to assign this task
+        </p>
+
+        {selectedUserId && (
+          <button
+            type="submit"
+            className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded"
+          >
+            ✅ Confirm & Assign Task
+          </button>
+        )}
       </form>
 
       {/* Right: Scrollable User Cards */}
@@ -145,10 +161,25 @@ const TaskForm = () => {
               </p>
 
               <button
-                className="mt-4 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded w-full text-sm"
-                onClick={() => handleAssignTask(user.id)}
+                className={`mt-4 flex items-center justify-center gap-2 text-sm w-full py-2 px-4 rounded ${
+                  selectedUserId === user.id
+                    ? 'bg-green-600 hover:bg-green-700 text-white'
+                    : 'bg-purple-600 hover:bg-purple-700 text-white'
+                }`}
+                onClick={() => setSelectedUserId(user.id)}
+                type="button"
               >
-                Assign Task
+                {selectedUserId === user.id ? (
+                  <>
+                    <CheckCircle size={18} />
+                    Selected
+                  </>
+                ) : (
+                  <>
+                    <ClipboardCopy size={18} />
+                    Assign
+                  </>
+                )}
               </button>
             </div>
           ))}

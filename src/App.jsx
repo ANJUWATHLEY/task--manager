@@ -1,17 +1,15 @@
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-
 import NavbarPublic from './components/NavbarPublic';
-// import NavbarPrivate from './components/NavbarPrivate';
 import EmployeeNavbar from './components/EmployeeNavbar';
-
+import AdminLayout from './components/AdminLayout';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
-import VerifyOtpPage from './pages/VerifyOtpPage';
-import ResetPasswordPage from './pages/ResetPasswordPage';
 
+import ResetPasswordPage from './pages/ResetPasswordPage';
+import CompletedTasksPage from './pages/admin/CompletedTasksPage';
 import AdminDashboard from './pages/admin/Dashboard';
 import ManageUsers from './pages/admin/ManageUsers';
 import ViewReports from './pages/admin/ViewReports';
@@ -20,7 +18,8 @@ import ViewTasksPage from './pages/admin/ViewTasksPage';
 import User from './pages/admin/User';
 import ViewSingleTask from './pages/admin/ViewSingleTask';
 import InviteTaskPage from './components/InviteTaskPage';
-
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 import ManagerDashboard from './pages/manager/Dashboard';
@@ -31,13 +30,12 @@ import EmployeeDashboard from './pages/employee/Dashboard';
 import TaskSubmission from './pages/employee/TaskSubmission';
 import MyTasks from './pages/employee/MyTasks';
 import Profile from './pages/employee/Profile';
-
+import TaskDetailsPage from './pages/employee/TaskDetailsPage';
 import AssignedTasks from './components/AssignedTasks';
 import UpdateTaskForm from './components/UpdateTask';
 import ManagerNavbar from './components/ManagerNavbar';
-import AdminNavbar from './components/AdminNavbar';
 
-
+import AdminTopBar from './components/AdminTopBar';
 function App() {
   const location = useLocation();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -64,7 +62,7 @@ function App() {
   if (!isLoggedIn) return <NavbarPublic />;
 
   if (role === 'employee') return <EmployeeNavbar />;
-  if (role === 'admin') return <AdminNavbar />;
+  if (role === 'admin') return <AdminTopBar />;
   if (role === 'manager') return <ManagerNavbar />;
 
   return null;
@@ -81,22 +79,21 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/verify-otp" element={<VerifyOtpPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
 
         {/* Admin Routes */}
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/admin/manage-users" element={<ManageUsers />} />
-        <Route path="/admin/view-reports" element={<ViewReports />} />
-        <Route path="/admin/tasks" element={<CreateTasksPage />} />
-        <Route path="/admin/view-tasks" element={<ViewTasksPage />} />
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="manage-users" element={<ManageUsers />} />
+          <Route path="view-reports" element={<ViewReports />} />
+          <Route path="tasks" element={<CreateTasksPage />} />
+          <Route path="view-tasks" element={<ViewTasksPage />} />
         <Route path="/admin/user" element={<User />} />
-
+        <Route path="/admin/completed-tasks" element={<CompletedTasksPage />} /> 
+         </Route>
         <Route path="/invite/:token" element={<InviteTaskPage />} />
-
         <Route path="/admin/viewtask/:taskId" element={<ViewSingleTask />} />
-
-
+          
 
 
         {/* Manager Routes */}
@@ -106,15 +103,21 @@ function App() {
         
 
         {/* Employee Routes */}
+   
         <Route path="/employee/dashboard" element={<EmployeeDashboard />} />
         <Route path="/assigned-tasks" element={<AssignedTasks />} />
         <Route path="/employee/task-submission" element={<TaskSubmission />} />
         <Route path="/employee/mytask" element={<MyTasks />} />
         <Route path="/employee/profile" element={<Profile />} />
+         <Route path="/task/:id" element={<TaskDetailsPage />} />
 
         {/* Shared/Utility Routes */}
         <Route path="/updatetask/:id" element={<UpdateTaskForm />} />
       </Routes>
+  <ToastContainer position="top-center" autoClose={2000} />
+
+
+
     </>
   );
 }

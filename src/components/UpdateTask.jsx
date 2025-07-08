@@ -32,7 +32,7 @@ const UpdateTaskForm = () => {
             onSubmit={handleSubmit(onSubmit)}
             className="bg-white p-6 rounded-xl shadow-md max-w-md mx-auto mt-10 space-y-4"
         >
-            <h2 className="text-2xl font-bold text-center">✏️ Update Task</h2>
+            <h2 className="text-2xl font-bold text-center">Update Task</h2>
 
             <input
                 type="text"
@@ -82,3 +82,4 @@ const UpdateTaskForm = () => {
 };
 
 export default UpdateTaskForm;
+// not pop

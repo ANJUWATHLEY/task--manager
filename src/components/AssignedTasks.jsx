@@ -111,45 +111,49 @@ const AssignedTasks = () => {
 
               <div className="flex justify-end mt-2">
                 <div className="relative group">
-                  <button className="text-gray-500 hover:text-gray-800 text-xl">🔗</button>
+                <div className="relative group inline-block">
+  <button className="text-gray-500 hover:text-gray-800 text-xl focus:outline-none cursor-pointer">
+    🔗
+  </button>
 
-                  <div className="absolute bottom-full right-0 mb-3 w-64 bg-white border border-gray-200 rounded-lg shadow-lg p-4 z-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <p className="text-sm text-gray-700 mb-3 break-words">{task.url}</p>
+  <div className="absolute bottom-full right-0 mb-3 w-64 bg-white border border-gray-200 rounded-lg shadow-lg p-4 z-50 opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto transition-opacity duration-300">
+    <p className="text-sm text-gray-700 mb-3 break-words">{task.url}</p>
 
-                    <div className="flex justify-center items-center gap-3">
-                      <button
-                        title="Copy"
-                        onClick={() => copyToClipboard(task.url)}
-                        className="flex items-center justify-center bg-gray-100 hover:bg-gray-200 p-2 rounded text-gray-800"
-                      >
-                        <ClipboardCopy size={16} />
-                      </button>
+    <div className="flex justify-center items-center gap-3">
+      <button
+        title="Copy"
+        onClick={() => copyToClipboard(task.url)}
+        className="flex items-center justify-center bg-gray-100 hover:bg-gray-200 p-2 rounded text-gray-800"
+      >
+        <ClipboardCopy size={16} />
+      </button>
 
-                      <a
-                        href={`mailto:?subject=Check this task&body=Here is the link: ${task.url}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title="Email"
-                        className="flex items-center justify-center bg-blue-100 hover:bg-blue-200 p-2 rounded text-blue-700"
-                      >
-                        <Mail size={16} />
-                      </a>
+      <a
+        href={`mailto:?subject=Check this task&body=Here is the link: ${task.url}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        title="Email"
+        className="flex items-center justify-center bg-blue-100 hover:bg-blue-200 p-2 rounded text-blue-700"
+      >
+        <Mail size={16} />
+      </a>
 
-                      <a
-                        href={`https://wa.me/?text=Check%20this%20task:%20${task.url}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title="WhatsApp"
-                        className="flex items-center justify-center bg-green-100 hover:bg-green-200 p-2 rounded text-green-700"
-                      >
-                        <MessageCircleMore size={16} />
-                      </a>
-                    </div>
+      <a
+        href={`https://wa.me/?text=Check%20this%20task:%20${task.url}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        title="WhatsApp"
+        className="flex items-center justify-center bg-green-100 hover:bg-green-200 p-2 rounded text-green-700"
+      >
+        <MessageCircleMore size={16} />
+      </a>
+    </div>
 
-                    {copied && <p className="text-green-500 text-xs mt-2">✅ Link Copied!</p>}
-                  </div>
-                </div>
-              </div>
+    {copied && <p className="text-green-500 text-xs mt-2">✅ Link Copied!</p>}
+  </div>
+</div>
+  </div>
+   </div>
 
               <p className="text-gray-700 mt-1">{task.des}</p>
 
@@ -166,9 +170,6 @@ const AssignedTasks = () => {
                     {task.user_name || task.user?.user_name || '❌ Not Assigned'}
                   </span>
                 </p>
-
-     <p className="mt-2 font-medium text-gray-700">Priority:</p>
-
 <div className="flex items-center gap-3 mt-2">
   <p className="font-medium text-gray-700 mb-0">Priority:</p>
   {["High", "Medium", "Low"].map((level) => (
@@ -193,8 +194,6 @@ const AssignedTasks = () => {
     </label>
   ))}
 </div>
-
-
 
               </div>
 
@@ -228,4 +227,4 @@ const AssignedTasks = () => {
   );
 };
 
-export default AssignedTasks;
+export default AssignedTasks; 

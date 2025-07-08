@@ -14,7 +14,7 @@ const CreateTasksPage = () => {
       <div className="max-w-7xl mx-auto space-y-8">
         {role === 'admin' ? (
           <>
-            <h1 className="text-3xl font-bold text-center text-purple-700">Create & Assign Task</h1>
+      
             <TaskForm />
           </>
         ) : (

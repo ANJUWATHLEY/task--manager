@@ -1,11 +1,25 @@
 /* ✅ Fonts Google se sabse upar */
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed&display=swap');
-
+/* 
 /* ✅ TailwindCSS Import */
 @import "tailwindcss";
 
-/* ✅ Apna custom style baad me */
-body {
-  font-family: 'Roboto Condensed', sans-serif;
-}
+@layer base {
+  body {
+    font-family: Roboto Condensed , sans-serif;
+    background-color: #f9fafb; /* ✅ Tailwind slate-50 – soft and clean */
+    color: #1f2937;            /* Tailwind gray-800 for readable text */
 
+    /* Global Theme Tokens (optional but pro) */
+    --bg-primary: #f9fafb;
+    --bg-secondary: #ffffff;
+    --color-primary: #3b82f6;
+    --color-success: #10b981;
+    --color-warning: #f59e0b;
+    --color-danger: #ef4444;
+
+    font-size: 16px; 
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+}
