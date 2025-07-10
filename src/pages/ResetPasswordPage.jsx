@@ -19,9 +19,8 @@ const ResetPasswordPage = () => {
     }
 
     try {
+      console.log('Resetting password for:', email);
 
-      console.log(email ,newPassword);
-      
       await axios.put('/user/reset', {
         email,
         password: newPassword,
@@ -29,6 +28,7 @@ const ResetPasswordPage = () => {
 
       alert('✅ Password reset successful');
       localStorage.removeItem('reset_email');
+      localStorage.removeItem('reset_otp');
       navigate('/');
     } catch (err) {
       alert('❌ Failed to reset password');

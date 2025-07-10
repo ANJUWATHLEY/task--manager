@@ -18,6 +18,8 @@ const AdminDashboard = () => {
 
   const token = localStorage.getItem('token');
   const navigate = useNavigate();
+  const id = localStorage.getItem('id');
+  const role = localStorage.getItem('role');
 
 const handleLogout = () => {
   localStorage.removeItem('token');
@@ -37,6 +39,17 @@ const handleLogout = () => {
         const taskRes = await axios.get('/admin/alltask', {
           headers: { Authorization: `Bearer ${token}` },
         });
+      
+      const admindetail = await axios.get(`/admin/detail/${id}`, {
+  headers: { Authorization: `Bearer ${token}` }
+});
+
+console.log('📦 Admin detail:', admindetail.data);
+      
+
+
+
+
         const tasksData = Array.isArray(taskRes.data)
           ? taskRes.data
           : taskRes.data.tasks || [];
@@ -52,6 +65,15 @@ const handleLogout = () => {
 
     fetchData();
   }, [token]);
+
+
+
+
+
+
+
+
+
 
   const completedTasks = tasks.filter(task => task.status?.toLowerCase() === 'completed');
   const pendingTasks = tasks.filter(task => task.status?.toLowerCase() === 'pending');
@@ -121,11 +143,7 @@ const lowPriorityTasks = tasks.filter(task => task.priority?.toLowerCase() === '
 
       {/* Main Content */}
       <main className="flex-1 p-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard Overview</h1>
-          <p className="text-gray-600">Welcome back! Here's what's happening today.</p>
-        </div>
-
+       
         {/* Stat Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard

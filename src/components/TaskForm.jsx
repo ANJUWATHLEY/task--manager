@@ -8,9 +8,10 @@ const TaskForm = () => {
   const [users, setUsers] = useState([]);
   const [filterRole, setFilterRole] = useState('all');
   const [assignedUserIds, setAssignedUserIds] = useState([]);
-  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [selectedUserIds, setSelectedUserIds] = useState([]);
+  const hasFetchedOnce = useRef(false);
 
-  const hasFetchedOnce = useRef(false); // ✅ prevent double toast
+  const adminId = localStorage.getItem('id'); // ✅ Getting admin ID from localStorage
 
   const {
     register,
@@ -26,12 +27,12 @@ const TaskForm = () => {
         setUsers(res.data);
 
         if (!hasFetchedOnce.current) {
-          toast.success("✅ Users loaded successfully");
+          toast.success('✅ Users loaded successfully');
           hasFetchedOnce.current = true;
         }
       } catch (error) {
         console.error('❌ Failed to fetch users:', error);
-        toast.error("❌ Failed to load users");
+        toast.error('❌ Failed to load users');
       }
     };
 
@@ -39,32 +40,42 @@ const TaskForm = () => {
   }, []);
 
   const onSubmit = async (data) => {
-    if (!selectedUserId) {
-      toast.error('❌ Please select a user to assign the task.');
+    if (selectedUserIds.length === 0) {
+      toast.error('❌ Please select at least one user.');
       return;
     }
 
     const payload = {
       ...data,
-      userid: selectedUserId,
+      userids: selectedUserIds,
+      create_by: adminId,
     };
+
+    console.log('📦 Payload being sent to backend:', JSON.stringify(payload, null, 2));
 
     try {
       await axiosInstance.post('/admin/createtask', payload);
-      setAssignedUserIds((prev) => [...prev, selectedUserId]);
-      toast.success("✅ Task assigned successfully!");
+      setAssignedUserIds((prev) => [...prev, ...selectedUserIds]);
+      toast.success('✅ Task assigned successfully!');
 
       reset();
-      setSelectedUserId(null);
+      setSelectedUserIds([]);
     } catch (error) {
-      console.error('❌ Task assignment failed:', error);
+      console.error('❌ Task assignment failed:', error.response?.data || error.message);
       toast.error('❌ Failed to assign task. Please try again.');
     }
   };
 
-  const filteredUsers = users.filter(
-    (user) => filterRole === 'all' || user.role === filterRole
-  );
+  const filteredUsers = users.filter((user) => {
+    if (filterRole === 'all') return true;
+    return user.role?.toLowerCase() === filterRole.toLowerCase();
+  });
+
+  const toggleUserSelection = (id) => {
+    setSelectedUserIds((prev) =>
+      prev.includes(id) ? prev.filter((uid) => uid !== id) : [...prev, id]
+    );
+  };
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 w-full">
@@ -126,11 +137,11 @@ const TaskForm = () => {
         </select>
         {errors.role && <p className="text-red-500 text-sm">Role is required</p>}
 
-        <p className="text-center text-gray-600 text-sm">
-          ⬇️ Select a user to assign this task
+        <p className="text-sm text-blue-600 flex items-center gap-1">
+          👥 Select users from the right to assign task
         </p>
 
-        {selectedUserId && (
+        {selectedUserIds.length > 0 && (
           <button
             type="submit"
             className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded"
@@ -162,14 +173,14 @@ const TaskForm = () => {
 
               <button
                 className={`mt-4 flex items-center justify-center gap-2 text-sm w-full py-2 px-4 rounded ${
-                  selectedUserId === user.id
+                  selectedUserIds.includes(user.id)
                     ? 'bg-green-600 hover:bg-green-700 text-white'
                     : 'bg-purple-600 hover:bg-purple-700 text-white'
                 }`}
-                onClick={() => setSelectedUserId(user.id)}
+                onClick={() => toggleUserSelection(user.id)}
                 type="button"
               >
-                {selectedUserId === user.id ? (
+                {selectedUserIds.includes(user.id) ? (
                   <>
                     <CheckCircle size={18} />
                     Selected

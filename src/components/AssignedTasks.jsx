@@ -163,12 +163,12 @@ const AssignedTasks = () => {
                 <p>Deadline: <span className="text-red-500 font-medium">{task.deadline_date}</span></p>
                 <p>Role: {task.role}</p>
                 <p>
-                  Assigned To:{' '}
+                  {/* Assigned To:{' '}
                   <span
                     className={`font-semibold ${task.user_name ? 'text-green-600' : 'text-red-500'}`}
                   >
                     {task.user_name || task.user?.user_name || '❌ Not Assigned'}
-                  </span>
+                  </span> */}
                 </p>
 <div className="flex items-center gap-3 mt-2">
   <p className="font-medium text-gray-700 mb-0">Priority:</p>
@@ -200,19 +200,19 @@ const AssignedTasks = () => {
               {(role === 'manager' || role === 'admin') && (
                 <div className="flex gap-3 mt-4">
                   <button
-                    className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-1"
+                    className="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-2 rounded-lg text-sm flex items-center gap-1"
                     onClick={() => Navigate('/updatetask/' + task.id)}
                   >
                     <Pencil size={16} /> Update
                   </button>
                   <button
-                    className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-1"
+                    className="bg-red-500 hover:bg-red-600 text-white px-2 py-2 rounded-lg text-sm flex items-center gap-1"
                     onClick={() => taskdelete(task.id)}
                   >
                     <Trash2 size={16} /> Delete
                   </button>
                   <button
-                    className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-1"
+                    className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg text-sm flex items-center gap-1"
                     onClick={() => Navigate(`/admin/viewtask/${task.id}`, { state: { task } })}
                   >
                     View

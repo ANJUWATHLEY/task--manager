@@ -12,7 +12,7 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 import CompletedTasksPage from './pages/admin/CompletedTasksPage';
 import AdminDashboard from './pages/admin/Dashboard';
 import ManageUsers from './pages/admin/ManageUsers';
-import ViewReports from './pages/admin/ViewReports';
+
 import CreateTasksPage from './pages/admin/CreateTasksPage';
 import ViewTasksPage from './pages/admin/ViewTasksPage';
 import User from './pages/admin/User';
@@ -25,7 +25,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import ManagerDashboard from './pages/manager/Dashboard';
 import TaskForm from './pages/manager/TaskForm';
 import TeamView from './pages/manager/TeamView';
-
+import GroupTasksPage from './pages/admin/GroupTasksPage';
 import EmployeeDashboard from './pages/employee/Dashboard';
 import TaskSubmission from './pages/employee/TaskSubmission';
 import MyTasks from './pages/employee/MyTasks';
@@ -34,7 +34,7 @@ import TaskDetailsPage from './pages/employee/TaskDetailsPage';
 import AssignedTasks from './components/AssignedTasks';
 import UpdateTaskForm from './components/UpdateTask';
 import ManagerNavbar from './components/ManagerNavbar';
-
+import AdminProfile from './pages/admin/AdminProfile';
 import AdminTopBar from './components/AdminTopBar';
 function App() {
   const location = useLocation();
@@ -85,16 +85,20 @@ function App() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="manage-users" element={<ManageUsers />} />
-          <Route path="view-reports" element={<ViewReports />} />
+         
           <Route path="tasks" element={<CreateTasksPage />} />
           <Route path="view-tasks" element={<ViewTasksPage />} />
         <Route path="/admin/user" element={<User />} />
         <Route path="/admin/completed-tasks" element={<CompletedTasksPage />} /> 
+         <Route path="/admin/group-tasks" element={<  GroupTasksPage />} />
+         <Route path="/admin/detail" element={<AdminProfile />} />
          </Route>
         <Route path="/invite/:token" element={<InviteTaskPage />} />
         <Route path="/admin/viewtask/:taskId" element={<ViewSingleTask />} />
-          
-
+        <Route path="/admin/detail" element={<AdminProfile />} />
+        
+       
+         
 
         {/* Manager Routes */}
         <Route path="/manager/dashboard" element={<ManagerDashboard />} />

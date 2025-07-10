@@ -1,3 +1,4 @@
+// 📁 pages/ForgotPasswordFlow.jsx
 import { useState } from 'react';
 import axios from '../api/axiosInstance';
 import { useNavigate } from 'react-router-dom';
@@ -12,33 +13,30 @@ const ForgotPasswordFlow = () => {
     if (!email) return alert('Please enter your email.');
 
     try {
-       const res =  await axios.put('/user/forgot', { email });
-console.log(res);
-     
-        localStorage.setItem('reset_otp', String(res.data));
+      const res = await axios.put('/user/forgot', { email });
+      console.log(res);
+
+      localStorage.setItem('reset_otp', String(res.data));
+      localStorage.setItem('reset_email', email); // ✅ email store karna zaroori hai
 
       alert('✅ OTP sent to your email');
-      setStep(2); // move to next step
+      setStep(2);
     } catch (err) {
       alert('❌ Error sending OTP');
+      console.error(err);
     }
   };
 
   const handleVerifyOtp = () => {
-  try {
-    const storedOtp = localStorage.getItem('reset_otp'); 
+    const storedOtp = localStorage.getItem('reset_otp');
+
     if (storedOtp === otp) {
       alert('✅ OTP verified');
       navigate('/reset-password');
     } else {
       alert('❌ Invalid OTP');
     }
-  } catch (err) {
-    alert('❌ Something went wrong during verification');
-    console.error(err);
-  }
-};
-
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">

@@ -22,7 +22,23 @@ const LoginForm = () => {
       setPassword('');
 
       if (user.role === 'admin') {
-        navigate('/admin/dashboard');
+       if (user.role === 'admin') {
+  // 👇 Send admin id + role to backend (optional API for profile init or logging)
+  // await axios.post('/admin/detail', {
+  
+  //   id: user.id,
+  //   role: user.role,
+  // }, {
+  //   headers: { Authorization: `Bearer ${token}` }
+  // });
+  // console.log('✅ Admin Info Sent:', res.data);
+  navigate('/admin/dashboard');
+}
+
+
+
+
+
       } else if (user.role === 'employee') {
         navigate('/employee/dashboard');
       } else {
