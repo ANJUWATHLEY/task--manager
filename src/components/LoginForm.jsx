@@ -17,21 +17,13 @@ const LoginForm = () => {
       localStorage.setItem('role', user.role);
       localStorage.setItem('id', user.id);
 
-      alert('Login successful ✅');
+      alert('Login successful ');
       setEmail('');
       setPassword('');
 
       if (user.role === 'admin') {
        if (user.role === 'admin') {
-  // 👇 Send admin id + role to backend (optional API for profile init or logging)
-  // await axios.post('/admin/detail', {
-  
-  //   id: user.id,
-  //   role: user.role,
-  // }, {
-  //   headers: { Authorization: `Bearer ${token}` }
-  // });
-  // console.log('✅ Admin Info Sent:', res.data);
+
   navigate('/admin/dashboard');
 }
 
@@ -45,7 +37,7 @@ const LoginForm = () => {
         navigate('/dashboard');
       }
     } catch (err) {
-      console.error('❌ Login Error:', err.response?.data || err.message);
+      console.error(' Login Error:', err.response?.data || err.message);
       alert('Login failed! Check your credentials.');
     }
   };

@@ -1,23 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { Search, User } from 'lucide-react';
 import axiosInstance from '../api/axiosInstance';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const AdminTopBar = () => {
   const [data, setData] = useState('');
   const [allTasks, setAllTasks] = useState([]);
   const [filteredTasks, setFilteredTasks] = useState([]);
+  const navigate = useNavigate();
 
-  // Fetch tasks from API
   const fetchTasks = async () => {
     try {
       const res = await axiosInstance.get('/admin/alltask');
-      const tasks = Array.isArray(res.data) ? res.data : res.data.tasks || [];
-      console.log('🔎 All Tasks:', tasks);
+
+      const tasks = Array.isArray(res.data?.tasks)
+        ? res.data.tasks
+        : Array.isArray(res.data)
+        ? res.data
+        : [];
+
+      console.log('Fetched tasks:', tasks); // DEBUG
       setAllTasks(tasks);
-      setFilteredTasks(tasks); // show all initially
+      setFilteredTasks(tasks);
     } catch (error) {
-      console.error('❌ Fetch error:', error.message);
+      console.error('Fetch error:', error.message);
     }
   };
 
@@ -25,45 +31,43 @@ const AdminTopBar = () => {
     fetchTasks();
   }, []);
 
-  // Handle search input
   const handleSearch = (query) => {
     const lower = query.toLowerCase();
-
-    const filtered = allTasks.filter((task) => {
-      const title = task.title?.toLowerCase() || '';
-      const status = task.status?.toLowerCase() || '';
-      const priority = task.priority?.toLowerCase() || '';
-      const user = task.user_name?.toLowerCase() || '';
-      const description = task.description?.toLowerCase() || '';
-
-      return (
-        title.includes(lower) ||
-        status.includes(lower) ||
-        priority.includes(lower) ||
-        user.includes(lower) ||
-        description.includes(lower)
-      );
-    });
-
+    const filtered = allTasks.filter((task) =>
+      task.title?.toLowerCase().includes(lower) ||
+      task.status?.toLowerCase().includes(lower) ||
+      task.priority?.toLowerCase().includes(lower) ||
+      task.user_name?.toLowerCase().includes(lower) ||
+      task.des?.toLowerCase().includes(lower) // Use `des` if `description` isn't correct
+    );
     setFilteredTasks(filtered);
-    console.log('🔍 Search Query:', lower);
-    console.log('Filtered Results:', filtered);
   };
 
   const handleInputChange = (e) => {
     const value = e.target.value;
     setData(value);
-    handleSearch(value); // Real-time search
+    console.log('Search input:', value); // DEBUG
+    handleSearch(value);
+  };
+
+  const handleSearchClick = (task) => {
+    const status = task.status?.toLowerCase();
+
+    if (status === 'pending' || status === 'inprocess' || status === 'completed') {
+      navigate(`/admin/view-tasks#${status}`);
+    } else {
+      navigate(`/admin/viewtask/${task.id}`, { state: { task } });
+    }
+
+    setData('');
   };
 
   return (
-    <div className="w-full">
-      {/* Top Header */}
+    <div className="relative w-full z-50">
       <header className="w-full bg-[#2c1c80] py-3 px-6 flex items-center justify-between shadow-md relative">
         <div className="text-white font-bold text-lg">Task Manager</div>
 
-        {/* Centered Search Bar */}
-        <div className="absolute left-1/2 transform -translate-x-1/2 w-full max-w-md">
+        <div className="absolute left-1/2 transform -translate-x-1/2 w-full max-w-xl">
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -82,29 +86,31 @@ const AdminTopBar = () => {
           </form>
         </div>
 
-        {/* Admin Profile Link */}
         <Link
           to="/admin/detail"
           className="flex items-center gap-2 text-white hover:text-yellow-300 transition-all duration-150"
         >
           <User size={20} />
-          <span className="text-sm font-medium"></span>
         </Link>
       </header>
 
-      {/* Search Results */}
       {data.trim() && (
-        <div className="mt-4 bg-white p-4 rounded shadow text-black mx-4">
+        <div className="absolute top-[70px] left-1/2 transform -translate-x-1/2 w-full max-w-xl bg-white p-4 rounded shadow text-black z-50 max-h-96 overflow-y-auto">
           <h2 className="font-semibold mb-2 text-lg">
-            Search Results: ({filteredTasks.length})
+            Search Results ({filteredTasks.length})
           </h2>
+
           {filteredTasks.length === 0 ? (
             <p>No tasks found.</p>
           ) : (
             <ul className="space-y-1">
               {filteredTasks.map((task) => (
-                <li key={task.id} className="border-b pb-1">
-                  <strong>{task.title}</strong> — {task.status} — {task.description}
+                <li
+                  key={task.id}
+                  onClick={() => handleSearchClick(task)}
+                  className="border-b pb-1 cursor-pointer hover:bg-gray-100 px-2 py-1 rounded"
+                >
+                  <strong>{task.title}</strong> — {task.status} — {task.des}
                 </li>
               ))}
             </ul>

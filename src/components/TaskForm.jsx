@@ -41,7 +41,7 @@ const TaskForm = () => {
 
   const onSubmit = async (data) => {
     if (selectedUserIds.length === 0) {
-      toast.error('❌ Please select at least one user.');
+      toast.error('Please select at least one user.');
       return;
     }
 
@@ -51,7 +51,7 @@ const TaskForm = () => {
       create_by: adminId,
     };
 
-    console.log('📦 Payload being sent to backend:', JSON.stringify(payload, null, 2));
+    console.log('Payload being sent to backend:', JSON.stringify(payload, null, 2));
 
     try {
       await axiosInstance.post('/admin/createtask', payload);
@@ -61,8 +61,8 @@ const TaskForm = () => {
       reset();
       setSelectedUserIds([]);
     } catch (error) {
-      console.error('❌ Task assignment failed:', error.response?.data || error.message);
-      toast.error('❌ Failed to assign task. Please try again.');
+      console.error(' Task assignment failed:', error.response?.data || error.message);
+      toast.error(' Failed to assign task. Please try again.');
     }
   };
 

@@ -11,7 +11,7 @@ const ManagerNavbar = () => {
   return (
     <nav className="flex justify-between items-center px-6 py-4 bg-white shadow-md">
       <Link to="/manager/dashboard" className="text-2xl font-bold text-blue-600">
-        👨‍💼 Manager Panel
+         Manager Panel
       </Link>
       <div className="space-x-6 text-gray-700 font-medium">
         <Link to="/manager/dashboard">Dashbord</Link>

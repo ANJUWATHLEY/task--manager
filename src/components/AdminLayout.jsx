@@ -56,9 +56,9 @@ const AdminLayout = () => {
         </nav>
       </aside>
 
-      {/* ✅ Page Content */}
+     
       <main className="flex-1 p-6 overflow-y-auto">
-        <Outlet /> {/* ✅ This will render the current page here only */}
+        <Outlet />
       </main>
     </div>
   );

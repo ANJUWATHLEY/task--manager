@@ -58,7 +58,7 @@ const TaskList = () => {
                   Role: <span className="text-blue-600">{user.role}</span>
                 </p>
                 <p className={`font-medium mt-1 ${isAssigned ? 'text-green-600' : 'text-red-500'}`}>
-                  {isAssigned ? '✅ Task Assigned' : '❌ No Task Assigned'}
+                  {isAssigned ? ' Task Assigned' : ' No Task Assigned'}
                 </p>
               </div>
             );

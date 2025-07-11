@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from '../../api/axiosInstance';
 import { useForm } from 'react-hook-form';
 import { Pencil } from 'lucide-react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const AdminProfile = () => {
   const [admin, setAdmin] = useState(null);
@@ -17,7 +19,6 @@ const AdminProfile = () => {
     formState: { errors },
   } = useForm();
 
-  // Fetch admin detail
   useEffect(() => {
     const fetchAdmin = async () => {
       try {
@@ -34,21 +35,39 @@ const AdminProfile = () => {
         }
       } catch (err) {
         console.error('❌ Error fetching admin detail:', err);
+        toast.error('Failed to load admin profile.');
       }
     };
     fetchAdmin();
-  }, [id, token, reset]);
+  }, []);
 
   const onSubmit = async (data) => {
+    const payload = {
+      name: data.user_name?.trim(),
+    };
+
     try {
-      const res = await axios.put(`/admin/update/${id}`, data, {
+      const res = await axios.put(`/admin/updatedetail/${id}`, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setAdmin({ ...admin, ...data });
+
+      const updatedAdmin = {
+        ...admin,
+        user_name: payload.name,
+      };
+
+      setAdmin(updatedAdmin);
+      reset({
+        user_name: updatedAdmin.user_name,
+        email: updatedAdmin.email,
+        number: updatedAdmin.number,
+      });
+
       setEditing(false);
-      console.log('✅ Updated:', res.data);
+      toast.success('✅ Profile updated successfully!');
     } catch (err) {
       console.error('❌ Update failed:', err);
+      toast.error('❌ Failed to update profile.');
     }
   };
 
@@ -56,73 +75,75 @@ const AdminProfile = () => {
 
   return (
     <div className="max-w-xl mx-auto mt-10 bg-white shadow-lg rounded-xl p-6">
+      <ToastContainer position="top-right" autoClose={3000} />
       <h2 className="text-2xl font-bold mb-6 text-center text-[#2c1c80]">Admin Profile</h2>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        {/* Username */}
         <div>
           <label className="font-semibold block mb-1">Username</label>
           <input
             type="text"
             disabled={!editing}
             {...register('user_name', { required: 'Username is required' })}
-            className={`w-full px-3 py-2 border rounded ${
-              errors.user_name ? 'border-red-500' : 'border-gray-300'
-            }`}
+            className={`w-full px-3 py-2 border rounded transition duration-300 focus:outline-none ${
+              editing
+                ? 'bg-white border-blue-500 focus:ring-2 focus:ring-blue-200'
+                : 'bg-gray-100 cursor-not-allowed'
+            } ${errors.user_name ? 'border-red-500' : ''}`}
           />
           {errors.user_name && (
             <p className="text-red-500 text-sm mt-1">{errors.user_name.message}</p>
           )}
         </div>
 
+        {/* Email */}
         <div>
           <label className="font-semibold block mb-1">Email</label>
           <input
             type="email"
-            disabled={!editing}
-            {...register('email', {
-              required: 'Email is required',
-              pattern: {
-                value: /\S+@\S+\.\S+/,
-                message: 'Invalid email address',
-              },
-            })}
-            className={`w-full px-3 py-2 border rounded ${
-              errors.email ? 'border-red-500' : 'border-gray-300'
-            }`}
+            disabled
+            {...register('email')}
+            className="w-full px-3 py-2 border rounded bg-gray-100"
           />
-          {errors.email && (
-            <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
-          )}
         </div>
 
+        {/* Mobile Number */}
         <div>
           <label className="font-semibold block mb-1">Mobile Number</label>
           <input
             type="text"
-            disabled={!editing}
-            {...register('number', {
-              pattern: {
-                value: /^[0-9]{10}$/,
-                message: 'Enter valid 10-digit mobile number',
-              },
-            })}
-            className={`w-full px-3 py-2 border rounded ${
-              errors.number ? 'border-red-500' : 'border-gray-300'
-            }`}
+            disabled
+            {...register('number')}
+            className="w-full px-3 py-2 border rounded bg-gray-100"
           />
-          {errors.number && (
-            <p className="text-red-500 text-sm mt-1">{errors.number.message}</p>
-          )}
         </div>
 
-        <div className="text-right mt-4">
+        {/* Buttons */}
+        <div className="mt-4">
           {editing ? (
-            <button
-              type="submit"
-              className="bg-[#2c1c80] text-white px-4 py-2 rounded hover:bg-[#1e1460]"
-            >
-              Save Changes
-            </button>
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  reset({
+                    user_name: admin.user_name,
+                    email: admin.email,
+                    number: admin.number,
+                  });
+                  setEditing(false);
+                }}
+                className="bg-gray-200 text-gray-800 px-4 py-2 rounded hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="bg-[#2c1c80] text-white px-4 py-2 rounded hover:bg-[#1e1460]"
+              >
+                Save Changes
+              </button>
+            </div>
           ) : (
             <button
               type="button"

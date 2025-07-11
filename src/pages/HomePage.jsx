@@ -29,7 +29,7 @@ const HomePage = () => {
             >
               <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <span className="relative z-10 flex items-center justify-center">
-                <span className="mr-2">✨</span>
+                <span className="mr-2"></span>
                 Get Started Free
                 <span className="ml-2">→</span>
               </span>
@@ -41,7 +41,7 @@ const HomePage = () => {
               className="group px-8 py-4 rounded-xl border-2 border-gray-200 text-gray-700 font-semibold hover:border-purple-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 hover:text-purple-700 transform hover:scale-105 transition-all duration-300 shadow-md hover:shadow-lg"
             >
               <span className="flex items-center justify-center">
-                <span className="mr-2">🔐</span>
+                <span className="mr-2"></span>
                 Login
                 <span className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">→</span>
               </span>
@@ -49,7 +49,7 @@ const HomePage = () => {
           </div>
 
           <p className="mt-4 text-sm text-gray-500">
-            ⭐ 25,000+ reviews from trusted users
+            25,000+ reviews from trusted users
           </p>
         </div>
 

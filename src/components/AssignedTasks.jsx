@@ -32,7 +32,7 @@ const AssignedTasks = () => {
 
       setTasks(Formattasks);
     } catch (err) {
-      console.error('❌ Task Fetch Error:', err.response?.data || err.message);
+      console.error(' Task Fetch Error:', err.response?.data || err.message);
     }
   };
 
@@ -42,10 +42,10 @@ const AssignedTasks = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       fetchTasks();
-      alert('✅ Delete Successfully');
+      alert(' Delete Successfully');
     } catch (error) {
-      console.error('❌ Delete Error:', error.response?.data || error.message);
-      alert('❌ Failed to delete');
+      console.error(' Delete Error:', error.response?.data || error.message);
+      alert('Failed to delete');
     }
   };
 
@@ -55,14 +55,14 @@ const AssignedTasks = () => {
   try {
     await axios.put(
       `/admin/priority/${taskId}`,
-      { priority: priorityLevel }, // ✅ wrapped in object
+      { priority: priorityLevel }, 
       {
         headers: { Authorization: `Bearer ${token}` },
       }
     );
     fetchTasks();
   } catch (error) {
-    console.error('❌ Error updating task priority:', error.response?.data || error.message);
+    console.error(' Error updating task priority:', error.response?.data || error.message);
     alert('Failed to update task priority.');
   }
 };
@@ -162,14 +162,8 @@ const AssignedTasks = () => {
                 <p>Assign Date: {task.assign_date}</p>
                 <p>Deadline: <span className="text-red-500 font-medium">{task.deadline_date}</span></p>
                 <p>Role: {task.role}</p>
-                <p>
-                  {/* Assigned To:{' '}
-                  <span
-                    className={`font-semibold ${task.user_name ? 'text-green-600' : 'text-red-500'}`}
-                  >
-                    {task.user_name || task.user?.user_name || '❌ Not Assigned'}
-                  </span> */}
-                </p>
+                
+                 
 <div className="flex items-center gap-3 mt-2">
   <p className="font-medium text-gray-700 mb-0">Priority:</p>
   {["High", "Medium", "Low"].map((level) => (

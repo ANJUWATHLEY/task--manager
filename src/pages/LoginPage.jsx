@@ -17,7 +17,6 @@ const LoginPage = () => {
         </Link>
       </p>
     </div>
-  );
-};
+  );};
 
 export default LoginPage;
