@@ -84,7 +84,7 @@ const TaskForm = () => {
         onSubmit={handleSubmit(onSubmit)}
         className="bg-white w-full lg:w-1/2 p-6 rounded-xl shadow-md space-y-5 border border-gray-200"
       >
-        <h2 className="text-2xl font-bold text-center text-purple-700">Assign Task</h2>
+        <h2 className="text-2xl font-bold text-center text-black-700">Assign Task</h2>
 
         <input
           {...register('title', { required: true })}
@@ -137,10 +137,7 @@ const TaskForm = () => {
         </select>
         {errors.role && <p className="text-red-500 text-sm">Role is required</p>}
 
-        <p className="text-sm text-blue-600 flex items-center gap-1">
-          👥 Select users from the right to assign task
-        </p>
-
+      
         {selectedUserIds.length > 0 && (
           <button
             type="submit"
@@ -153,7 +150,7 @@ const TaskForm = () => {
 
       {/* Right: Scrollable User Cards */}
       <div className="w-full lg:w-1/2 max-h-[600px] overflow-y-auto bg-white p-6 rounded-xl shadow-md border border-gray-200">
-        <h2 className="text-2xl font-bold mb-4 text-purple-700">Available Users</h2>
+        <h2 className="text-2xl font-bold mb-4 text-black-700">Available Users</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {filteredUsers.map((user) => (
             <div
@@ -166,7 +163,7 @@ const TaskForm = () => {
                 </div>
               )}
 
-              <h2 className="text-lg font-bold text-purple-700">{user.user_name}</h2>
+              <h2 className="text-lg font-bold text-black-700">{user.user_name}</h2>
               <p className="text-sm text-gray-600 mt-2">
                 Role: <span className="text-blue-600 font-semibold">{user.role}</span>
               </p>
@@ -175,7 +172,7 @@ const TaskForm = () => {
                 className={`mt-4 flex items-center justify-center gap-2 text-sm w-full py-2 px-4 rounded ${
                   selectedUserIds.includes(user.id)
                     ? 'bg-green-600 hover:bg-green-700 text-white'
-                    : 'bg-purple-600 hover:bg-purple-700 text-white'
+                    : 'bg-blue-700 hover:bg-blue-900 text-white'
                 }`}
                 onClick={() => toggleUserSelection(user.id)}
                 type="button"

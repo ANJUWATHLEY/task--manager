@@ -3,15 +3,31 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+
+    <!-- ✅ Font preconnects -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- ✅ Google Font (Only once) -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+    <!-- ✅ Responsive design -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
     <title>Vite + React</title>
+
+    <!-- ✅ Main CSS file -->
     <link href="src/index.css" rel="stylesheet">
+
+    <!-- ✅ Global layout fix -->
+    <style>
+      html, body, #root {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
   </head>
-  <style>
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap');
-</style>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>

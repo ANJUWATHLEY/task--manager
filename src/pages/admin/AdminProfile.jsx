@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../../api/axiosInstance';
 import { useForm } from 'react-hook-form';
-import { Pencil } from 'lucide-react';
+import { Pencil, User, Mail, Phone, MapPin, VenetianMask ,ArrowLeft} from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const AdminProfile = () => {
   const [admin, setAdmin] = useState(null);
   const [editing, setEditing] = useState(false);
+  const [profileImage, setProfileImage] = useState(null); // local image file
+  const navigate = useNavigate();
 
   const id = localStorage.getItem('id');
   const token = localStorage.getItem('token');
@@ -31,6 +34,8 @@ const AdminProfile = () => {
             user_name: res.data[0].user_name,
             email: res.data[0].email,
             number: res.data[0].number || '',
+            address: res.data[0].address || '',
+            gender: res.data[0].gender || '',
           });
         }
       } catch (err) {
@@ -44,6 +49,8 @@ const AdminProfile = () => {
   const onSubmit = async (data) => {
     const payload = {
       name: data.user_name?.trim(),
+      address: data.address?.trim(),
+      gender: data.gender,
     };
 
     try {
@@ -54,6 +61,8 @@ const AdminProfile = () => {
       const updatedAdmin = {
         ...admin,
         user_name: payload.name,
+        address: payload.address,
+        gender: payload.gender,
       };
 
       setAdmin(updatedAdmin);
@@ -61,6 +70,8 @@ const AdminProfile = () => {
         user_name: updatedAdmin.user_name,
         email: updatedAdmin.email,
         number: updatedAdmin.number,
+        address: updatedAdmin.address,
+        gender: updatedAdmin.gender,
       });
 
       setEditing(false);
@@ -74,14 +85,29 @@ const AdminProfile = () => {
   if (!admin) return <p className="text-center mt-10">Loading profile...</p>;
 
   return (
-    <div className="max-w-xl mx-auto mt-10 bg-white shadow-lg rounded-xl p-6">
+
+
+
+    
+    <div className="max-w-xl mx-auto  bg-white shadow-lg rounded-xl p-5">
+
+ <ArrowLeft
+    className="w-5 h-5 text-gray-600 cursor-pointer hover:text-[#2c1c80]"
+    onClick={() => navigate(-1)} // or navigate('/admin/dashboard')
+  />
+
       <ToastContainer position="top-right" autoClose={3000} />
       <h2 className="text-2xl font-bold mb-6 text-center text-[#2c1c80]">Admin Profile</h2>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+    
+
         {/* Username */}
         <div>
-          <label className="font-semibold block mb-1">Username</label>
+          <label className="font-semibold block mb-1 flex items-center gap-2 text-gray-700">
+            <User className="w-4 h-4 text-gray-600" />
+            Username
+          </label>
           <input
             type="text"
             disabled={!editing}
@@ -99,7 +125,10 @@ const AdminProfile = () => {
 
         {/* Email */}
         <div>
-          <label className="font-semibold block mb-1">Email</label>
+          <label className="font-semibold block mb-1 flex items-center gap-2 text-gray-700">
+            <Mail className="w-4 h-4 text-gray-600" />
+            Email
+          </label>
           <input
             type="email"
             disabled
@@ -110,13 +139,56 @@ const AdminProfile = () => {
 
         {/* Mobile Number */}
         <div>
-          <label className="font-semibold block mb-1">Mobile Number</label>
+          <label className="font-semibold block mb-1 flex items-center gap-2 text-gray-700">
+            <Phone className="w-4 h-4 text-gray-600" />
+            Mobile Number
+          </label>
           <input
             type="text"
             disabled
             {...register('number')}
             className="w-full px-3 py-2 border rounded bg-gray-100"
           />
+        </div>
+
+        {/* Address */}
+        <div>
+          <label className="font-semibold block mb-1 flex items-center gap-2 text-gray-700">
+            <MapPin className="w-4 h-4 text-gray-600" />
+            Address
+          </label>
+          <input
+            type="text"
+            disabled={!editing}
+            {...register('address')}
+            className={`w-full px-3 py-2 border rounded transition duration-300 focus:outline-none ${
+              editing
+                ? 'bg-white border-blue-500 focus:ring-2 focus:ring-blue-200'
+                : 'bg-gray-100 cursor-not-allowed'
+            }`}
+          />
+        </div>
+
+        {/* Gender */}
+        <div>
+          <label className="font-semibold block mb-1 flex items-center gap-2 text-gray-700">
+            <VenetianMask className="w-4 h-4 text-gray-600" />
+            Gender
+          </label>
+          <select
+            disabled={!editing}
+            {...register('gender')}
+            className={`w-full px-3 py-2 border rounded transition duration-300 focus:outline-none ${
+              editing
+                ? 'bg-white border-blue-500 focus:ring-2 focus:ring-blue-200'
+                : 'bg-gray-100 cursor-not-allowed'
+            }`}
+          >
+            <option value="">Select Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
         </div>
 
         {/* Buttons */}
@@ -130,6 +202,8 @@ const AdminProfile = () => {
                     user_name: admin.user_name,
                     email: admin.email,
                     number: admin.number,
+                    address: admin.address,
+                    gender: admin.gender,
                   });
                   setEditing(false);
                 }}
@@ -159,4 +233,4 @@ const AdminProfile = () => {
   );
 };
 
-export default AdminProfile;
+export default AdminProfile; 
