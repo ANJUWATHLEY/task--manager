@@ -109,7 +109,7 @@ const AssignedTasks = () => {
   return (
     <div className="p-6 min-h-screen bg-gradient-to-br from-gray-50 to-purple-100">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-blue-700">Assigned Tasks</h2>
+        <h2 className="text-2xl font-bold text-blue-700"></h2>
         <div className="flex items-center gap-2 bg-white rounded-full px-3 py-1 shadow text-sm flex-wrap">
           <button onClick={() => setFilter('all')} className={`px-3 py-1 rounded-full font-bold cursor-pointer ${filter === 'all' ? 'bg-blue-600 text-white' : 'text-gray-600'}`}>
             All ({tasks.length})

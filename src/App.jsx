@@ -33,9 +33,10 @@ import Profile from './pages/employee/Profile';
 import TaskDetailsPage from './pages/employee/TaskDetailsPage';
 import AssignedTasks from './components/AssignedTasks';
 import UpdateTaskForm from './components/UpdateTask';
-import ManagerNavbar from './components/ManagerNavbar';
+
 import AdminProfile from './pages/admin/AdminProfile';
 import AdminTopBar from './components/AdminTopBar';
+import ManagerLayout from './components/ManagerLayout';
 function App() {
   const location = useLocation();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -63,7 +64,7 @@ function App() {
 
   if (role === 'employee') return <EmployeeNavbar />;
   if (role === 'admin') return <AdminTopBar />;
-  if (role === 'manager') return <ManagerNavbar />;
+
 
   return null;
 };
@@ -100,10 +101,14 @@ function App() {
        
          
 
-        {/* Manager Routes */}
-        <Route path="/manager/dashboard" element={<ManagerDashboard />} />
-        <Route path="/manager/task-form" element={<TaskForm />} />
-        <Route path="/manager/team-view" element={<TeamView />} />
+       
+<Route path="/manager" element={<ManagerLayout />}>
+  <Route path="dashboard" element={<ManagerDashboard />} />  
+  <Route path="task-form" element={<TaskForm />} />
+  <Route path="team-view" element={<TeamView />} />
+</Route>
+
+
         
 
         {/* Employee Routes */}

@@ -11,19 +11,20 @@ const GroupTaskList = () => {
 
   const fetchTasks = async () => {
     try {
-      const res = await axios.get('/admin/alltask', {
+      const res = await axios.get('/admin/grouptask', {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      const tasks = Array.isArray(res.data) ? res.data : res.data.tasks || [];
+      const tasks = res.data.multipleAssignedTasks || [];
 
       const formatted = tasks
         .map((item) => ({
           ...item,
           assign_date: item.assign_date?.split('T')[0] || '',
           deadline_date: item.deadline_date?.split('T')[0] || '',
+          assigned_users: item.assigned_users || [],
         }))
-        .filter((task) => Array.isArray(task.userids) && task.userids.length > 1); // ✅ Only group tasks
+        .filter((task) => Array.isArray(task.assigned_users) && task.assigned_users.length > 1);
 
       setGroupTasks(formatted);
     } catch (err) {
@@ -37,9 +38,10 @@ const GroupTaskList = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`/admin/taskdelete/${id}`, {
+      await axios.delete(`/admin/deletegrouptask/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       fetchTasks();
       alert('✅ Deleted');
     } catch (error) {
@@ -59,7 +61,7 @@ const GroupTaskList = () => {
 
   return (
     <div className="p-6 min-h-screen bg-gradient-to-br from-gray-50 to-purple-100">
-      <h2 className="text-2xl font-bold text-purple-700 mb-6">👥 Group Assigned Tasks</h2>
+      <h2 className="text-2xl font-bold text-purple-700 mb-6">Group Assigned Tasks</h2>
 
       {groupTasks.length === 0 ? (
         <p className="text-gray-500">No group tasks assigned yet.</p>
@@ -68,18 +70,22 @@ const GroupTaskList = () => {
           {groupTasks.map((task) => (
             <li key={task.id} className="bg-white border rounded-xl shadow-md p-5">
               <h3 className="text-xl font-semibold text-purple-700">{task.title}</h3>
-              <p className="text-gray-700 mt-1">{task.des}</p>
+             onClick={() => navigate('/admin/user' + task.id)}
+              <p className="text-gray-700 mt-1">{task.description}</p>
 
               <div className="mt-3 text-sm text-gray-600 space-y-1">
                 <p>Status: <span className="font-medium text-black">{task.status}</span></p>
+                <p>Priority: <span className="text-purple-700 font-semibold">{task.priority}</span></p>
                 <p>Assign Date: {task.assign_date}</p>
                 <p>Deadline: <span className="text-red-500">{task.deadline_date}</span></p>
                 <p>Role: {task.role}</p>
 
-                <p>Assigned User IDs:</p>
+                <p className="mt-2">Assigned Users:</p>
                 <ul className="list-disc ml-6 text-blue-700">
-                  {task.userids.map((id, index) => (
-                    <li key={index}>User ID: {id}</li>
+                  {task.assigned_users.map((user, index) => (
+                    <li key={index}>
+                      {user.name ? `${user.name} (ID: ${user.id})` : `User ID: ${user.id}`}
+                    </li>
                   ))}
                 </ul>
               </div>
@@ -107,7 +113,7 @@ const GroupTaskList = () => {
                 </button>
 
                 <button
-                  onClick={() => handleCopy(task.url)}
+                  onClick={() => handleCopy(task.url || '')}
                   className="bg-gray-200 hover:bg-gray-300 text-sm px-2 py-1 rounded flex items-center gap-1"
                 >
                   <ClipboardCopy size={16} />
