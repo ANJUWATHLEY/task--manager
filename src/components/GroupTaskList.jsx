@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../api/axiosInstance';
-import { ClipboardCopy, Trash2, Pencil, Mail, MessageCircleMore } from 'lucide-react';
+import {
+  ClipboardCopy,
+  Trash2,
+  Pencil,
+  Mail,
+  MessageCircleMore,
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const GroupTaskList = () => {
@@ -24,7 +30,11 @@ const GroupTaskList = () => {
           deadline_date: item.deadline_date?.split('T')[0] || '',
           assigned_users: item.assigned_users || [],
         }))
-        .filter((task) => Array.isArray(task.assigned_users) && task.assigned_users.length > 1);
+        .filter(
+          (task) =>
+            Array.isArray(task.assigned_users) &&
+            task.assigned_users.length > 1
+        );
 
       setGroupTasks(formatted);
     } catch (err) {
@@ -43,9 +53,9 @@ const GroupTaskList = () => {
       });
 
       fetchTasks();
-      alert('✅ Deleted');
+      alert('Deleted');
     } catch (error) {
-      alert('❌ Failed to delete');
+      alert('Failed to delete');
     }
   };
 
@@ -61,33 +71,73 @@ const GroupTaskList = () => {
 
   return (
     <div className="p-6 min-h-screen bg-gradient-to-br from-gray-50 to-purple-100">
-      <h2 className="text-2xl font-bold text-purple-700 mb-6">Group Assigned Tasks</h2>
+      <h2 className="text-2xl font-bold text-purple-700 mb-6">
+        Group Assigned Tasks
+      </h2>
 
       {groupTasks.length === 0 ? (
         <p className="text-gray-500">No group tasks assigned yet.</p>
       ) : (
         <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {groupTasks.map((task) => (
-            <li key={task.id} className="bg-white border rounded-xl shadow-md p-5">
-              <h3 className="text-xl font-semibold text-purple-700">{task.title}</h3>
-             onClick={() => navigate('/admin/user' + task.id)}
+            <li
+              key={task.id}
+              className="bg-white border rounded-xl shadow-md p-5"
+            >
+              <h3 className="text-xl font-semibold text-purple-700">
+                {task.title}
+              </h3>
+
               <p className="text-gray-700 mt-1">{task.description}</p>
 
               <div className="mt-3 text-sm text-gray-600 space-y-1">
-                <p>Status: <span className="font-medium text-black">{task.status}</span></p>
-                <p>Priority: <span className="text-purple-700 font-semibold">{task.priority}</span></p>
+                <p>
+                  Status:{' '}
+                  <span className="font-medium text-black">{task.status}</span>
+                </p>
+                <p>
+                  Priority:{' '}
+                  <span className="text-purple-700 font-semibold">
+                    {task.priority}
+                  </span>
+                </p>
                 <p>Assign Date: {task.assign_date}</p>
-                <p>Deadline: <span className="text-red-500">{task.deadline_date}</span></p>
+                <p>
+                  Deadline:{' '}
+                  <span className="text-red-500">{task.deadline_date}</span>
+                </p>
                 <p>Role: {task.role}</p>
 
-                <p className="mt-2">Assigned Users:</p>
-                <ul className="list-disc ml-6 text-blue-700">
-                  {task.assigned_users.map((user, index) => (
-                    <li key={index}>
-                      {user.name ? `${user.name} (ID: ${user.id})` : `User ID: ${user.id}`}
-                    </li>
-                  ))}
-                </ul>
+                <p className="mt-2 font-semibold text-gray-700">
+                  Assigned Users:
+                </p>
+             <div className="flex flex-wrap gap-2 mt-1 relative z-0">
+  {task.assigned_users.map((user, index) => (
+    <button
+      key={index}
+      onClick={() =>
+        navigate('/admin/user', {
+          state: { selectedUserId: user.id },
+        })
+      }
+      title={`View ${user.name}'s tasks`}
+      type="button"
+      className="group relative z-10 flex items-center w-fit bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded-full transition"
+    >
+      <div className="w-6 h-6 rounded-full overflow-hidden shrink-0">
+        <img
+          src={`https://api.dicebear.com/7.x/initials/svg?seed=${user.user_name || 'User'}`}
+          alt="avatar"
+          className="w-full h-full object-cover"
+        />
+      </div>
+      <span className="text-blue-700 text-sm font-medium ml-2 whitespace-nowrap">
+        {user.name || `User ID: ${user.id}`}
+      </span>
+    </button>
+  ))}
+</div>
+
               </div>
 
               <div className="flex gap-2 mt-4 flex-wrap">
@@ -106,7 +156,9 @@ const GroupTaskList = () => {
                 </button>
 
                 <button
-                  onClick={() => navigate(`/admin/viewtask/${task.id}`, { state: { task } })}
+                  onClick={() =>
+                    navigate(`/admin/viewtask/${task.id}`, { state: { task } })
+                  }
                   className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm"
                 >
                   View
@@ -135,7 +187,9 @@ const GroupTaskList = () => {
                 </a>
               </div>
 
-              {copied && <p className="text-green-500 text-xs mt-2">✅ Link Copied!</p>}
+              {copied && (
+                <p className="text-green-500 text-xs mt-2">✅ Link Copied!</p>
+              )}
             </li>
           ))}
         </ul>

@@ -37,6 +37,9 @@ import UpdateTaskForm from './components/UpdateTask';
 import AdminProfile from './pages/admin/AdminProfile';
 import AdminTopBar from './components/AdminTopBar';
 import ManagerLayout from './components/ManagerLayout';
+import UserTaskDetailsPage from './pages/admin/UserTaskDetailsPage';
+
+
 function App() {
   const location = useLocation();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -93,13 +96,14 @@ function App() {
         <Route path="/admin/completed-tasks" element={<CompletedTasksPage />} /> 
          <Route path="/admin/group-tasks" element={<  GroupTasksPage />} />
          <Route path="/admin/detail" element={<AdminProfile />} />
+         
          </Route>
         <Route path="/invite/:token" element={<InviteTaskPage />} />
         <Route path="/admin/viewtask/:taskId" element={<ViewSingleTask />} />
         <Route path="/admin/detail" element={<AdminProfile />} />
-        
-       
-         
+        <Route path="/admin/user/:id" element={<User />} />
+       <Route path="/user/specific/:id" element={<UserTaskDetailsPage />} />
+
 
        
 <Route path="/manager" element={<ManagerLayout />}>
@@ -107,7 +111,7 @@ function App() {
   <Route path="task-form" element={<TaskForm />} />
   <Route path="team-view" element={<TeamView />} />
 </Route>
-
+ 
 
         
 
