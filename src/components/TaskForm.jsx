@@ -11,7 +11,8 @@ const TaskForm = () => {
   const [selectedUserIds, setSelectedUserIds] = useState([]);
   const hasFetchedOnce = useRef(false);
 
-  const adminId = localStorage.getItem('id'); // ✅ Getting admin ID from localStorage
+  const role = localStorage.getItem('role');
+  const adminId = localStorage.getItem('id');
 
   const {
     register,
@@ -23,7 +24,8 @@ const TaskForm = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await axiosInstance.get('/admin/allemploye');
+        const endpoint = role === 'manager' ? '/admin/allemploye' : '/admin/allemploye';
+        const res = await axiosInstance.get(endpoint);
         setUsers(res.data);
 
         if (!hasFetchedOnce.current) {
@@ -37,7 +39,7 @@ const TaskForm = () => {
     };
 
     fetchUsers();
-  }, []);
+  }, [role]);
 
   const onSubmit = async (data) => {
     if (selectedUserIds.length === 0) {
@@ -48,13 +50,14 @@ const TaskForm = () => {
     const payload = {
       ...data,
       userids: selectedUserIds,
-      create_by: adminId,
+      created_by: adminId,
     };
 
-    console.log('Payload being sent to backend:', JSON.stringify(payload, null, 2));
+    const endpoint = role === 'manager' ? '/manager/createtask' : '/admin/createtask';
+
 
     try {
-      await axiosInstance.post('/admin/createtask', payload);
+      await axiosInstance.post(endpoint, payload);
       setAssignedUserIds((prev) => [...prev, ...selectedUserIds]);
       toast.success('✅ Task assigned successfully!');
 
@@ -85,6 +88,7 @@ const TaskForm = () => {
         className="bg-white w-full lg:w-1/2 p-6 rounded-xl shadow-md space-y-5 border border-gray-200"
       >
         <h2 className="text-2xl font-bold text-center text-black-700">Assign Task</h2>
+       
 
         <input
           {...register('title', { required: true })}
@@ -125,19 +129,22 @@ const TaskForm = () => {
         </select>
         {errors.priority && <p className="text-red-500 text-sm">Priority is required</p>}
 
-        <select
-          {...register('role', { required: true })}
-          value={filterRole}
-          onChange={(e) => setFilterRole(e.target.value)}
-          className="w-full border px-4 py-2 rounded-md"
-        >
-          <option value="all">All</option>
-          <option value="manager">Manager</option>
-          <option value="employee">Employee</option>
-        </select>
-        {errors.role && <p className="text-red-500 text-sm">Role is required</p>}
+        {role === 'admin' && (
+          <select
+            {...register('role', { required: true })}
+            value={filterRole}
+            onChange={(e) => setFilterRole(e.target.value)}
+            className="w-full border px-4 py-2 rounded-md"
+          >
+            <option value="all">All</option>
+            <option value="manager">Manager</option>
+            <option value="employee">Employee</option>
+          </select>
+        )}
+        {role === 'admin' && errors.role && (
+          <p className="text-red-500 text-sm">Role is required</p>
+        )}
 
-      
         {selectedUserIds.length > 0 && (
           <button
             type="submit"
@@ -148,7 +155,7 @@ const TaskForm = () => {
         )}
       </form>
 
-      {/* Right: Scrollable User Cards */}
+      {/* Right: User Cards */}
       <div className="w-full lg:w-1/2 max-h-[600px] overflow-y-auto bg-white p-6 rounded-xl shadow-md border border-gray-200">
         <h2 className="text-2xl font-bold mb-4 text-black-700">Available Users</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

@@ -35,9 +35,11 @@ import AssignedTasks from './components/AssignedTasks';
 import UpdateTaskForm from './components/UpdateTask';
 
 import AdminProfile from './pages/admin/AdminProfile';
-import AdminTopBar from './components/AdminTopBar';
+
+import TopBar from './components/TopBar';
 import ManagerLayout from './components/ManagerLayout';
 import UserTaskDetailsPage from './pages/admin/UserTaskDetailsPage';
+import ManagerTaskForm from './pages/manager/ManagerTaskForm';
 
 
 function App() {
@@ -66,8 +68,7 @@ function App() {
   if (!isLoggedIn) return <NavbarPublic />;
 
   if (role === 'employee') return <EmployeeNavbar />;
-  if (role === 'admin') return <AdminTopBar />;
-
+  if (role === 'admin' || role === 'manager') return <TopBar />;
 
   return null;
 };
@@ -105,11 +106,13 @@ function App() {
        <Route path="/user/specific/:id" element={<UserTaskDetailsPage />} />
 
 
-       
+       {/*manager  */}
 <Route path="/manager" element={<ManagerLayout />}>
   <Route path="dashboard" element={<ManagerDashboard />} />  
   <Route path="task-form" element={<TaskForm />} />
   <Route path="team-view" element={<TeamView />} />
+  <Route path="create" element={<ManagerTaskForm />} />
+
 </Route>
  
 

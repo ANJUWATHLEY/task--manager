@@ -1,23 +1,28 @@
+// src/components/TopBar.jsx
 import React, { useEffect, useState } from 'react';
 import { Search, User } from 'lucide-react';
 import axiosInstance from '../api/axiosInstance';
 import { Link, useNavigate } from 'react-router-dom';
 
-const AdminTopBar = () => {
+const TopBar = () => {
   const [data, setData] = useState('');
   const [allTasks, setAllTasks] = useState([]);
-  const [filteredTasks, setFilteredTasks] = useState([]); 
+  const [filteredTasks, setFilteredTasks] = useState([]);
   const navigate = useNavigate();
+  const role = localStorage.getItem('role'); // check role to decide path
 
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const res = await axiosInstance.get('/admin/alltask');
+        const url = role === 'manager' ? '/manager/alltask' : '/admin/alltask';
+        const res = await axiosInstance.get(url);
+
         const tasks = Array.isArray(res.data?.tasks)
           ? res.data.tasks
           : Array.isArray(res.data)
           ? res.data
           : [];
+
         setAllTasks(tasks);
         setFilteredTasks(tasks);
       } catch (error) {
@@ -25,7 +30,7 @@ const AdminTopBar = () => {
       }
     };
     fetchTasks();
-  }, []);
+  }, [role]);
 
   const handleSearch = (query) => {
     const lower = query.toLowerCase();
@@ -47,11 +52,14 @@ const AdminTopBar = () => {
 
   const handleSearchClick = (task) => {
     const status = task.status?.toLowerCase();
+    const base = role === 'manager' ? '/manager' : '/admin';
+
     if (['pending', 'inprocess', 'completed'].includes(status)) {
-      navigate(`/admin/view-tasks#${status}`);
+      navigate(`${base}/view-tasks#${status}`);
     } else {
-      navigate(`/admin/viewtask/${task.id}`, { state: { task } });
+      navigate(`${base}/viewtask/${task.id}`, { state: { task } });
     }
+
     setData('');
   };
 
@@ -82,12 +90,13 @@ const AdminTopBar = () => {
         </div>
 
         {/* User */}
-        <Link
-          to="/admin/detail"
-          className="flex items-center gap-2 text-white hover:text-yellow-300 transition-all duration-150"
-        >
-          <User size={20} />
-        </Link>
+      <Link
+  to={role === 'manager' ? '/manager/detail' : '/admin/detail'}
+  className="flex items-center gap-2 text-white hover:text-yellow-300 transition-all duration-150"
+>
+  <User size={20} />
+</Link>
+
       </header>
 
       {/* Search Results */}
@@ -118,4 +127,4 @@ const AdminTopBar = () => {
   );
 };
 
-export default AdminTopBar;
+export default TopBar;

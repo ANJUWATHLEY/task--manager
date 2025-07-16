@@ -19,7 +19,7 @@ const ManagerLayout = () => {
         <h2 className="text-2xl font-bold mb-6">Manager Panel</h2>
         <nav className="flex flex-col space-y-4">
           <NavLink
-            to="manager/dashboard"
+            to="dashboard"
             className={({ isActive }) =>
               isActive ? 'font-semibold text-yellow-300' : 'hover:text-yellow-200'
             }
@@ -29,7 +29,7 @@ const ManagerLayout = () => {
           </NavLink>
 
           <NavLink
-            to="/manager/assign-task"
+            to="create"
             className={({ isActive }) =>
               isActive ? 'font-semibold text-yellow-300' : 'hover:text-yellow-200'
             }

@@ -26,15 +26,10 @@ const LoginForm = () => {
 
   navigate('/admin/dashboard');
 }
-
-
-
-
-
       } else if (user.role === 'employee') {
         navigate('/employee/dashboard');
       } else {
-        navigate('/dashboard');
+        navigate('/manager/dashboard');
       }
     } catch (err) {
       console.error(' Login Error:', err.response?.data || err.message);
