@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, ClipboardCheck, User, LogOut } from 'lucide-react';
+import { LayoutDashboard, ClipboardCheck, User, LogOut, X, Menu } from 'lucide-react';
 
 const ManagerLayout = () => {
   const navigate = useNavigate();
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -12,55 +13,68 @@ const ManagerLayout = () => {
     navigate('/login');
   };
 
+  const toggleSidebar = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
   return (
     <div className="min-h-screen flex">
       {/* Sidebar */}
-      <aside className="w-64 bg-[#2c1c80] text-white p-6 space-y-6">
-        <h2 className="text-2xl font-bold mb-6">Manager Panel</h2>
+      <aside className={`bg-[#2c1c80] text-white p-4 space-y-6 transition-all duration-300 ${isCollapsed ? 'w-15' : 'w-60'}`}>
+        {/* Toggle Button */}
+        <button onClick={toggleSidebar} className="text-white ml-auto block">
+          {isCollapsed ? <Menu /> : <X />}
+        </button>
+
+
+        {/* Nav Links */}
         <nav className="flex flex-col space-y-4">
           <NavLink
             to="dashboard"
             className={({ isActive }) =>
-              isActive ? 'font-semibold text-yellow-300' : 'hover:text-yellow-200'
+              `${isActive ? 'text-yellow-300 font-semibold' : 'hover:text-yellow-200'} flex items-center space-x-2`
             }
           >
-            <LayoutDashboard className="inline-block mr-2" />
-            Dashboard
+            <LayoutDashboard />
+            {!isCollapsed && <span>Dashboard</span>}
           </NavLink>
 
           <NavLink
             to="create"
             className={({ isActive }) =>
-              isActive ? 'font-semibold text-yellow-300' : 'hover:text-yellow-200'
+              `${isActive ? 'text-yellow-300 font-semibold' : 'hover:text-yellow-200'} flex items-center space-x-2`
             }
           >
-            <ClipboardCheck className="inline-block mr-2" />
-            Assign Task
+            <ClipboardCheck />
+            {!isCollapsed && <span>Assign Task</span>}
           </NavLink>
 
           <NavLink
-            to="/manager/my-tasks"
+            to="assigned-tasks"
             className={({ isActive }) =>
-              isActive ? 'font-semibold text-yellow-300' : 'hover:text-yellow-200'
+              `${isActive ? 'text-yellow-300 font-semibold' : 'hover:text-yellow-200'} flex items-center space-x-2`
             }
           >
-            <ClipboardCheck className="inline-block mr-2" />
-            My Tasks
+            <ClipboardCheck />
+            {!isCollapsed && <span>View Task</span>}
           </NavLink>
 
           <NavLink
             to="/manager/profile"
             className={({ isActive }) =>
-              isActive ? 'font-semibold text-yellow-300' : 'hover:text-yellow-200'
+              `${isActive ? 'text-yellow-300 font-semibold' : 'hover:text-yellow-200'} flex items-center space-x-2`
             }
           >
-            <User className="inline-block mr-2" />
-            Profile
+            <User />
+            {!isCollapsed && <span>Profile</span>}
           </NavLink>
 
-          <button onClick={handleLogout} className="text-left text-red-400 hover:text-red-200">
-            <LogOut className="inline-block mr-2" />
-            Logout
+          <button
+            onClick={handleLogout}
+            className="text-left text-red-400 hover:text-red-200 flex items-center space-x-2"
+          >
+            <LogOut />
+            {!isCollapsed && <span>Logout</span>}
           </button>
         </nav>
       </aside>

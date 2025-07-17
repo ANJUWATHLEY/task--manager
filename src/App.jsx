@@ -33,14 +33,13 @@ import Profile from './pages/employee/Profile';
 import TaskDetailsPage from './pages/employee/TaskDetailsPage';
 import AssignedTasks from './components/AssignedTasks';
 import UpdateTaskForm from './components/UpdateTask';
-
+import AssignedTasksPage from './pages/manager/AssignedTasksPage';
 import AdminProfile from './pages/admin/AdminProfile';
 
 import TopBar from './components/TopBar';
 import ManagerLayout from './components/ManagerLayout';
 import UserTaskDetailsPage from './pages/admin/UserTaskDetailsPage';
 import ManagerTaskForm from './pages/manager/ManagerTaskForm';
-
 
 function App() {
   const location = useLocation();
@@ -112,7 +111,7 @@ function App() {
   <Route path="task-form" element={<TaskForm />} />
   <Route path="team-view" element={<TeamView />} />
   <Route path="create" element={<ManagerTaskForm />} />
-
+  <Route path="assigned-tasks" element={<AssignedTasksPage />} />
 </Route>
  
 

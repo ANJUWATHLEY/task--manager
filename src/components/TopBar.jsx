@@ -14,7 +14,7 @@ const TopBar = () => {
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const url = role === 'manager' ? '/manager/alltask' : '/admin/alltask';
+        const url = role === 'manager' ? '/manager/readalltask' : '/admin/alltask';
         const res = await axiosInstance.get(url);
 
         const tasks = Array.isArray(res.data?.tasks)
