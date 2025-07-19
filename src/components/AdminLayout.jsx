@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import {
-  LayoutDashboard, ListChecks, ClipboardCheck, UserCog, LogOut, Menu, X,Eye,
+  LayoutDashboard, ListChecks, ClipboardCheck, UserCog, LogOut, Menu, X,Eye, Briefcase,
   Group,
   User
 } from 'lucide-react';
@@ -34,10 +34,9 @@ const AdminLayout = () => {
             { icon: Eye, label: 'View Tasks', path: '/admin/view-tasks' },
             { icon: UserCog, label: 'Users', path: '/admin/user' },
             { icon: ClipboardCheck, label: 'Completed Tasks', path: '/admin/completed-tasks' },
-
+            { icon: Briefcase, label: 'Departments', path: '/admin/departments' },
             { icon: Group, label: 'Group Task ', path: '/admin/group-tasks' },
-
-
+            { icon: User, label: 'Invite Users', path: '/admin/invite' },
 
           ].map((item, i) => (
             <Link key={i} to={item.path} className="flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">

@@ -24,7 +24,7 @@ const TaskForm = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const endpoint = role === 'manager' ? '/admin/allemploye' : '/admin/allemploye';
+        const endpoint = role === 'manager' ? '/manager/onlyemploye' : '/admin/allemploye';
         const res = await axiosInstance.get(endpoint);
         setUsers(res.data);
 

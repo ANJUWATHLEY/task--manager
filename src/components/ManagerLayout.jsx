@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, ClipboardCheck, User, LogOut, X, Menu } from 'lucide-react';
+import { LayoutDashboard, ClipboardCheck, User, LogOut, X, Menu, Eye } from 'lucide-react';
 
 const ManagerLayout = () => {
   const navigate = useNavigate();
@@ -59,14 +59,25 @@ const ManagerLayout = () => {
             {!isCollapsed && <span>View Task</span>}
           </NavLink>
 
+<NavLink
+  to="viewuser"
+  className={({ isActive }) =>
+    `${isActive ? 'text-yellow-300 font-semibold' : 'hover:text-yellow-200'} flex items-center space-x-2`
+  }
+>
+  <User />
+  {!isCollapsed && <span>View Users</span>}
+</NavLink>
+
+
           <NavLink
-            to="/manager/profile"
+            to="group-tasks"
             className={({ isActive }) =>
               `${isActive ? 'text-yellow-300 font-semibold' : 'hover:text-yellow-200'} flex items-center space-x-2`
             }
           >
-            <User />
-            {!isCollapsed && <span>Profile</span>}
+            <Eye/>
+            {!isCollapsed && <span>GroupTask</span>}
           </NavLink>
 
           <button

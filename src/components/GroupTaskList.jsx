@@ -14,13 +14,14 @@ const GroupTaskList = () => {
   const [copied, setCopied] = useState(false);
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
+  const role = localStorage.getItem('role');
 
   const fetchTasks = async () => {
     try {
-      const res = await axios.get('/admin/grouptask', {
+      const res = await axios.get(`/${role}/grouptask`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
+      console.log('Group tasks response:', res.data);
       const tasks = res.data.multipleAssignedTasks || [];
 
       const formatted = tasks
@@ -48,13 +49,18 @@ const GroupTaskList = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`/admin/deletegrouptask/${id}`, {
+      const endpoint =
+        role === 'manager'
+          ? `/manager/delete/${id}`
+          : `/admin/taskdelete/${id}`;
+
+      await axios.delete(endpoint, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
       fetchTasks();
       alert('Deleted');
     } catch (error) {
+      console.error(error);
       alert('Failed to delete');
     }
   };
@@ -87,57 +93,51 @@ const GroupTaskList = () => {
               <h3 className="text-xl font-semibold text-purple-700">
                 {task.title}
               </h3>
-
               <p className="text-gray-700 mt-1">{task.description}</p>
 
               <div className="mt-3 text-sm text-gray-600 space-y-1">
-                <p>
-                  Status:{' '}
-                  <span className="font-medium text-black">{task.status}</span>
-                </p>
-                <p>
-                  Priority:{' '}
-                  <span className="text-purple-700 font-semibold">
-                    {task.priority}
-                  </span>
-                </p>
+                <p>Status: <span className="font-medium text-black">{task.status}</span></p>
+                <p>Priority: <span className="text-purple-700 font-semibold">{task.priority}</span></p>
                 <p>Assign Date: {task.assign_date}</p>
-                <p>
-                  Deadline:{' '}
-                  <span className="text-red-500">{task.deadline_date}</span>
-                </p>
+                <p>Deadline: <span className="text-red-500">{task.deadline_date}</span></p>
                 <p>Role: {task.role}</p>
 
-                <p className="mt-2 font-semibold text-gray-700">
-                  Assigned Users:
-                </p>
-             <div className="flex flex-wrap gap-2 mt-1 relative z-0">
-  {task.assigned_users.map((user, index) => (
-    <button
-      key={index}
-      onClick={() =>
-        navigate('/admin/user', {
-          state: { selectedUserId: user.id },
-        })
-      }
-      title={`View ${user.name}'s tasks`}
-      type="button"
-      className="group relative z-10 flex items-center w-fit bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded-full transition"
-    >
-      <div className="w-6 h-6 rounded-full overflow-hidden shrink-0">
-        <img
-          src={`https://api.dicebear.com/7.x/initials/svg?seed=${user.user_name || 'User'}`}
-          alt="avatar"
-          className="w-full h-full object-cover"
-        />
-      </div>
-      <span className="text-blue-700 text-sm font-medium ml-2 whitespace-nowrap">
-        {user.name || `User ID: ${user.id}`}
-      </span>
-    </button>
-  ))}
-</div>
+                <p className="mt-2 font-semibold text-gray-700">Assigned Users:</p>
+                <div className="flex flex-wrap gap-2 mt-1 relative z-0">
+                  {task.assigned_users.map((user, index) => (
+                    <button
+                      key={index}
+                     onClick={() => {
+  const role = localStorage.getItem('role');
 
+  if (role === 'manager') {
+    navigate(`/manager/viewuser/${user.id}`, {
+      state: { selectedUserId: user.id },
+    });
+  } else if (role === 'admin') {
+    navigate(`/admin/user/${user.id}`, {
+      state: { selectedUserId: user.id },
+    });
+  }
+}}
+
+                      title={`View ${user.name}'s tasks`}
+                      type="button"
+                      className="group relative z-10 flex items-center w-fit bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded-full transition"
+                    >
+                      <div className="w-6 h-6 rounded-full overflow-hidden shrink-0">
+                        <img
+                          src={`https://api.dicebear.com/7.x/initials/svg?seed=${user.user_name || 'User'}`}
+                          alt="avatar"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <span className="text-blue-700 text-sm font-medium ml-2 whitespace-nowrap">
+                        {user.name || `User ID: ${user.id}`}
+                      </span>
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div className="flex gap-2 mt-4 flex-wrap">
@@ -157,7 +157,7 @@ const GroupTaskList = () => {
 
                 <button
                   onClick={() =>
-                    navigate(`/admin/viewtask/${task.id}`, { state: { task } })
+                    navigate(`/${role}/viewtask/${task.id}`, { state: { task } })
                   }
                   className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm"
                 >
@@ -168,8 +168,7 @@ const GroupTaskList = () => {
                   onClick={() => handleCopy(task.url || '')}
                   className="bg-gray-200 hover:bg-gray-300 text-sm px-2 py-1 rounded flex items-center gap-1"
                 >
-                  <ClipboardCopy size={16} />
-                  Copy Link
+                  <ClipboardCopy size={16} /> Copy Link
                 </button>
 
                 <a

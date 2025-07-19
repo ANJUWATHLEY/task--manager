@@ -12,7 +12,7 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 import CompletedTasksPage from './pages/admin/CompletedTasksPage';
 import AdminDashboard from './pages/admin/Dashboard';
 import ManageUsers from './pages/admin/ManageUsers';
-
+import InviteForm from './pages/admin/InviteForm';
 import CreateTasksPage from './pages/admin/CreateTasksPage';
 import ViewTasksPage from './pages/admin/ViewTasksPage';
 import User from './pages/admin/User';
@@ -20,8 +20,7 @@ import ViewSingleTask from './pages/admin/ViewSingleTask';
 import InviteTaskPage from './components/InviteTaskPage';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
-
+import ManagerUserTaskDetails from './pages/manager/ManagerUserTaskDetails';
 import ManagerDashboard from './pages/manager/Dashboard';
 import TaskForm from './pages/manager/TaskForm';
 import TeamView from './pages/manager/TeamView';
@@ -35,11 +34,13 @@ import AssignedTasks from './components/AssignedTasks';
 import UpdateTaskForm from './components/UpdateTask';
 import AssignedTasksPage from './pages/manager/AssignedTasksPage';
 import AdminProfile from './pages/admin/AdminProfile';
-
+import GrouptaskPage from './pages/manager/GrouptaskPage';
 import TopBar from './components/TopBar';
 import ManagerLayout from './components/ManagerLayout';
 import UserTaskDetailsPage from './pages/admin/UserTaskDetailsPage';
 import ManagerTaskForm from './pages/manager/ManagerTaskForm';
+import ManagerTaskList from './pages/manager/ManagerTaskList';
+import DepartmentList from './pages/admin/DepartmentList';
 
 function App() {
   const location = useLocation();
@@ -89,14 +90,14 @@ function App() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="manage-users" element={<ManageUsers />} />
-         
+         <Route path="departments" element={<DepartmentList />} />
           <Route path="tasks" element={<CreateTasksPage />} />
           <Route path="view-tasks" element={<ViewTasksPage />} />
         <Route path="/admin/user" element={<User />} />
         <Route path="/admin/completed-tasks" element={<CompletedTasksPage />} /> 
          <Route path="/admin/group-tasks" element={<  GroupTasksPage />} />
          <Route path="/admin/detail" element={<AdminProfile />} />
-         
+         <Route path="/admin/invite" element={<InviteForm />} />
          </Route>
         <Route path="/invite/:token" element={<InviteTaskPage />} />
         <Route path="/admin/viewtask/:taskId" element={<ViewSingleTask />} />
@@ -112,6 +113,12 @@ function App() {
   <Route path="team-view" element={<TeamView />} />
   <Route path="create" element={<ManagerTaskForm />} />
   <Route path="assigned-tasks" element={<AssignedTasksPage />} />
+  <Route path="group-tasks" element={<  GrouptaskPage />} />
+  <Route path="/manager/updatetask/:id" element={<UpdateTaskForm />} />
+   <Route path="viewuser/:id" element={<ManagerTaskList />} />
+   
+   <Route path="/manager/user/:id" element={<ManagerUserTaskDetails />} />
+
 </Route>
  
 

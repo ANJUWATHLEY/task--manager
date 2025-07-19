@@ -1,30 +1,24 @@
 import { useForm } from 'react-hook-form';
-import { useParams } from 'react-router-dom';
-import instanceAxios from '../api/axiosInstance.js'
-import { useNavigate } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom';
+import instanceAxios from '../api/axiosInstance.js';
 
 const UpdateTaskForm = () => {
-
     const { register, handleSubmit, reset, formState: { errors } } = useForm();
+    const { id } = useParams();
+    const navigate = useNavigate();
 
-    const { id } = useParams()
-
-    const Navigate = useNavigate()
+    const role = window.location.pathname.includes('manager') ? 'manager' : 'admin';
 
     const onSubmit = async (data) => {
-
         try {
-            console.log(id);
-
-            const res = await instanceAxios.put(`admin/updatetask/${id}`, data);
+            const res = await instanceAxios.put(`${role}/updatetask/${id}`, data);
             console.log(res);
             alert('✅ Task updated successfully');
-            Navigate('/admin/view-tasks')
+            navigate(`/${role}/view-tasks`);
         } catch (error) {
             console.error(error);
             alert('❌ Failed to update task');
         }
-
     };
 
     return (
@@ -50,8 +44,6 @@ const UpdateTaskForm = () => {
             />
             {errors.description && <p className="text-red-500 text-sm">Description is required</p>}
 
-
-
             <div>
                 <label className="text-sm">Deadline Date</label>
                 <input
@@ -69,8 +61,7 @@ const UpdateTaskForm = () => {
                     className="w-full p-2 border rounded-lg"
                 />
             </div>
-            
-            {errors.role && <p className="text-red-500 text-sm">Role is required</p>}
+
             <button
                 type="submit"
                 className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg"
@@ -82,4 +73,3 @@ const UpdateTaskForm = () => {
 };
 
 export default UpdateTaskForm;
-// not pop
