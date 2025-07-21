@@ -16,7 +16,7 @@ const AssignedTasks = () => {
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-
+const userId = localStorage.getItem('id');
   const token = localStorage.getItem('token');
   const role = localStorage.getItem('role');
   const navigate = useNavigate();
@@ -29,26 +29,33 @@ const AssignedTasks = () => {
     return deadline < today;
   };
 
-  const fetchTasks = async () => {
-    try {
-      const endpoint = role === 'manager' ? '/manager/readalltask' : '/admin/alltask';
-      const res = await axios.get(endpoint, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      console.log('Tasks fetched:', res.data);
-      const data = Array.isArray(res.data) ? res.data : res.data.tasks || [];
+ const fetchTasks = async () => {
+  try {
+    const endpoint = role === 'manager'
+      ? '/manager/readalltask'
+      : `/admin/alltask/${userId}`;
 
-      const formatted = data.map((item) => ({
-        ...item,
-        assign_date: item.assign_date?.split('T')[0] || '',
-        deadline_date: item.deadline_date?.split('T')[0] || '',
-      }));
+    const res = await axios.get(endpoint, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-      setTasks(formatted);
-    } catch (err) {
-      console.error('Fetch Error:', err.response?.data || err.message);
-    }
-  };
+    console.log('Tasks fetched:', res.data);
+    const data = Array.isArray(res.data) ? res.data : res.data.tasks || [];
+
+    const formatted = data.map((item) => ({
+      ...item,
+      assign_date: item.assign_date?.split('T')[0] || '',
+      deadline_date: item.deadline_date?.split('T')[0] || '',
+    }));
+
+    setTasks(formatted);
+  } catch (err) {
+    console.error('❌ Fetch Error:', err.response?.data || err.message);
+  }
+};
+
 
   const taskDelete = async (taskId) => {
     try {

@@ -21,6 +21,7 @@ const TaskForm = () => {
     formState: { errors },
   } = useForm();
 
+  // ✅ Fetch all employees or only employees under manager
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -41,6 +42,7 @@ const TaskForm = () => {
     fetchUsers();
   }, [role]);
 
+  // ✅ Form submission
   const onSubmit = async (data) => {
     if (selectedUserIds.length === 0) {
       toast.error('Please select at least one user.');
@@ -50,12 +52,11 @@ const TaskForm = () => {
     const payload = {
       ...data,
       userids: selectedUserIds,
-      created_by: adminId,
+      create_by: adminId, 
     };
 
     const endpoint = role === 'manager' ? '/manager/createtask' : '/admin/createtask';
 
-    console.log(endpoint);
     try {
       await axiosInstance.post(endpoint, payload);
       setAssignedUserIds((prev) => [...prev, ...selectedUserIds]);
@@ -65,15 +66,17 @@ const TaskForm = () => {
       setSelectedUserIds([]);
     } catch (error) {
       console.error(' Task assignment failed:', error.response?.data || error.message);
-      toast.error(' Failed to assign task. Please try again.');
+      toast.error('❌ Failed to assign task. Please try again.');
     }
   };
 
+  // ✅ Filter users by selected role
   const filteredUsers = users.filter((user) => {
     if (filterRole === 'all') return true;
     return user.role?.toLowerCase() === filterRole.toLowerCase();
   });
 
+  // ✅ Toggle selected user
   const toggleUserSelection = (id) => {
     setSelectedUserIds((prev) =>
       prev.includes(id) ? prev.filter((uid) => uid !== id) : [...prev, id]
@@ -88,7 +91,6 @@ const TaskForm = () => {
         className="bg-white w-full lg:w-1/2 p-6 rounded-xl shadow-md space-y-5 border border-gray-200"
       >
         <h2 className="text-2xl font-bold text-center text-black-700">Assign Task</h2>
-       
 
         <input
           {...register('title', { required: true })}
@@ -123,26 +125,27 @@ const TaskForm = () => {
           className="w-full border px-4 py-2 rounded-md"
         >
           <option value="">Select Priority</option>
-          <option value="High">High</option>
-          <option value="Medium">Medium</option>
-          <option value="Low">Low</option>
+          <option value="High"> High</option>
+          <option value="Medium"> Medium</option>
+          <option value="Low"> Low</option>
         </select>
         {errors.priority && <p className="text-red-500 text-sm">Priority is required</p>}
 
+        {/* ✅ Show only if admin */}
         {role === 'admin' && (
-          <select
-            {...register('role', { required: true })}
-            value={filterRole}
-            onChange={(e) => setFilterRole(e.target.value)}
-            className="w-full border px-4 py-2 rounded-md"
-          >
-            <option value="all">All</option>
-            <option value="manager">Manager</option>
-            <option value="employee">Employee</option>
-          </select>
-        )}
-        {role === 'admin' && errors.role && (
-          <p className="text-red-500 text-sm">Role is required</p>
+          <>
+            <select
+              {...register('role', { required: true })}
+              value={filterRole}
+              onChange={(e) => setFilterRole(e.target.value)}
+              className="w-full border px-4 py-2 rounded-md"
+            >
+              <option value="all">All</option>
+              <option value="manager">Manager</option>
+              <option value="employee">Employee</option>
+            </select>
+            {errors.role && <p className="text-red-500 text-sm">Role is required</p>}
+          </>
         )}
 
         {selectedUserIds.length > 0 && (

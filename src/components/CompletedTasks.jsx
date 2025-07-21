@@ -4,7 +4,7 @@ import axiosInstance from '../api/axiosInstance';
 const CompletedTasks = () => {
   const [completedTasks, setCompletedTasks] = useState([]);
   const [loading, setLoading] = useState(true);
-
+ const user = localStorage.getItem('id');
   const token = localStorage.getItem('token');
 
   useEffect(() => {
@@ -13,6 +13,7 @@ const CompletedTasks = () => {
         const res = await axiosInstance.get('/admin/employecomplete', {
           headers: { 
             Authorization: `Bearer ${token}`,
+            user_id: user
           },
         });
 console.log(res.data);

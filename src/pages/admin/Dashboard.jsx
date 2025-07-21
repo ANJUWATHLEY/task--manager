@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../../api/axiosInstance';
 import { useNavigate } from 'react-router-dom';
+
 import {
   Users, ClipboardCheck, CheckCircle, LayoutDashboard,
   ListChecks, UserCog, Menu, X, Target, ArrowUp, ArrowDown, LogOut 
@@ -24,7 +25,7 @@ const AdminDashboard = () => {
 const handleLogout = () => {
   localStorage.removeItem('token');
   navigate('/login');
-};
+}; 
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,15 +37,16 @@ const handleLogout = () => {
           ? employeeRes.data
           : employeeRes.data.employees || [];
 
-        const taskRes = await axios.get('/admin/alltask', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+   const taskRes = await axios.get(`/admin/alltask/${id}`, {
+  headers: { Authorization: `Bearer ${token}` }
+});
+
       
       const admindetail = await axios.get(`/admin/detail/${id}`, {
   headers: { Authorization: `Bearer ${token}` }
 });
 
-console.log('📦 Admin detail:', admindetail.data);
+console.log('Admin detail:', admindetail.data);
       
 
 
@@ -138,12 +140,12 @@ const lowPriorityTasks = tasks.filter(task => task.priority?.toLowerCase() === '
   }
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
-     
+    <><div className="min-h-screen flex bg-gray-50">
+
 
       {/* Main Content */}
       <main className="flex-1 p-8">
-       
+
         {/* Stat Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard
@@ -154,8 +156,7 @@ const lowPriorityTasks = tasks.filter(task => task.priority?.toLowerCase() === '
             bgColor="bg-blue-100"
             trend="up"
             trendValue="12%"
-            subtitle="Active team members"
-          />
+            subtitle="Active team members" />
           <StatCard
             title="Tasks Assigned"
             value={tasks.length}
@@ -164,8 +165,7 @@ const lowPriorityTasks = tasks.filter(task => task.priority?.toLowerCase() === '
             bgColor="bg-purple-100"
             trend="up"
             trendValue="8%"
-            subtitle="This month"
-          />
+            subtitle="This month" />
           <StatCard
             title="Completed Tasks"
             value={completedTasks.length}
@@ -174,22 +174,18 @@ const lowPriorityTasks = tasks.filter(task => task.priority?.toLowerCase() === '
             bgColor="bg-green-100"
             trend="up"
             trendValue="15%"
-            subtitle={`${Math.round((completedTasks.length / tasks.length) * 100)}% completion rate`}
-          />
+            subtitle={`${Math.round((completedTasks.length / tasks.length) * 100)}% completion rate`} />
           <StatCard
-  title="Priority Summary"
-  value=""
-  icon={Target}
-  color="text-red-600"
-  bgColor="bg-red-100"
-  subtitle={
-    <div className="space-y-1">
-      <p className="text-sm"><span className="text-red-600 font-semibold">High</span>: {highPriorityTasks.length}</p>
-      <p className="text-sm"><span className="text-yellow-500 font-semibold">Medium</span>: {mediumPriorityTasks.length}</p>
-      <p className="text-sm"><span className="text-green-600 font-semibold">Low</span>: {lowPriorityTasks.length}</p>
-    </div>
-  }
-/>
+            title="Priority Summary"
+            value=""
+            icon={Target}
+            color="text-red-600"
+            bgColor="bg-red-100"
+            subtitle={<div className="space-y-1">
+              <p className="text-sm"><span className="text-red-600 font-semibold">High</span>: {highPriorityTasks.length}</p>
+              <p className="text-sm"><span className="text-yellow-500 font-semibold">Medium</span>: {mediumPriorityTasks.length}</p>
+              <p className="text-sm"><span className="text-green-600 font-semibold">Low</span>: {lowPriorityTasks.length}</p>
+            </div>} />
 
         </div>
 
@@ -243,7 +239,7 @@ const lowPriorityTasks = tasks.filter(task => task.priority?.toLowerCase() === '
           </div>
         </div>
       </main>
-    </div>
+    </div></>
   );
 };
 
