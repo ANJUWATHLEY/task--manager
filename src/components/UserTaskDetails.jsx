@@ -14,13 +14,14 @@ const UserTaskDetails = () => {
     const fetchData = async () => {
       try {
         const userRes = await axios.get(`/employe/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setUser(userRes.data);
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    console.log('User data:', userRes.data);
+    setUser(userRes.data);
 
-        const taskRes = await axios.get('/admin/alltask', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+    const taskRes = await axios.get(`/admin/alltask/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
         let allTasks = [];
         if (Array.isArray(taskRes.data)) {
@@ -37,7 +38,7 @@ const UserTaskDetails = () => {
         );
         setUserTasks(filteredTasks);
       } catch (error) {
-        console.error('❌ Error fetching user or tasks:', error);
+        console.error('Error fetching user or tasks:', error);
       }
     };
 
