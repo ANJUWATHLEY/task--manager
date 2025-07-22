@@ -21,16 +21,16 @@ const LoginForm = () => {
       setEmail('');
       setPassword('');
 
-      if (user.role === 'admin') {
-       if (user.role === 'admin') {
-
+     if (!user.organizationId) {
+  navigate('/organization-choice');
+} else if (user.role === 'admin') {
   navigate('/admin/dashboard');
+} else if (user.role === 'employee') {
+  navigate('/employee/dashboard');
+} else {
+  navigate('/manager/dashboard');
 }
-      } else if (user.role === 'employee') {
-        navigate('/employee/dashboard');
-      } else {
-        navigate('/manager/dashboard');
-      }
+
     } catch (err) {
       console.error(' Login Error:', err.response?.data || err.message);
       alert('Login failed! Check your credentials.');

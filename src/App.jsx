@@ -42,6 +42,11 @@ import ManagerTaskForm from './pages/manager/ManagerTaskForm';
 import ManagerTaskList from './pages/manager/ManagerTaskList';
 import DepartmentList from './pages/admin/DepartmentList';
 
+import OrganizationChoice from './components/OrganizationChoice';
+import CreateOrganization from './pages/admin/CreateOrganization';
+import JoinOrganization from './pages/admin/JoinOrganization';
+
+
 function App() {
   const location = useLocation();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -104,7 +109,9 @@ function App() {
         <Route path="/admin/detail" element={<AdminProfile />} />
         <Route path="/admin/user/:id" element={<User />} />
        <Route path="/user/specific/:id" element={<UserTaskDetailsPage />} />
-
+         {/* Organization routes */}
+        <Route path="/create-organization" element={<CreateOrganization />} />
+        <Route path="/join-organization" element={<JoinOrganization />} />
 
        {/*manager  */}
 <Route path="/manager" element={<ManagerLayout />}>
@@ -120,9 +127,13 @@ function App() {
    <Route path="/manager/user/:id" element={<ManagerUserTaskDetails />} />
 
 </Route>
- 
+ <Route path="/organization-choice" element={<OrganizationChoice />} />
 
-        
+
+
+
+
+
 
         {/* Employee Routes */}
    
