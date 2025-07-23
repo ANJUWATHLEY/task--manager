@@ -15,18 +15,31 @@ const CreateOrganization = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.post(
-        '/organization/create',
-        { name, email, phone, type, description },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+const res = await axios.post(
+  '/organization/create',
+  {
+    name,
+    email,
+    mobile: phone,
+    organization_type: type,
+    description,
+  },
+  {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+);
 
+ console.log("Form Data:", {
+    name,
+    email,
+    phone,
+    type,
+    description
+  });
       alert('Organization created successfully!');
-      navigate('/admin/dashboard');
+      navigate('/organization');
     } catch (err) {
       console.error('Create Org Error:', err.response?.data || err.message);
       alert('Failed to create organization. Please try again.');

@@ -45,7 +45,7 @@ import DepartmentList from './pages/admin/DepartmentList';
 import OrganizationChoice from './components/OrganizationChoice';
 import CreateOrganization from './pages/admin/CreateOrganization';
 import JoinOrganization from './pages/admin/JoinOrganization';
-
+import Organization from './pages/admin/Orignatization';
 
 function App() {
   const location = useLocation();
@@ -112,7 +112,7 @@ function App() {
          {/* Organization routes */}
         <Route path="/create-organization" element={<CreateOrganization />} />
         <Route path="/join-organization" element={<JoinOrganization />} />
-
+        <Route path="/organization" element={<Organization />} />
        {/*manager  */}
 <Route path="/manager" element={<ManagerLayout />}>
   <Route path="dashboard" element={<ManagerDashboard />} />  
