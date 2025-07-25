@@ -41,7 +41,7 @@ import UserTaskDetailsPage from './pages/admin/UserTaskDetailsPage';
 import ManagerTaskForm from './pages/manager/ManagerTaskForm';
 import ManagerTaskList from './pages/manager/ManagerTaskList';
 import DepartmentList from './pages/admin/DepartmentList';
-
+import OrganizationDetails from './pages/admin/OrganizationDetails';
 import OrganizationChoice from './components/OrganizationChoice';
 import CreateOrganization from './pages/admin/CreateOrganization';
 import JoinOrganization from './pages/admin/JoinOrganization';
@@ -113,6 +113,7 @@ function App() {
         <Route path="/create-organization" element={<CreateOrganization />} />
         <Route path="/join-organization" element={<JoinOrganization />} />
         <Route path="/organization" element={<Organization />} />
+        <Route path="/organization/getUser/:orgid" element={<OrganizationDetails />} />
        {/*manager  */}
 <Route path="/manager" element={<ManagerLayout />}>
   <Route path="dashboard" element={<ManagerDashboard />} />  

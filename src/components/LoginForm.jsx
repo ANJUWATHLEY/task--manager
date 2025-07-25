@@ -1,39 +1,61 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import axios from '../api/axiosInstance';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "../api/axiosInstance";
 
 const LoginForm = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
+
+  const getOrgRef = (user) =>
+    user?.orgRef || user?.orgId || user?.orgid || user?.organizationId || null;
+
+  const goAfterLogin = (user) => {
+    const orgRef = getOrgRef(user);
+
+    // Admin flow
+    if (user.role === "admin") {
+      if (!orgRef) return navigate("/create-organization", { replace: true });
+      return navigate("/admin/dashboard", { replace: true });
+    }
+
+    // Manager / Employee (optional: if orgRef missing, force join page)
+    if (user.role === "manager") {
+      if (!orgRef) return navigate("/join-organization", { replace: true });
+      return navigate("/manager/dashboard", { replace: true });
+    }
+
+    if (user.role === "employee") {
+      if (!orgRef) return navigate("/join-organization", { replace: true });
+      return navigate("/employee/dashboard", { replace: true });
+    }
+
+    // fallback
+    return navigate("/", { replace: true });
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('/user/login', { email, password });
+      const res = await axios.post("/user/login", { email, password });
+
       const { token, user } = res.data;
+      const orgRef = getOrgRef(user);
 
-      localStorage.setItem('token', token);
-      localStorage.setItem('role', user.role);
-      localStorage.setItem('id', user.id);
+      // Persist
+      localStorage.setItem("token", token);
+      localStorage.setItem("role", user.role);
+      localStorage.setItem("id", user.id || user._id);
+      if (orgRef) localStorage.setItem("orgRef", orgRef);
 
-      alert('Login successful ');
-      setEmail('');
-      setPassword('');
+      alert("Login successful");
+      setEmail("");
+      setPassword("");
 
-     if (!user.organizationId) {
-  navigate('/organization-choice');
-} else if (user.role === 'admin') {
-  navigate('/admin/dashboard');
-} else if (user.role === 'employee') {
-  navigate('/employee/dashboard');
-} else {
-  navigate('/manager/dashboard');
-}
-
+      goAfterLogin(user);
     } catch (err) {
-      console.error(' Login Error:', err.response?.data || err.message);
-      alert('Login failed! Check your credentials.');
+      console.error("Login Error:", err.response?.data || err.message);
+      alert(err.response?.data?.message || "Login failed! Check your credentials.");
     }
   };
 
@@ -79,11 +101,8 @@ const LoginForm = () => {
         </div>
 
         <p className="mt-8 text-center text-gray-600">
-          Don’t have an account?{' '}
-          <Link
-            to="/signup"
-            className="text-blue-500 hover:underline font-semibold"
-          >
+          Don’t have an account?{" "}
+          <Link to="/signup" className="text-blue-500 hover:underline font-semibold">
             Signup
           </Link>
         </p>

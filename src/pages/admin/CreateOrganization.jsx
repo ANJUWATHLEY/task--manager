@@ -8,28 +8,27 @@ const CreateOrganization = () => {
   const [phone, setPhone] = useState('');
   const [type, setType] = useState('');
   const [description, setDescription] = useState('');
-
+const [inviteCode, setInviteCode] = useState('');
   const navigate = useNavigate();
-
+const id = localStorage.getItem('id');
   const handleCreate = async (e) => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-const res = await axios.post(
-  '/organization/create',
-  {
-    name,
-    email,
-    mobile: phone,
-    organization_type: type,
-    description,
+const payload = {
+  name,
+  email,
+  mobile: phone,
+  organization_type: type,
+  description,
+};
+
+const res = await axios.post(`/organization/create/${id}`, payload, {
+  headers: {
+    Authorization: `Bearer ${token}`,
   },
-  {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }
-);
+});
+
 
  console.log("Form Data:", {
     name,
@@ -39,7 +38,9 @@ const res = await axios.post(
     description
   });
       alert('Organization created successfully!');
-      navigate('/organization');
+    localStorage.setItem("orgRef", res.data.ref);
+    console.log("Ref Stored:", localStorage.getItem("orgRef"));
+      navigate(`/admin/dashboard`);
     } catch (err) {
       console.error('Create Org Error:', err.response?.data || err.message);
       alert('Failed to create organization. Please try again.');

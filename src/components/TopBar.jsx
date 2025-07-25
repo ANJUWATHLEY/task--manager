@@ -1,4 +1,3 @@
-// src/components/TopBar.jsx
 import React, { useEffect, useState } from 'react';
 import { Search, User } from 'lucide-react';
 import axiosInstance from '../api/axiosInstance';
@@ -8,13 +7,14 @@ const TopBar = () => {
   const [data, setData] = useState('');
   const [allTasks, setAllTasks] = useState([]);
   const [filteredTasks, setFilteredTasks] = useState([]);
+  const [openDropdown, setOpenDropdown] = useState(false);
   const navigate = useNavigate();
-  const role = localStorage.getItem('role'); // check role to decide path
-
+  const role = localStorage.getItem('role');
+const orgid = localStorage.getItem("orgRef");
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const url = role === 'manager' ? '/manager/readalltask' : '/admin/alltask';
+        const url = '/admin/alltask';
         const res = await axiosInstance.get(url);
 
         const tasks = Array.isArray(res.data?.tasks)
@@ -30,16 +30,17 @@ const TopBar = () => {
       }
     };
     fetchTasks();
-  }, [role]);
+  }, []);
 
   const handleSearch = (query) => {
     const lower = query.toLowerCase();
-    const filtered = allTasks.filter((task) =>
-      task.title?.toLowerCase().includes(lower) ||
-      task.status?.toLowerCase().includes(lower) ||
-      task.priority?.toLowerCase().includes(lower) ||
-      task.user_name?.toLowerCase().includes(lower) ||
-      task.des?.toLowerCase().includes(lower)
+    const filtered = allTasks.filter(
+      (task) =>
+        task.title?.toLowerCase().includes(lower) ||
+        task.status?.toLowerCase().includes(lower) ||
+        task.priority?.toLowerCase().includes(lower) ||
+        task.user_name?.toLowerCase().includes(lower) ||
+        task.des?.toLowerCase().includes(lower)
     );
     setFilteredTasks(filtered);
   };
@@ -52,7 +53,7 @@ const TopBar = () => {
 
   const handleSearchClick = (task) => {
     const status = task.status?.toLowerCase();
-    const base = role === 'manager' ? '/manager' : '/admin';
+    const base = '/admin';
 
     if (['pending', 'inprocess', 'completed'].includes(status)) {
       navigate(`${base}/view-tasks#${status}`);
@@ -89,14 +90,34 @@ const TopBar = () => {
           </form>
         </div>
 
-        {/* User */}
-      <Link
-  to={role === 'manager' ? '/manager/detail' : '/admin/detail'}
-  className="flex items-center gap-2 text-white hover:text-yellow-300 transition-all duration-150"
->
-  <User size={20} />
-</Link>
+        {/* Admin Dropdown */}
+        <div className="relative">
+          <button
+            onClick={() => setOpenDropdown(!openDropdown)}
+            className="flex items-center gap-2 text-white hover:text-yellow-300 transition-all duration-150 focus:outline-none"
+          >
+            <User size={22} />
+          </button>
 
+          {openDropdown && (
+            <div className="absolute right-0 mt-2 w-48 bg-white text-gray-800 rounded-lg shadow-lg border border-gray-100">
+              <Link
+                to="/admin/detail"
+                className="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => setOpenDropdown(false)}
+              >
+                Admin Detail
+              </Link>
+             <Link
+  to={`/organization/getUser/${orgid}`}   
+  className="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
+  onClick={() => setOpenDropdown(false)}
+>
+  Organization Detail
+</Link>
+            </div>
+          )}
+        </div>
       </header>
 
       {/* Search Results */}
@@ -115,8 +136,12 @@ const TopBar = () => {
                   onClick={() => handleSearchClick(task)}
                   className="cursor-pointer border-b pb-2 hover:bg-indigo-50 px-3 py-2 rounded transition"
                 >
-                  <div className="font-semibold text-gray-800">{task.title}</div>
-                  <div className="text-sm text-gray-500">{task.status} — {task.des}</div>
+                  <div className="font-semibold text-gray-800">
+                    {task.title}
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {task.status} — {task.des}
+                  </div>
                 </li>
               ))}
             </ul>
