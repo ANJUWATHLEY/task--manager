@@ -41,13 +41,14 @@ const LoginForm = () => {
 
       const { token, user } = res.data;
       const orgRef = getOrgRef(user);
-
+       const taskId = user.taskTable || null;
+    console.log("Login Response:", res.data);
       // Persist
       localStorage.setItem("token", token);
       localStorage.setItem("role", user.role);
       localStorage.setItem("id", user.id || user._id);
       if (orgRef) localStorage.setItem("orgRef", orgRef);
-
+     if (taskId) localStorage.setItem("taskId", taskId);
       alert("Login successful");
       setEmail("");
       setPassword("");

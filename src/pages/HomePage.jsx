@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import taskimg from '../assets/task.png'; 
 
 const HomePage = () => {
   return (
@@ -56,12 +57,13 @@ const HomePage = () => {
         {/* Right Image */}
         <div className="hidden md:block">
           <img
-            src="https://clickup.com/images/homepage/task-management.webp"
+            src={taskimg}
             alt="Task Mockup"
             className="rounded-xl shadow-xl"
           />
         </div>
       </div>
+      
     </div>
   );
 };
