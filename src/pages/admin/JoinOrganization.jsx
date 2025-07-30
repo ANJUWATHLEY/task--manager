@@ -1,25 +1,40 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from '../../api/axiosInstance';
+
 const JoinOrganization = () => {
   const [inviteCode, setInviteCode] = useState('');
+  const [role, setRole] = useState('employee'); // Default: employee
   const navigate = useNavigate();
+  const id = localStorage.getItem('id');
 
   const handleJoin = async (e) => {
     e.preventDefault();
+
+    if (!inviteCode || !role) {
+      alert('Please enter invite code and select role.');
+      return;
+    }
+
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.post(
-        '/organization/join',
-        { inviteCode },
+      const res = await axios.post(`/employe/${inviteCode}`, 
+        { id, role }, // send role too if needed in backend
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
       );
+
       alert('Successfully joined organization!');
-      navigate('/employee/dashboard'); // or manager/dashboard if role-specific
+
+      if (role === 'manager') {
+        navigate('/manager/dashboard');
+      } else {
+        navigate('/employee/dashboard');
+      }
+
     } catch (err) {
       console.error('Join Error:', err.response?.data || err.message);
       alert('Failed to join organization. Please check your invite code.');
@@ -36,7 +51,20 @@ const JoinOrganization = () => {
           Join Organization
         </h2>
 
-        <div className="space-y-6">
+        <div className="space-y-4">
+          <div>
+            <label className="block font-semibold mb-2 text-gray-700">Select Role</label>
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              required
+              className="w-full px-4 py-3 border rounded-lg bg-gray-50"
+            >
+              <option value="employee">Employee</option>
+              <option value="manager">Manager</option>
+            </select>
+          </div>
+
           <input
             type="text"
             placeholder="Enter Invite Code"

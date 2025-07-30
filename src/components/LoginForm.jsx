@@ -30,35 +30,59 @@ const LoginForm = () => {
       return navigate("/employee/dashboard", { replace: true });
     }
 
-    // fallback
+    
     return navigate("/", { replace: true });
   };
+const handleLogin = async (e) => {
+  e.preventDefault();
+  try {
+    const res = await axios.post("/user/login", { email, password });
+    const { token, user } = res.data;
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await axios.post("/user/login", { email, password });
+    const orgRef = getOrgRef(user);
+    const taskId = user.taskTable || null;
+    const user_table = user.userTable || null;
 
-      const { token, user } = res.data;
-      const orgRef = getOrgRef(user);
-       const taskId = user.taskTable || null;
-    console.log("Login Response:", res.data);
-      // Persist
-      localStorage.setItem("token", token);
-      localStorage.setItem("role", user.role);
-      localStorage.setItem("id", user.id || user._id);
-      if (orgRef) localStorage.setItem("orgRef", orgRef);
-     if (taskId) localStorage.setItem("taskId", taskId);
-      alert("Login successful");
-      setEmail("");
-      setPassword("");
+    // Save core values
+    localStorage.setItem("token", token);
+    localStorage.setItem("role", user.role);
+    localStorage.setItem("id", user.id || user._id);
+    if (orgRef) localStorage.setItem("orgRef", orgRef);
+    if (taskId) localStorage.setItem("taskId", taskId);
+    if (user_table) localStorage.setItem("user_table", user_table);
+  
 
-      goAfterLogin(user);
-    } catch (err) {
-      console.error("Login Error:", err.response?.data || err.message);
-      alert(err.response?.data?.message || "Login failed! Check your credentials.");
+    // ✅ NEW: Fetch full org info using orgRef
+    if (orgRef) {
+      try {
+        const orgRes = await axios.get(`/organization/getUser/${orgRef}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+    console.log("Organization Data:", orgRes.data);
+        const orgData = orgRes.data;
+
+        // Save the user_table coming from organization data (overwrite if needed)
+        if (orgData?.user_table) {
+          localStorage.setItem("user_table", orgData.user_table);
+        }
+
+        // Optionally store full org data if you need it later
+        localStorage.setItem("org_data", JSON.stringify(orgData));
+      } catch (orgErr) {
+        console.warn("Failed to fetch org details:", orgErr);
+      }
     }
-  };
+
+    alert("Login successful");
+    setEmail("");
+    setPassword("");
+
+    goAfterLogin(user);
+  } catch (err) {
+    console.error("Login Error:", err.response?.data || err.message);
+    alert(err.response?.data?.message || "Login failed! Check your credentials.");
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-purple-100 px-4">

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from '../../api/axiosInstance';
 import { useNavigate } from 'react-router-dom';
 
+
 import {
   Users, ClipboardCheck, CheckCircle, LayoutDashboard,
   ListChecks, UserCog, Menu, X, Target, ArrowUp, ArrowDown, LogOut 
@@ -16,23 +17,41 @@ const AdminDashboard = () => {
   const [tasks, setTasks] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [loading, setLoading] = useState(true);
-
+ const USERREF = localStorage.getItem("user_table");
   const token = localStorage.getItem('token');
   const navigate = useNavigate();
   const id = localStorage.getItem('id');
   const role = localStorage.getItem('role');
-
+const orgid = localStorage.getItem('orgRef');
 const handleLogout = () => {
   localStorage.removeItem('token');
   navigate('/login');
 }; 
 
+
+async function fetchUsers() {
+  try {
+    const response = await axios.get(`/organization/getUser/${orgid}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    console.log(response.data.data[0].user_table);
+    
+    localStorage.setItem('user_table', response.data.data[0].user_table);
+  } catch (error) {
+    console.error('Error fetching employees:', error);
+  }
+}
+
   useEffect(() => {
+
+fetchUsers();
+
     const fetchData = async () => {
       try {
-        const employeeRes = await axios.get('/admin/allemploye', {
+        const employeeRes = await axiosInstance.get(`/admin/allemploye/${USERREF}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+
         const employeesData = Array.isArray(employeeRes.data)
           ? employeeRes.data
           : employeeRes.data.employees || [];
@@ -238,6 +257,7 @@ const lowPriorityTasks = tasks.filter(task => task.priority?.toLowerCase() === '
             </ResponsiveContainer>
           </div>
         </div>
+     
       </main>
     </div></>
   );
