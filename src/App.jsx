@@ -30,8 +30,9 @@ import TaskSubmission from './pages/employee/TaskSubmission';
 import MyTasks from './pages/employee/MyTasks';
 import Profile from './pages/employee/Profile';
 import TaskDetailsPage from './pages/employee/TaskDetailsPage';
-import AssignedTasks from './components/AssignedTasks';
-import UpdateTaskForm from './components/UpdateTask';
+import AdminUpdateTaskForm from './pages/admin/AdminUpdateTaskForm';
+import ManagerUpdateTaskForm from './pages/manager/ManagerUpdateTaskForm';
+
 import AssignedTasksPage from './pages/manager/AssignedTasksPage';
 import AdminProfile from './pages/admin/AdminProfile';
 import GrouptaskPage from './pages/manager/GrouptaskPage';
@@ -46,7 +47,7 @@ import OrganizationChoice from './components/OrganizationChoice';
 import CreateOrganization from './pages/admin/CreateOrganization';
 import JoinOrganization from './pages/admin/JoinOrganization';
 import Organization from './pages/admin/Orignatization';
-
+import Button from './pages/admin/Button';
 function App() {
   const location = useLocation();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -114,6 +115,7 @@ function App() {
         <Route path="/join-organization" element={<JoinOrganization />} />
         <Route path="/organization" element={<Organization />} />
         <Route path="/organization/getUser/:orgid" element={<OrganizationDetails />} />
+        <Route path="/admin/update-task/:id" element={<AdminUpdateTaskForm />} />
        {/*manager  */}
 <Route path="/manager" element={<ManagerLayout />}>
   <Route path="dashboard" element={<ManagerDashboard />} />  
@@ -122,7 +124,7 @@ function App() {
   <Route path="create" element={<ManagerTaskForm />} />
   <Route path="assigned-tasks" element={<AssignedTasksPage />} />
   <Route path="group-tasks" element={<  GrouptaskPage />} />
-  <Route path="/manager/updatetask/:id" element={<UpdateTaskForm />} />
+<Route path="/manager/update-task/:id" element={<ManagerUpdateTaskForm />} />
    <Route path="viewuser/:id" element={<ManagerTaskList />} />
    
    <Route path="/manager/user/:id" element={<ManagerUserTaskDetails />} />
@@ -139,14 +141,13 @@ function App() {
         {/* Employee Routes */}
    
         <Route path="/employee/dashboard" element={<EmployeeDashboard />} />
-        <Route path="/assigned-tasks" element={<AssignedTasks />} />
         <Route path="/employee/task-submission" element={<TaskSubmission />} />
         <Route path="/employee/mytask" element={<MyTasks />} />
         <Route path="/employee/profile" element={<Profile />} />
          <Route path="/task/:id" element={<TaskDetailsPage />} />
-
+        <Route path='/button' element={<Button />} />
         {/* Shared/Utility Routes */}
-        <Route path="/updatetask/:id" element={<UpdateTaskForm />} />
+      
       </Routes>
   <ToastContainer position="top-center" autoClose={2000} />
 

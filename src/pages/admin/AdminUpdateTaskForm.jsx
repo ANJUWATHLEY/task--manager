@@ -1,23 +1,29 @@
 import { useForm } from 'react-hook-form';
 import { useParams, useNavigate } from 'react-router-dom';
-import instanceAxios from '../api/axiosInstance.js';
+import axios from "../../api/axiosInstance";
 
-const UpdateTaskForm = () => {
+const AdminUpdateTaskForm = () => {
     const { register, handleSubmit, reset, formState: { errors } } = useForm();
     const { id } = useParams();
     const navigate = useNavigate();
 
-    const role = window.location.pathname.includes('manager') ? 'manager' : 'admin';
-
+    const ref_task = localStorage.getItem("taskId"); 
+console.log(ref_task)
     const onSubmit = async (data) => {
         try {
-            const res = await instanceAxios.put(`${role}/updatetask/${id}`, data);
+           
+            const updatedData = {
+                ...data,
+                REFTASK: ref_task,
+            };
+
+            const res = await axios.put(`admin/updatetask/${id}`, updatedData);
             console.log(res);
-            alert('✅ Task updated successfully');
-            navigate(`/${role}/view-tasks`);
+            alert(' Task updated successfully');
+            navigate(`/admin/view-tasks`);
         } catch (error) {
             console.error(error);
-            alert('❌ Failed to update task');
+            alert(' Failed to update task');
         }
     };
 
@@ -30,14 +36,14 @@ const UpdateTaskForm = () => {
 
             <input
                 type="text"
-                {...register('title')}
+                {...register('title', { required: true })}
                 placeholder="Task Title"
                 className="w-full p-2 border rounded-lg"
             />
             {errors.title && <p className="text-red-500 text-sm">Title is required</p>}
 
             <textarea
-                {...register('description')}
+                {...register('description', { required: true })}
                 placeholder="Task Description"
                 className="w-full p-2 border rounded-lg"
                 rows="3"
@@ -72,4 +78,4 @@ const UpdateTaskForm = () => {
     );
 };
 
-export default UpdateTaskForm;
+export default AdminUpdateTaskForm;

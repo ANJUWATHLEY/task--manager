@@ -22,10 +22,11 @@ const CreateTasksPage = () => {
 
   const hasFetchedOnce = useRef(false);
   const adminId = localStorage.getItem("id");
-  const USERREF = localStorage.getItem("user_table");
+  const USERREF = localStorage.getItem("user_table"); // e.g., USERS4053
   const token = localStorage.getItem("token");
+  const taskId = localStorage.getItem("taskId");
   const navigate = useNavigate();
-
+ console.log("USERREF:", USERREF, "taskId:", taskId);
   const {
     register,
     handleSubmit,
@@ -51,24 +52,40 @@ const CreateTasksPage = () => {
     fetchUsers();
   }, []);
 
-  const onSubmit = async (data) => {
-    if (!selectedUser) {
-      toast.error("Please select an assignee.");
-      return;
-    }
+ const onSubmit = async (data) => {
+  if (!selectedUser) {
+    toast.error("Please select an assignee.");
+    return;
+  }
 
- console.log("Form Data:", formData);
-    try {
-      await axiosInstance.post("/admin/createtask", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      toast.success("✅ Task created");
-      reset();
-      setSelectedUser(null);
-    } catch {
-      toast.error("❌ Error creating task");
-    }
+  const taskPayload = {
+    title: data.title,
+    description: data.description || "",
+    assign_date: data.assign_date,
+    deadline_date: data.deadline_date,
+    priority: data.priority,
+    create_by: adminId,
+    reftask: taskId,
+    userids: [selectedUser.id], // send array directly
+    // task_image: not included here (needs FormData if uploading file)
   };
+
+  try {
+    const response = await axiosInstance.post("/admin/createtask", taskPayload, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    toast.success("✅ Task created successfully");
+    reset();
+    setSelectedUser(null);
+  } catch (error) {
+    console.error("❌ Error creating task:", error);
+    toast.error("❌ Error creating task");
+  }
+};
 
   const filteredUsers = users.filter((user) => {
     const matchesRole =

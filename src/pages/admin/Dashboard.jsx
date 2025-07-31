@@ -2,109 +2,101 @@ import React, { useEffect, useState } from 'react';
 import axios from '../../api/axiosInstance';
 import { useNavigate } from 'react-router-dom';
 
-
 import {
   Users, ClipboardCheck, CheckCircle, LayoutDashboard,
   ListChecks, UserCog, Menu, X, Target, ArrowUp, ArrowDown, LogOut 
 } from 'lucide-react';
+
 import {
   PieChart, Pie, Cell, ResponsiveContainer, Tooltip,
   AreaChart, Area, CartesianGrid, XAxis, YAxis
 } from 'recharts';
 
 const AdminDashboard = () => {
-  const [employees, setEmployees] = useState([]);
+  const [emplength, setEmpLength] = useState(0);
   const [tasks, setTasks] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [loading, setLoading] = useState(true);
- const USERREF = localStorage.getItem("user_table");
+
   const token = localStorage.getItem('token');
-  const navigate = useNavigate();
   const id = localStorage.getItem('id');
   const role = localStorage.getItem('role');
-const orgid = localStorage.getItem('orgRef');
-const handleLogout = () => {
-  localStorage.removeItem('token');
-  navigate('/login');
-}; 
+  const orgid = localStorage.getItem('orgRef');
 
+  const [userRef, setUserRef] = useState(null);
 
-async function fetchUsers() {
-  try {
-    const response = await axios.get(`/organization/getUser/${orgid}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    console.log(response.data.data[0].user_table);
-    
-    localStorage.setItem('user_table', response.data.data[0].user_table);
-  } catch (error) {
-    console.error('Error fetching employees:', error);
-  }
-}
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
+
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get(`/organization/getUser/${orgid}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const userTable = response.data?.data?.[0]?.user_table;
+      if (userTable) {
+        localStorage.setItem('user_table', userTable);
+        setUserRef(userTable);
+      }
+    } catch (error) {
+      console.error('Error fetching employees:', error);
+    }
+  };
+
+  const fetchData = async (USERREF) => {
+    try {
+      // Employees API
+      const res = await axios.get(`/admin/allemploye/${USERREF}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const employeesData = Array.isArray(res.data) ? res.data : res.data.employees || [];
+      setEmpLength(employeesData.length);
+
+      // Tasks API
+      const create_by = localStorage.getItem('id');
+      const REFTASK = localStorage.getItem('taskId');
+
+      const taskRes = await axios.get(`/admin/alltask/${create_by}/${REFTASK}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const tasksData = Array.isArray(taskRes.data) ? taskRes.data : taskRes.data.tasks || [];
+      setTasks(tasksData);
+
+      setLoading(false);
+    } catch (error) {
+      console.error('Fetch error:', error);
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-
-fetchUsers();
-
-    const fetchData = async () => {
-      try {
-        const employeeRes = await axiosInstance.get(`/admin/allemploye/${USERREF}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        const employeesData = Array.isArray(employeeRes.data)
-          ? employeeRes.data
-          : employeeRes.data.employees || [];
-
-   const taskRes = await axios.get(`/admin/alltask/${id}`, {
-  headers: { Authorization: `Bearer ${token}` }
-});
-
-      
-      const admindetail = await axios.get(`/admin/detail/${id}`, {
-  headers: { Authorization: `Bearer ${token}` }
-});
-
-console.log('Admin detail:', admindetail.data);
-      
-
-
-
-
-        const tasksData = Array.isArray(taskRes.data)
-          ? taskRes.data
-          : taskRes.data.tasks || [];
-
-        setEmployees(employeesData);
-        setTasks(tasksData);
-        setLoading(false);
-      } catch (error) {
-        console.error('Fetch error:', error);
-        setLoading(false);
-      }
+    const init = async () => {
+      await fetchUsers(); // fetch user_table and store
     };
+    init();
+  }, []);
 
-    fetchData();
-  }, [token]);
+  useEffect(() => {
+    const USERREF = localStorage.getItem('user_table');
+    if (USERREF) {
+      fetchData(USERREF);
+    }
+  }, [localStorage.getItem('user_table')]);
 
-
-
-
-
-
-
-
-
-
+  // Task Filters
   const completedTasks = tasks.filter(task => task.status?.toLowerCase() === 'completed');
   const pendingTasks = tasks.filter(task => task.status?.toLowerCase() === 'pending');
   const inProgressTasks = tasks.filter(task => task.status?.toLowerCase() === 'inprocess');
 
-const highPriorityTasks = tasks.filter(task => task.priority?.toLowerCase() === 'high');
-const mediumPriorityTasks = tasks.filter(task => task.priority?.toLowerCase() === 'medium');
-const lowPriorityTasks = tasks.filter(task => task.priority?.toLowerCase() === 'low');
-
-
+  const highPriorityTasks = tasks.filter(task => task.priority?.toLowerCase() === 'high');
+  const mediumPriorityTasks = tasks.filter(task => task.priority?.toLowerCase() === 'medium');
+  const lowPriorityTasks = tasks.filter(task => task.priority?.toLowerCase() === 'low');
 
   const taskStatusData = [
     { name: 'Completed', value: completedTasks.length, color: '#10b981' },
@@ -159,23 +151,20 @@ const lowPriorityTasks = tasks.filter(task => task.priority?.toLowerCase() === '
   }
 
   return (
-    <><div className="min-h-screen flex bg-gray-50">
-
-
-      {/* Main Content */}
+    <div className="min-h-screen flex bg-gray-50">
       <main className="flex-1 p-8">
-
         {/* Stat Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard
             title="Total Employees"
-            value={employees.length}
+            value={emplength}
             icon={Users}
             color="text-blue-600"
             bgColor="bg-blue-100"
             trend="up"
             trendValue="12%"
-            subtitle="Active team members" />
+            subtitle="Active team members"
+          />
           <StatCard
             title="Tasks Assigned"
             value={tasks.length}
@@ -184,7 +173,8 @@ const lowPriorityTasks = tasks.filter(task => task.priority?.toLowerCase() === '
             bgColor="bg-purple-100"
             trend="up"
             trendValue="8%"
-            subtitle="This month" />
+            subtitle="This month"
+          />
           <StatCard
             title="Completed Tasks"
             value={completedTasks.length}
@@ -193,19 +183,22 @@ const lowPriorityTasks = tasks.filter(task => task.priority?.toLowerCase() === '
             bgColor="bg-green-100"
             trend="up"
             trendValue="15%"
-            subtitle={`${Math.round((completedTasks.length / tasks.length) * 100)}% completion rate`} />
+            subtitle={`${Math.round((completedTasks.length / tasks.length) * 100)}% completion rate`}
+          />
           <StatCard
             title="Priority Summary"
             value=""
             icon={Target}
             color="text-red-600"
             bgColor="bg-red-100"
-            subtitle={<div className="space-y-1">
-              <p className="text-sm"><span className="text-red-600 font-semibold">High</span>: {highPriorityTasks.length}</p>
-              <p className="text-sm"><span className="text-yellow-500 font-semibold">Medium</span>: {mediumPriorityTasks.length}</p>
-              <p className="text-sm"><span className="text-green-600 font-semibold">Low</span>: {lowPriorityTasks.length}</p>
-            </div>} />
-
+            subtitle={
+              <div className="space-y-1">
+                <p className="text-sm"><span className="text-red-600 font-semibold">High</span>: {highPriorityTasks.length}</p>
+                <p className="text-sm"><span className="text-yellow-500 font-semibold">Medium</span>: {mediumPriorityTasks.length}</p>
+                <p className="text-sm"><span className="text-green-600 font-semibold">Low</span>: {lowPriorityTasks.length}</p>
+              </div>
+            }
+          />
         </div>
 
         {/* Charts */}
@@ -257,9 +250,8 @@ const lowPriorityTasks = tasks.filter(task => task.priority?.toLowerCase() === '
             </ResponsiveContainer>
           </div>
         </div>
-     
       </main>
-    </div></>
+    </div>
   );
 };
 

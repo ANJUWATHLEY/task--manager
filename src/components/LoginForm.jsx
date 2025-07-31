@@ -25,10 +25,15 @@ const LoginForm = () => {
       return navigate("/manager/dashboard", { replace: true });
     }
 
-    if (user.role === "employee") {
-      if (!orgRef) return navigate("/join-organization", { replace: true });
+     if (user.role === "employee") {
+    if (!orgRef) {
+      return navigate("/join-organization", { replace: true });
+    } else {
       return navigate("/employee/dashboard", { replace: true });
     }
+  }
+console.log("USER DATA FROM LOGIN:", user);
+console.log("orgRef resolved:", orgRef);
 
     
     return navigate("/", { replace: true });
