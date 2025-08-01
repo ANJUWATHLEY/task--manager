@@ -6,27 +6,44 @@ const EmployeeDashboard = () => {
   const [tasks, setTasks] = useState([]);
   const token = localStorage.getItem('token');
   const userId = localStorage.getItem('id');
-
-  const fetchMyTasks = async () => {
-    try {
-      const res = await axios.get(`/employe/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
- 
-      const data = Array.isArray(res.data) ? res.data : res.data.tasks || [];
-      const formatted = data.map((item) => ({
-        ...item,
-        assign_date: item.assign_date?.split('T')[0] || '',
-        deadline_date: item.deadline_date?.split('T')[0] || '',
-      }));
-
-      setTasks(formatted);
-    } catch (error) {
-      console.error('Error fetching employee tasks:', error);
-    }
-  };
+  const Member_org = localStorage.getItem('Member_org');
 
   useEffect(() => {
+    const fetchMyTasks = async () => {
+      try {
+        let REFTASK = '';
+
+        // Split Member_org using regex
+        const match = Member_org?.match(/^([a-zA-Z]+)(\d+)$/);
+
+        if (match) {
+          const [, text, number] = match;
+          REFTASK = 'TASK' + number;
+        } else {
+          console.error('Invalid Member_org format');
+          return;
+        }
+
+        const res = await axios.get(`/employe/${userId}/${REFTASK}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = Array.isArray(res.data) ? res.data : res.data.tasks || [];
+
+        const formatted = data.map((item) => ({
+          ...item,
+          assign_date: item.assign_date?.split('T')[0] || '',
+          deadline_date: item.deadline_date?.split('T')[0] || '',
+        }));
+
+        setTasks(formatted);
+      } catch (error) {
+        console.error('Error fetching employee tasks:', error);
+      }
+    };
+
     fetchMyTasks();
   }, []);
 
@@ -37,28 +54,27 @@ const EmployeeDashboard = () => {
 
   return (
     <div className="min-h-screen bg-[#f0f4ff] px-10 py-8">
-     
-      {/* Cards with Hover */}
+      {/* Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-10">
-        <div className="bg-white rounded-xl shadow-md p-6 text-center hover:bg-blue-100 transition duration-200">
+        <div className="bg-white rounded-xl shadow-md p-6 text-center hover:bg-blue-100 transition">
           <ClipboardCheck className="mx-auto text-blue-500" size={36} />
           <p className="text-2xl font-bold mt-2">{totalTasks}</p>
           <p className="text-sm text-gray-500">Total Tasks</p>
         </div>
 
-        <div className="bg-green-50 rounded-xl shadow-md p-6 text-center hover:bg-blue-100 transition duration-200">
+        <div className="bg-green-50 rounded-xl shadow-md p-6 text-center hover:bg-blue-100 transition">
           <CheckCircle className="mx-auto text-green-600" size={36} />
           <p className="text-2xl font-bold mt-2">{completed}</p>
           <p className="text-sm text-gray-500">Completed</p>
         </div>
 
-        <div className="bg-red-50 rounded-xl shadow-md p-6 text-center hover:bg-blue-100 transition duration-200">
+        <div className="bg-red-50 rounded-xl shadow-md p-6 text-center hover:bg-blue-100 transition">
           <XCircle className="mx-auto text-red-600" size={36} />
           <p className="text-2xl font-bold mt-2">{pending}</p>
           <p className="text-sm text-gray-500">Pending</p>
         </div>
 
-        <div className="bg-yellow-50 rounded-xl shadow-md p-6 text-center hover:bg-blue-100 transition duration-200">
+        <div className="bg-yellow-50 rounded-xl shadow-md p-6 text-center hover:bg-blue-100 transition">
           <Hourglass className="mx-auto text-yellow-600" size={36} />
           <p className="text-2xl font-bold mt-2">{inProcess}</p>
           <p className="text-sm text-gray-500">In Progress</p>
@@ -88,7 +104,7 @@ const EmployeeDashboard = () => {
                 {tasks.slice(0, 5).map((task, i) => (
                   <tr
                     key={i}
-                    className="border-b border-blue-200 hover:bg-blue-100 transition duration-200"
+                    className="border-b border-blue-200 hover:bg-blue-100 transition"
                   >
                     <td className="py-3 px-4 font-semibold text-gray-800">{task.title}</td>
                     <td

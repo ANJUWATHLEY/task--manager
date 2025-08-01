@@ -7,8 +7,8 @@ const LoginForm = () => {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const getOrgRef = (user) =>
-    user?.orgRef || user?.orgId || user?.orgid || user?.organizationId || null;
+ const getOrgRef = (user) =>
+  user?.Member_org || user?.orgRef || user?.orgId || user?.orgid || user?.organizationId || null;
 
   const goAfterLogin = (user) => {
     const orgRef = getOrgRef(user);
@@ -32,8 +32,7 @@ const LoginForm = () => {
       return navigate("/employee/dashboard", { replace: true });
     }
   }
-console.log("USER DATA FROM LOGIN:", user);
-console.log("orgRef resolved:", orgRef);
+
 
     
     return navigate("/", { replace: true });
@@ -44,6 +43,8 @@ const handleLogin = async (e) => {
     const res = await axios.post("/user/login", { email, password });
     const { token, user } = res.data;
 
+    console.log("Member Org Ref:", res.data.user.Member_org);
+    
     const orgRef = getOrgRef(user);
     const taskId = user.taskTable || null;
     const user_table = user.userTable || null;
@@ -52,6 +53,7 @@ const handleLogin = async (e) => {
     localStorage.setItem("token", token);
     localStorage.setItem("role", user.role);
     localStorage.setItem("id", user.id || user._id);
+    localStorage.setItem("Member_org", user.Member_org);
     if (orgRef) localStorage.setItem("orgRef", orgRef);
     if (taskId) localStorage.setItem("taskId", taskId);
     if (user_table) localStorage.setItem("user_table", user_table);
@@ -63,7 +65,7 @@ const handleLogin = async (e) => {
         const orgRes = await axios.get(`/organization/getUser/${orgRef}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-    console.log("Organization Data:", orgRes.data);
+   
         const orgData = orgRes.data;
 
         // Save the user_table coming from organization data (overwrite if needed)

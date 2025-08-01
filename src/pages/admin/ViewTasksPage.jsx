@@ -114,7 +114,7 @@ const taskDelete = async (taskId) => {
     <div className="p-6 min-h-screen bg-gradient-to-br from-gray-50 to-purple-100">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2 bg-white rounded-full px-3 py-1 shadow text-sm flex-wrap">
-          {['all', 'Pending', 'inprocess', 'completed', 'overdue'].map((status) => (
+          {['all', 'Pending', ' inprocess', 'complete', 'overdue'].map((status) => (
             <button
               key={status}
               onClick={() => setFilter(status)}

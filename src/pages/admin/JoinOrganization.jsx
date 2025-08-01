@@ -26,7 +26,7 @@ const JoinOrganization = () => {
           },
         }
       );
-
+console.log(res.data)
       alert('Successfully joined organization!');
 
       if (role === 'manager') {
