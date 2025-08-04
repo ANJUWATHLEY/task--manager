@@ -114,12 +114,16 @@ const taskDelete = async (taskId) => {
     <div className="p-6 min-h-screen bg-gradient-to-br from-gray-50 to-purple-100">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2 bg-white rounded-full px-3 py-1 shadow text-sm flex-wrap">
-          {['all', 'Pending', ' inprocess', 'complete', 'overdue'].map((status) => (
-            <button
-              key={status}
-              onClick={() => setFilter(status)}
-              className={`px-3 py-1 rounded-full font-bold cursor-pointer ${filter === status ? 'bg-blue-600 text-white' : 'text-gray-600'}`}
-            >
+        {['all', 'Pending', 'inprocess', 'complete', 'overdue'].map((status) => (
+  <button
+    key={status}
+    onClick={() => setFilter(status.toLowerCase())}
+    className={`px-3 py-1 rounded-full font-bold cursor-pointer ${
+      filter.toLowerCase() === status.toLowerCase()
+        ? 'bg-blue-600 text-white'
+        : 'text-gray-600'
+    }`}
+  >
               {status.charAt(0).toUpperCase() + status.slice(1)} ({
                 status === 'overdue'
                   ? tasks.filter((t) => isOverdue(t.deadline_date)).length
@@ -192,7 +196,20 @@ const taskDelete = async (taskId) => {
                   </div>
                 </div>
               </div>
-              <p className="text-gray-700 mt-1">{task.des}</p>
+            
+  <p className="font-medium break-words overflow-hidden text-ellipsis whitespace-nowrap max-w-full">
+  Description:{" "}
+  <span
+    className="font-bold cursor-pointer text-blue-700 hover:underline"
+    title={task.description}
+    onClick={() => navigate(`/admin/viewtask/${task.id}`, { state: { task } })}
+  >
+    {task.description?.split(" ").length > 10
+      ? task.description.split(" ").slice(0, 10).join(" ") + "..."
+      : task.description}
+  </span>
+</p>
+
               <div className="mt-3 text-sm text-gray-600 space-y-1">
                 <p>Status: <span className="font-bold">{task.status}</span></p>
                 <p>Assign Date: <span className="font-bold">{task.assign_date}</span></p>

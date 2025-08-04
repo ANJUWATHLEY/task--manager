@@ -1,329 +1,187 @@
-import React, { useState, useEffect } from "react";
-import axios from "../../api/axiosInstance";
-import { Plus, Search, ChevronDown, ChevronUp, LogIn } from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import axios from '../../api/axiosInstance';
+import { Copy, Search, Link } from "lucide-react";
 
-function Organization() {
+const Organization = () => {
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
-  const [inviteLink, setInviteLink] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(5);
-  const [showActions, setShowActions] = useState({});
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const orgid = localStorage.getItem("orgRef");
-
-  const getAllData = async () => {
-    try {
-      setIsLoading(true);
-      const token = localStorage.getItem("token");
-      const response = await axios.get(`/organization/getUser/${orgid}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      console.log(response.data);
-      
-      setData(response.data);
-
-      setFilteredData(response.data);
-      setInviteLink("/invite/abc123");
-    } catch (err) {
-      setError("Failed to load organization data");
-      console.error("Error fetching data:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedRole, setSelectedRole] = useState('All');
+  const [selectedStatus, setSelectedStatus] = useState('All');
+  const token = localStorage.getItem('token');
+  const USERREF = localStorage.getItem('user_table');
+  const orgRef = localStorage.getItem('orgRef');
 
   useEffect(() => {
     getAllData();
   }, []);
 
-  useEffect(() => {
-    let results = data.filter(
-      (item) =>
-        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.email.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    if (sortConfig.key) {
-      results.sort((a, b) => {
-        if (a[sortConfig.key] < b[sortConfig.key]) {
-          return sortConfig.direction === "asc" ? -1 : 1;
-        }
-        if (a[sortConfig.key] > b[sortConfig.key]) {
-          return sortConfig.direction === "asc" ? 1 : -1;
-        }
-        return 0;
+  const getAllData = async () => {
+    try {
+      const res = await axios.get(`/admin/allemploye/${USERREF}`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
+      setData(res.data);
+      setFilteredData(res.data);
+    } catch (err) {
+      console.error('Error fetching employees:', err);
+    }
+  };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(orgRef);
+    alert('Invite link copied!');
+  };
+
+  const handleSearch = (e) => {
+    const query = e.target.value.toLowerCase();
+    setSearchQuery(query);
+    filterData(query, selectedRole, selectedStatus);
+  };
+
+  const handleRoleChange = (e) => {
+    const role = e.target.value;
+    setSelectedRole(role);
+    filterData(searchQuery, role, selectedStatus);
+  };
+
+  const handleStatusChange = (e) => {
+    const status = e.target.value;
+    setSelectedStatus(status);
+    filterData(searchQuery, selectedRole, status);
+  };
+
+  const filterData = (query, role, status) => {
+    let filtered = [...data];
+
+    if (query) {
+      filtered = filtered.filter((item) =>
+        item.fullname?.toLowerCase().includes(query)
+      );
     }
 
-    setFilteredData(results);
-    setCurrentPage(1);
-  }, [searchTerm, sortConfig, data]);
-
-  const handleSort = (key) => {
-    let direction = "asc";
-    if (sortConfig.key === key && sortConfig.direction === "asc") {
-      direction = "desc";
+    if (role !== 'All') {
+      filtered = filtered.filter((item) =>
+        item.role?.toLowerCase() === role.toLowerCase()
+      );
     }
-    setSortConfig({ key, direction });
+
+    if (status !== 'All') {
+      filtered = filtered.filter((item) =>
+        item.status?.toLowerCase() === status.toLowerCase()
+      );
+    }
+
+    setFilteredData(filtered);
   };
-
-  const getSortIcon = (key) => {
-    if (sortConfig.key !== key) return null;
-    return sortConfig.direction === "asc" ? (
-      <ChevronUp size={16} />
-    ) : (
-      <ChevronDown size={16} />
-    );
-  };
-
-  const toggleActions = (id) => {
-    setShowActions((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
-
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
-  const handleCopyLink = (link) => {
-    navigator.clipboard.writeText(link);
-    alert("Link copied to clipboard!");
-  };
-
-  if (isLoading)
-    return <div className="text-center py-12">Loading members...</div>;
-  if (error)
-    return <div className="text-center py-12 text-red-500">{error}</div>;
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      {/* Header Section */}
+    <div className="p-6 bg-gradient-to-br from-gray-50 to-purple-100 min-h-screen">
+      {/* Filters + Invite */}
       <div className="flex flex-col md:flex-row justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
-            Organization Members
-          </h1>
-          <p className="text-gray-600 mt-1">
-            Manage your team members and permissions
-          </p>
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="bg-gray-100 rounded-lg p-3">
-            <span className="font-medium text-gray-700">Invite Link:</span>{" "}
-            <div className="flex items-center mt-1">
-              <a
-                href={inviteLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:underline text-sm truncate max-w-xs"
-              >
-                {inviteLink}
-              </a>
-              <button
-                onClick={() => handleCopyLink(inviteLink)}
-                className="ml-2 text-gray-500 hover:text-gray-700"
-              >
-                Copy
-              </button>
-            </div>
+        <div className="flex gap-2 flex-wrap items-center">
+          <div className="relative">
+            <Search className="absolute left-2 top-2.5 text-gray-500" size={18} />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={handleSearch}
+              placeholder="Search by name..."
+              className="pl-8 pr-2 py-2 border rounded-md w-[200px] outline-purple-400"
+            />
           </div>
-          <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition h-fit">
-            <Plus size={18} />
-            <span className="whitespace-nowrap">Add Member</span>
+          <select
+            value={selectedRole}
+            onChange={handleRoleChange}
+            className="p-2 border rounded-md outline-purple-400"
+          >
+            <option value="All">All Roles</option>
+            <option value="admin">Admin</option>
+            <option value="manager">Manager</option>
+            <option value="employee">Employee</option>
+          </select>
+          <select
+            value={selectedStatus}
+            onChange={handleStatusChange}
+            className="p-2 border rounded-md outline-purple-400"
+          >
+            <option value="All">All Status</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <div className="relative w-[280px]">
+            <Link className="absolute left-2 top-2.5 text-gray-500" size={18} />
+            <input
+              type="text"
+              value={orgRef}
+              readOnly
+              className="pl-8 pr-2 py-2 border rounded-md w-full bg-gray-50 text-gray-600"
+            />
+          </div>
+          <button
+            onClick={handleCopy}
+            className="bg-blue-600 text-white px-3 py-1 rounded-md flex items-center gap-1 hover:bg-blue-700"
+          >
+            <Copy size={16} /> Copy
           </button>
+          
         </div>
       </div>
 
-      {/* Search and Controls */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
-        <div className="relative flex-1">
-          <Search
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-            size={18}
-          />
-          <input
-            type="text"
-            placeholder="Search members by name or email..."
-            className="pl-10 pr-4 py-2 w-full rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-
-        <div className="flex gap-2">
-          <select className="border rounded-md px-3 py-2 text-sm">
-            <option>All Roles</option>
-            <option>Admin</option>
-            <option>Member</option>
-          </select>
-          <select className="border rounded-md px-3 py-2 text-sm">
-            <option>All Status</option>
-            <option>Active</option>
-            <option>Pending</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Table Section */}
-      <div className="overflow-x-auto bg-white rounded-lg shadow">
-        <table className="min-w-full">
-          <thead className="bg-gray-100 border-b">
+      {/* Employee Table View */}
+      <div className="bg-white rounded-xl shadow overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-100">
             <tr>
-              <th
-                className="text-left p-4 font-semibold text-sm text-gray-700 cursor-pointer"
-                onClick={() => handleSort("name")}
-              >
-                <div className="flex items-center gap-1">
-                  Name
-                  {getSortIcon("name")}
-                </div>
-              </th>
-              <th
-                className="text-left p-4 font-semibold text-sm text-gray-700 cursor-pointer"
-                onClick={() => handleSort("email")}
-              >
-                <div className="flex items-center gap-1">
-                  Email
-                  {getSortIcon("email")}
-                </div>
-              </th>
-              <th className="text-left p-4 font-semibold text-sm text-gray-700">
-                Role
-              </th>
-              <th className="text-left p-4 font-semibold text-sm text-gray-700">
-                Status
-              </th>
-              <th className="text-left p-4 font-semibold text-sm text-gray-700">
-                Actions
-              </th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Name</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Email</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Role</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Joined</th>
             </tr>
           </thead>
-          <tbody>
-            {currentItems.map((item) => (
-              <tr key={item.id} className="border-b hover:bg-gray-50">
-                <td className="p-4">
-                  <div className="flex items-center">
-                    <div className="bg-gray-200 border-2 border-dashed rounded-xl w-10 h-10" />
-                    <div className="ml-3">
-                      <div className="font-medium text-gray-900">
-                        {item.name}
-                      </div>
-                      <div className="text-gray-500 text-sm">
-                        Joined: 12 Jan 2023
-                      </div>
-                    </div>
-                  </div>
-                </td>
-                <td className="p-4 text-sm text-gray-900">{item.email}</td>
-                <td className="p-4">
-                  <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
-                    {item.role || "Member"}
-                  </span>
-                </td>
-                <td className="p-4">
-                  <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
-                    Active
-                  </span>
-                </td>
-                <td className="p-4 relative">
-                  <button
-                    onClick={() => toggleActions(item.id)}
-                    className="text-gray-500 hover:text-gray-700"
-                  >
-                    •••
-                  </button>
-
-                  {showActions[item.id] && (
-                    <div className="absolute right-4 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 border">
-                      <button className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        View Profile
-                      </button>
-                      <button className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                        Edit Role
-                      </button>
-                      <button className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
-                        Remove Member
-                      </button>
-                    </div>
-                  )}
+          <tbody className="divide-y divide-gray-100">
+            {filteredData.length > 0 ? (
+              filteredData.map((item) => (
+                <tr key={item.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-3 text-sm font-medium text-gray-900">{item.name}</td>
+                  <td className="px-4 py-3 text-sm text-gray-600 truncate">{item.email}</td>
+                  <td className="px-4 py-3 text-sm text-gray-600 capitalize">{item.role}</td>
+                  <td className="px-4 py-3 text-sm">
+                    <span
+                      className={`${
+                        item.status === 'active' ? 'text-green-600' : 'text-red-500'
+                      } font-semibold`}
+                    >
+                      {item.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-500">
+                    {item.created_at
+                      ? new Date(item.created_at).toLocaleDateString('en-IN', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                        })
+                      : 'N/A'}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="5" className="px-4 py-6 text-center text-gray-500">
+                  No employees found matching the criteria.
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
-
-        {filteredData.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="bg-gray-200 border-2 border-dashed rounded-xl w-16 h-16 mx-auto" />
-            <h3 className="mt-4 font-medium text-gray-900">No members found</h3>
-            <p className="mt-1 text-gray-500">
-              Try adjusting your search or filter
-            </p>
-          </div>
-        ) : null}
       </div>
-
-      {/* Pagination */}
-      {filteredData.length > itemsPerPage && (
-        <div className="flex flex-col sm:flex-row items-center justify-between mt-6 gap-4">
-          <div className="text-sm text-gray-700">
-            Showing {indexOfFirstItem + 1} to{" "}
-            {Math.min(indexOfLastItem, filteredData.length)} of{" "}
-            {filteredData.length} members
-          </div>
-          <div className="flex space-x-1">
-            <button
-              onClick={() => currentPage > 1 && paginate(currentPage - 1)}
-              disabled={currentPage === 1}
-              className={`px-3 py-1 rounded-md ${
-                currentPage === 1
-                  ? "text-gray-400 cursor-not-allowed"
-                  : "text-gray-700 hover:bg-gray-100"
-              }`}
-            >
-              Previous
-            </button>
-
-            {[...Array(totalPages).keys()].map((number) => (
-              <button
-                key={number + 1}
-                onClick={() => paginate(number + 1)}
-                className={`px-3 py-1 rounded-md ${
-                  currentPage === number + 1
-                    ? "bg-blue-600 text-white"
-                    : "text-gray-700 hover:bg-gray-100"
-                }`}
-              >
-                {number + 1}
-              </button>
-            ))}
-
-            <button
-              onClick={() =>
-                currentPage < totalPages && paginate(currentPage + 1)
-              }
-              disabled={currentPage === totalPages}
-              className={`px-3 py-1 rounded-md ${
-                currentPage === totalPages
-                  ? "text-gray-400 cursor-not-allowed"
-                  : "text-gray-700 hover:bg-gray-100"
-              }`}
-            >
-              Next
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
-}
+};
 
 export default Organization;

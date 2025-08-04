@@ -53,19 +53,24 @@ const MyTasks = () => {
     }
   };
 
-  const handleStatusUpdateCompleted = async (taskId) => {
-    try {
-      await axios.put(
-        `/task/complete/${taskId}`,
-        { status: 'completed' },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      fetchMyTasks();
-    } catch (error) {
-      console.error('❌ Error updating task:', error.response?.data || error.message);
-      alert('Failed to update task status.');
-    }
-  };
+const handleStatusUpdateCompleted = async (taskId) => {
+  try {
+  
+
+    const res = await axios.put(
+      `/employe/complete/${taskId}`,
+      { REFTASK, userid, status: 'complete' },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    console.log("✅ Completed Response:", res.data);
+    fetchMyTasks();
+  } catch (error) {
+    console.error('❌ Error updating task:', error.response?.data || error.message);
+    alert('Failed to update task status.');
+  }
+};
+
 
   const getPriorityColor = (priority) => {
     switch (priority?.toLowerCase()) {
@@ -137,12 +142,12 @@ const MyTasks = () => {
 
                   <button
                     className={`${
-                      status === 'completed'
+                      status === 'complete'
                         ? 'bg-green-300 cursor-not-allowed'
                         : 'bg-green-500 hover:bg-green-600'
                     } text-white px-4 py-2 rounded-full text-sm`}
                     onClick={() => handleStatusUpdateCompleted(task.id)}
-                    disabled={status === 'completed'}
+                    disabled={status === 'complete'}
                   >
                     Completed
                   </button>

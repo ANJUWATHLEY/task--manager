@@ -90,7 +90,7 @@ const AdminDashboard = () => {
   }, [localStorage.getItem('user_table')]);
 
   // Task Filters
-  const completedTasks = tasks.filter(task => task.status?.toLowerCase() === 'completed');
+  const completedTasks = tasks.filter(task => task.status?.toLowerCase() === 'complete');
   const pendingTasks = tasks.filter(task => task.status?.toLowerCase() === 'pending');
   const inProgressTasks = tasks.filter(task => task.status?.toLowerCase() === 'inprocess');
 
@@ -175,16 +175,17 @@ const AdminDashboard = () => {
             trendValue="8%"
             subtitle="This month"
           />
-          <StatCard
-            title="Completed Tasks"
-            value={completedTasks.length}
-            icon={CheckCircle}
-            color="text-green-600"
-            bgColor="bg-green-100"
-            trend="up"
-            trendValue="15%"
-            subtitle={`${Math.round((completedTasks.length / tasks.length) * 100)}% completion rate`}
-          />
+         <StatCard
+  title="Completed Tasks"
+  value={completedTasks.length} // ✅ Corrected
+  icon={CheckCircle}
+  color="text-green-600"
+  bgColor="bg-green-100"
+  trend="up"
+  trendValue="15%"
+  subtitle={`${Math.round((completedTasks.length / tasks.length) * 100)}% completion rate`}
+/>
+
           <StatCard
             title="Priority Summary"
             value=""

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../../api/axiosInstance';
-
+import Organization from '../../pages/admin/Orignatization';
+// ...existing code...
+import { Component } from 'lucide-react';
 const DepartmentList = () => {
   const [departments, setDepartments] = useState([]);
   const [newDept, setNewDept] = useState('');
@@ -46,7 +48,9 @@ const DepartmentList = () => {
           </li>
         ))}
       </ul>
+      <Organization />
     </div>
+
   );
 };
 
