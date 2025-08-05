@@ -12,21 +12,22 @@ const TaskList = () => {
   const [users, setUsers] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [roleFilter, setRoleFilter] = useState('all');
-
+  const USERREF = localStorage.getItem("user_table");
   const token = localStorage.getItem('token');
-
+const createdBy = localStorage.getItem('id')
+const REFTASK = localStorage.getItem('taskId')
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const userRes = await axios.get('/admin/allemploye', {
+         const userRes = await axios.get(`/admin/allemploye/${USERREF}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUsers(userRes.data || []);
-
-        const taskRes = await axios.get('/admin/alltask', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
+   
+         const taskRes = await axios.get(`/admin/alltask/${createdBy}/${REFTASK}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      console.log(taskRes.data)
         const taskList = Array.isArray(taskRes.data)
           ? taskRes.data
           : taskRes.data.tasks || taskRes.data.data || [];
@@ -71,7 +72,7 @@ const TaskList = () => {
     tasks.filter(
       (task) =>
         task.user_id === userId &&
-        task.status?.toLowerCase() === 'completed'
+        task.status?.toLowerCase() === 'Complete'
     ).length;
 
   const filteredUsers =
@@ -89,125 +90,106 @@ const TaskList = () => {
     (u) => u.role?.toLowerCase() === 'employee'
   ).length;
 
-  return (
-    <div className="bg-gray-100 min-h-screen w-full">
-      {/* Title and Filters */}
-      <div className="flex items-center justify-between flex-wrap gap-4 mb-4">
-        <h2 className="text-2xl font-bold p-4 text-blue-700">Staff List</h2>
-        <div className="flex gap-2 text-sm">
-          <div className="flex gap-6 font-semibold text-base md:text-lg">
-            <button
-              onClick={() => setRoleFilter('all')}
-              className={`pb-1 border-b-2 transition cursor-pointer ${
-                roleFilter === 'all'
-                  ? 'border-blue-700 text-blue-700'
-                  : 'border-transparent text-gray-600 hover:text-blue-700 hover:border-blue-400'
-              }`}
-            >
-              All ({users.length})
-            </button>
-
-            <button
-              onClick={() => setRoleFilter('manager')}
-              className={`pb-1 border-b-2 transition cursor-pointer ${
-                roleFilter === 'manager'
-                  ? 'border-blue-700 text-blue-700'
-                  : 'border-transparent text-gray-600 hover:text-blue-700 hover:border-blue-400'
-              }`}
-            >
-              Managers ({totalManagers})
-            </button>
-
-            <button
-              onClick={() => setRoleFilter('employee')}
-              className={`pb-1 border-b-2 transition cursor-pointer ${
-                roleFilter === 'employee'
-                  ? 'border-blue-700 text-blue-700'
-                  : 'border-transparent text-gray-600 hover:text-blue-700 hover:border-blue-400'
-              }`}
-            >
-              Employees ({totalEmployees})
-            </button>
-          </div>
-        </div>
+  
+   return (
+  <div className="bg-gray-50 min-h-screen px-4 py-6">
+    {/* Title and Filters */}
+    <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+      <h2 className="text-3xl font-bold text-blue-800">Staff Task Summary</h2>
+      <div className="flex gap-4">
+        {[
+          { label: 'All', value: 'all', count: users.length },
+          { label: 'Managers', value: 'manager', count: totalManagers },
+          { label: 'Employees', value: 'employee', count: totalEmployees }
+        ].map(({ label, value, count }) => (
+          <button
+            key={value}
+            onClick={() => setRoleFilter(value)}
+            className={`text-sm md:text-base font-medium px-3 py-1 rounded transition border-b-2 ${
+              roleFilter === value
+                ? 'border-blue-600 text-blue-700'
+                : 'border-transparent text-gray-600 hover:text-blue-700 hover:border-blue-400'
+            }`}
+          >
+            {label} ({count})
+          </button>
+        ))}
       </div>
+    </div>
 
-      {/* User Cards */}
-      {filteredUsers.length === 0 ? (
-        <p className="text-gray-600">No users found.</p>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {filteredUsers.map((user) => {
-            const total = countTotalTasks(user.id);
-            const completed = countCompletedTasks(user.id);
-            const progress =
-              total === 0 ? 0 : Math.round((completed / total) * 100);
-            const isHighlighted = highlightedUser === user.id;
+    {/* User Cards */}
+    {filteredUsers.length === 0 ? (
+      <p className="text-gray-600 text-center">No users found.</p>
+    ) : (
+      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        {filteredUsers.map((user) => {
+          const total = countTotalTasks(user.id);
+          const completed = countCompletedTasks(user.id);
+          const pending = countTasks(user.id, 'Pending');
+          const inprocess = countTasks(user.id, 'Inprocess');
+          const progress = total === 0 ? 0 : Math.round((completed / total) * 100);
+          const isHighlighted = highlightedUser === user.id;
 
-            return (
-              <div
-                key={user.id}
-                id={`user-${user.id}`}
-                onClick={() => navigate(`/user/specific/${user.id}`)}
-                className={`cursor-pointer bg-white p-4 rounded-xl shadow border transition duration-300 ${
-                  isHighlighted
-                    ? 'ring-4 ring-blue-500 shadow-lg'
-                    : 'hover:shadow-md hover:ring-2 hover:ring-purple-200'
-                }`}
-              >
-                {/* Avatar */}
-                <div className="flex items-center gap-3 mb-2">
-                 <img
-  src={`https://api.dicebear.com/7.x/initials/svg?seed=${user.user_name}`}
-  alt="avatar"
-  className="w-12 h-12 rounded-full border pointer-events-none"
-/>
-
-                  <div>
-                    <h3 className="text-lg font-bold text-purple-800">
-                      {user.user_name}
-                    </h3>
-                    <p className="text-sm text-gray-500">{user.email}</p>
-                  </div>
-                </div>
-
-                {/* Task Counts */}
-                <div className="flex justify-between mt-3 text-sm font-semibold">
-                  <div className="text-purple-600">
-                    {countTasks(user.id, 'Pending')}
-                    <span className="block text-xs font-normal">Pending</span>
-                  </div>
-                  <div className="text-blue-600">
-                    {countTasks(user.id, 'Inprocess')}
-                    <span className="block text-xs font-normal">In Progress</span>
-                  </div>
-                  <div className="text-green-600">
-                    {countTasks(user.id, 'Completed')}
-                    <span className="block text-xs font-normal">Completed</span>
-                  </div>
-                </div>
-
-                {/* Progress Bar */}
-                <div className="mt-4">
-                  <div className="flex justify-between text-xs font-medium text-gray-600 mb-1">
-                    <p className="text-sm font-semibold text-gray-700 mt-1">
-                      Tasks Done: {completed} / {total}
-                    </p>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-green-500 h-2 rounded-full"
-                      style={{ width: `${progress}%` }}
-                    ></div>
-                  </div>
+          return (
+            <div
+              key={user.id}
+              id={`user-${user.id}`}
+              onClick={() => navigate(`/user/specific/${user.id}`)}
+              className={`cursor-pointer bg-white p-5 rounded-xl shadow-sm border transition-all duration-300 ${
+                isHighlighted
+                  ? 'ring-4 ring-blue-500 shadow-lg'
+                  : 'hover:shadow-md hover:ring-2 hover:ring-purple-200'
+              }`}
+            >
+              {/* Avatar & Name */}
+              <div className="flex items-center gap-4 mb-4">
+                <img
+                  src={`https://api.dicebear.com/7.x/initials/svg?seed=${user.user_name}`}
+                  alt="avatar"
+                  className="w-12 h-12 rounded-full border pointer-events-none"
+                />
+                <div>
+                  <h3 className="text-lg font-bold text-gray-800">{user.user_name}</h3>
+                  <p className="text-sm text-gray-500">{user.email}</p>
                 </div>
               </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
+
+              {/* Task Status Counts */}
+              <div className="flex justify-between text-sm font-semibold mb-4">
+                <div className="text-yellow-600">
+                  {pending}
+                  <div className="text-xs font-normal text-gray-500">Pending</div>
+                </div>
+                <div className="text-blue-600">
+                  {inprocess}
+                  <div className="text-xs font-normal text-gray-500">In Progress</div>
+                </div>
+                <div className="text-green-600">
+                  {completed}
+                  <div className="text-xs font-normal text-gray-500">Completed</div>
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+              <div>
+                <p className="text-sm text-gray-700 font-medium mb-1">
+                  Progress: {completed} / {total}
+                </p>
+                <div className="w-full h-2 bg-gray-200 rounded-full">
+                  <div
+                    className="h-2 bg-green-500 rounded-full transition-all duration-500"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    )}
+  </div>
+);
+
 };
 
 export default TaskList;

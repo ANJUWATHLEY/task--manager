@@ -1,56 +1,115 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import axios from '../../api/axiosInstance';
 import Organization from '../../pages/admin/Orignatization';
-// ...existing code...
-import { Component } from 'lucide-react';
+
 const DepartmentList = () => {
-  const [departments, setDepartments] = useState([]);
-  const [newDept, setNewDept] = useState('');
+  const [businessUnitName, setBusinessUnitName] = useState('');
+  const [message, setMessage] = useState('');
+  const [description, setDescription] = useState('');
+  const [organizationType, setOrganizationType] = useState('');
 
-  useEffect(() => {
-    fetchDepartments();
-  }, []);
+  const orgRef = localStorage.getItem("orgRef");
+  const or_id = localStorage.getItem("id");
 
-  const fetchDepartments = async () => {
-    const res = await axios.get('/department');
-    setDepartments(res.data);
-  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  const handleAdd = async () => {
-    await axios.post('/department', { name: newDept });
-    setNewDept('');
-    fetchDepartments();
-  };
+    if (!businessUnitName || !orgRef || !or_id || !organizationType) {
+      setMessage("❌ Please fill all fields.");
+      return;
+    }
 
-  const handleDelete = async (id) => {
-    await axios.delete(`/department/${id}`);
-    fetchDepartments();
+    const payload = {
+      REF: orgRef,
+      title: businessUnitName,
+      organization_type: organizationType,
+      description,
+    };
+
+    console.log("📤 POSTing to /organization/sub-org/" + or_id);
+    console.log("🧾 Payload being sent:", payload);
+
+    try {
+      await axios.post(`/organization/sub-org/${or_id}`, payload);
+      setMessage("✅ Business Unit created successfully!");
+      setBusinessUnitName('');
+      setDescription('');
+      setOrganizationType('');
+    } catch (error) {
+      console.error("❌ API Error:", error.response?.data || error.message);
+      setMessage("❌ Something went wrong. Please try again.");
+    }
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">Departments</h2>
-      <div className="flex gap-2 mb-4">
-        <input
-          type="text"
-          placeholder="Enter Department Name"
-          value={newDept}
-          onChange={(e) => setNewDept(e.target.value)}
-          className="border px-3 py-1 rounded"
-        />
-        <button onClick={handleAdd} className="bg-blue-500 text-white px-4 py-1 rounded">Add</button>
-      </div>
-      <ul className="list-disc ml-6">
-        {departments.map((dept) => (
-          <li key={dept.id} className="flex justify-between items-center">
-            <span>{dept.name}</span>
-            <button onClick={() => handleDelete(dept.id)} className="text-red-600 text-sm">Delete</button>
-          </li>
-        ))}
-      </ul>
-      <Organization />
-    </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 py-10 px-4">
+      <div className="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-xl">
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
+          Create Business Unit
+        </h2>
 
+        {message && (
+          <div className="mb-4 text-center text-sm font-medium text-red-600">
+            {message}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Business Unit Name */}
+          <div>
+            <label className="block mb-1 font-semibold text-gray-700">
+              Business Unit Name
+            </label>
+            <input
+              type="text"
+              value={businessUnitName}
+              onChange={(e) => setBusinessUnitName(e.target.value)}
+              placeholder="e.g., Raj Darbar Restaurant"
+              className="w-full px-4 py-3 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          </div>
+
+          {/* Organization Type */}
+          <div>
+            <label className="block mb-1 font-semibold text-gray-700">
+              Organization Type
+            </label>
+            <input
+              type="text"
+              value={organizationType}
+              onChange={(e) => setOrganizationType(e.target.value)}
+              placeholder="e.g., Department"
+              className="w-full px-4 py-3 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          </div>
+
+          {/* Description */}
+          <div>
+            <label className="block mb-1 font-semibold text-gray-700">
+              Description
+            </label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="e.g., Handles all operations for this BU"
+              className="w-full px-4 py-3 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            className="w-full bg-blue-700 text-white py-3 rounded-xl font-semibold hover:bg-blue-900 transition"
+          >
+            Create Business Unit
+          </button>
+        </form>
+      </div>
+
+      <div className="mt-10 max-w-4xl mx-auto">
+        <Organization />
+      </div>
+    </div>
   );
 };
 

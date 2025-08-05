@@ -47,7 +47,8 @@ import OrganizationChoice from './components/OrganizationChoice';
 import CreateOrganization from './pages/admin/CreateOrganization';
 import JoinOrganization from './pages/admin/JoinOrganization';
 import Organization from './pages/admin/Orignatization';
-import Button from './pages/admin/Button';
+import BusinessUnitList from './pages/admin/BusinessUnitList';
+
 function App() {
   const location = useLocation();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -109,7 +110,7 @@ function App() {
         <Route path="/admin/viewtask/:taskId" element={<ViewSingleTask />} />
         <Route path="/admin/detail" element={<AdminProfile />} />
         <Route path="/admin/user/:id" element={<User />} />
-       <Route path="/user/specific/:id" element={<UserTaskDetailsPage />} />
+       <Route path="/user/specific/:id/:taskId" element={<UserTaskDetailsPage />} />
          {/* Organization routes */}
         <Route path="/create-organization" element={<CreateOrganization />} />
         <Route path="/join-organization" element={<JoinOrganization />} />
@@ -145,7 +146,7 @@ function App() {
         <Route path="/employee/mytask" element={<MyTasks />} />
         <Route path="/employee/profile" element={<Profile />} />
          <Route path="/task/:id" element={<TaskDetailsPage />} />
-        <Route path='/button' element={<Button />} />
+        <Route path='/businessUnitList' element={<BusinessUnitList />} />
         {/* Shared/Utility Routes */}
       
       </Routes>

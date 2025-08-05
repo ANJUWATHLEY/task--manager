@@ -9,6 +9,12 @@ const UserTaskDetails = () => {
 
   const [user, setUser] = useState(null);
   const [userTasks, setUserTasks] = useState([]);
+ const create_by = localStorage.getItem('id')
+const REFTASK = localStorage.getItem('taskId')
+console.log(REFTASK,)
+// or whatever REF is relevant
+ // or whatever REF is relevant
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -19,18 +25,23 @@ const UserTaskDetails = () => {
     console.log('User data:', userRes.data);
     setUser(userRes.data);
 
-    const taskRes = await axios.get(`/admin/alltask/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    // const taskRes = await axios.get(`/admin/alltask/${id}`, {
+    //   headers: { Authorization: `Bearer ${token}` },
+    // });
+          
+  const taskRes = await axios.get(`/admin/alltask/${create_by}/${REFTASK}`, {
+  headers: { Authorization: `Bearer ${token}` },
+});
+ console.log(taskRes.data)
 
-        let allTasks = [];
-        if (Array.isArray(taskRes.data)) {
-          allTasks = taskRes.data;
-        } else if (Array.isArray(taskRes.data.tasks)) {
-          allTasks = taskRes.data.tasks;
-        } else if (Array.isArray(taskRes.data.data)) {
-          allTasks = taskRes.data.data;
-        }
+       let allTasks = [];
+if (Array.isArray(taskRes.data)) {
+  allTasks = taskRes.data;
+} else if (Array.isArray(taskRes.data.tasks)) {
+  allTasks = taskRes.data.tasks;
+} else if (Array.isArray(taskRes.data.data)) {
+  allTasks = taskRes.data.data;
+}
 
         const userId = Number(id);
         const filteredTasks = allTasks.filter(
