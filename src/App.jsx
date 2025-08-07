@@ -41,13 +41,14 @@ import ManagerLayout from './components/ManagerLayout';
 import UserTaskDetailsPage from './pages/admin/UserTaskDetailsPage';
 import ManagerTaskForm from './pages/manager/ManagerTaskForm';
 import ManagerTaskList from './pages/manager/ManagerTaskList';
-import DepartmentList from './pages/admin/DepartmentList';
+import CreateDepartmentList from './pages/admin/CreateDepartmentList';
 import OrganizationDetails from './pages/admin/OrganizationDetails';
 import OrganizationChoice from './components/OrganizationChoice';
 import CreateOrganization from './pages/admin/CreateOrganization';
 import JoinOrganization from './pages/admin/JoinOrganization';
 import Organization from './pages/admin/Orignatization';
 import BusinessUnitList from './pages/admin/BusinessUnitList';
+import BusinessUnitDetails from './pages/admin/BusinessUnitDetails';
 
 function App() {
   const location = useLocation();
@@ -97,7 +98,7 @@ function App() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="manage-users" element={<ManageUsers />} />
-         <Route path="departments" element={<DepartmentList />} />
+         <Route path="departments" element={<CreateDepartmentList />} />
           <Route path="tasks" element={<CreateTasksPage />} />
           <Route path="view-tasks" element={<ViewTasksPage />} />
         <Route path="/admin/user" element={<User />} />
@@ -111,11 +112,13 @@ function App() {
         <Route path="/admin/detail" element={<AdminProfile />} />
         <Route path="/admin/user/:id" element={<User />} />
        <Route path="/user/specific/:id/:taskId" element={<UserTaskDetailsPage />} />
+       
          {/* Organization routes */}
         <Route path="/create-organization" element={<CreateOrganization />} />
         <Route path="/join-organization" element={<JoinOrganization />} />
         <Route path="/organization" element={<Organization />} />
         <Route path="/organization/getUser/:orgid" element={<OrganizationDetails />} />
+        
         <Route path="/admin/update-task/:id" element={<AdminUpdateTaskForm />} />
        {/*manager  */}
 <Route path="/manager" element={<ManagerLayout />}>
@@ -132,7 +135,7 @@ function App() {
 
 </Route>
  <Route path="/organization-choice" element={<OrganizationChoice />} />
-
+<Route path="/business-unit/:id" element={<BusinessUnitDetails />} />
 
 
 

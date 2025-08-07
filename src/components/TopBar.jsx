@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Search, User } from 'lucide-react';
+import { Search, User, LogOut, Building2, Users, Layers3 } from 'lucide-react';
 import axiosInstance from '../api/axiosInstance';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -9,8 +9,10 @@ const TopBar = () => {
   const [filteredTasks, setFilteredTasks] = useState([]);
   const [openDropdown, setOpenDropdown] = useState(false);
   const navigate = useNavigate();
+
   const role = localStorage.getItem('role');
-const orgid = localStorage.getItem("orgRef");
+  const orgid = localStorage.getItem("orgRef");
+
   useEffect(() => {
     const fetchTasks = async () => {
       try {
@@ -20,8 +22,8 @@ const orgid = localStorage.getItem("orgRef");
         const tasks = Array.isArray(res.data?.tasks)
           ? res.data.tasks
           : Array.isArray(res.data)
-          ? res.data
-          : [];
+            ? res.data
+            : [];
 
         setAllTasks(tasks);
         setFilteredTasks(tasks);
@@ -64,6 +66,11 @@ const orgid = localStorage.getItem("orgRef");
     setData('');
   };
 
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate('/login');
+  };
+
   return (
     <div className="relative z-50 w-full">
       {/* TopBar */}
@@ -100,21 +107,50 @@ const orgid = localStorage.getItem("orgRef");
           </button>
 
           {openDropdown && (
-            <div className="absolute right-0 mt-2 w-48 bg-white text-gray-800 rounded-lg shadow-lg border border-gray-100">
+            <div className="absolute right-0 mt-2 w-56 bg-white text-gray-800 rounded-lg shadow-lg border border-gray-100 z-50">
               <Link
                 to="/admin/detail"
-                className="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer"
                 onClick={() => setOpenDropdown(false)}
               >
+                <User size={16} />
                 Admin Detail
               </Link>
-             <Link
-  to={`/organization/getUser/${orgid}`}   
-  className="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
-  onClick={() => setOpenDropdown(false)}
->
-  Organization Detail
-</Link>
+
+              <Link
+                to={`/organization/getUser/${orgid}`}
+                className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => setOpenDropdown(false)}
+              >
+                <Users size={16} />
+                Organization
+              </Link>
+
+              <Link
+                to="/businessUnitList"
+                className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => setOpenDropdown(false)}
+              >
+                <Building2 size={16} />
+                Business Units
+              </Link>
+
+              <Link
+                to="/departmentList"
+                className="flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => setOpenDropdown(false)}
+              >
+                <Layers3 size={16} />
+                Departments
+              </Link>
+
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 border-t border-gray-200"
+              >
+                <LogOut size={16} />
+                Logout
+              </button>
             </div>
           )}
         </div>
@@ -136,9 +172,7 @@ const orgid = localStorage.getItem("orgRef");
                   onClick={() => handleSearchClick(task)}
                   className="cursor-pointer border-b pb-2 hover:bg-indigo-50 px-3 py-2 rounded transition"
                 >
-                  <div className="font-semibold text-gray-800">
-                    {task.title}
-                  </div>
+                  <div className="font-semibold text-gray-800">{task.title}</div>
                   <div className="text-sm text-gray-500">
                     {task.status} — {task.des}
                   </div>

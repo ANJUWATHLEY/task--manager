@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../../api/axiosInstance';
-import { useParams } from 'react-router-dom';
-import { Pencil, Save, Building2, Phone, Mail, Info } from 'lucide-react';
+import { useParams,useNavigate } from 'react-router-dom';
+import { Pencil, Save, Building2, Phone, Mail, Info,ArrowLeft } from 'lucide-react';
 
 const OrganizationDetails = () => {
   const { orgid } = useParams();
@@ -9,6 +9,7 @@ const OrganizationDetails = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [editMode, setEditMode] = useState(false);
+const navigate = useNavigate();
 
   const fetchOrgData = async () => {
     try {
@@ -61,7 +62,13 @@ const OrganizationDetails = () => {
   if (error) return <div className="p-4 text-red-500">{error}</div>;
 
   return (
+ 
+
     <div className="max-w-3xl mx-auto mt-10 p-8 bg-white rounded-xl shadow-md relative">
+          <ArrowLeft
+    className="w-5 h-5 text-gray-600 cursor-pointer hover:text-[#2c1c80]"
+    onClick={() => navigate('/admin/dashboard')} 
+  />
       {orgData ? (
         <>
           <div className="flex justify-between items-center mb-6">

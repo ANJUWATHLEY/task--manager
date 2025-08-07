@@ -8,6 +8,7 @@ const TaskList = () => {
   const navigate = useNavigate();
   const selectedUserId = location.state?.selectedUserId;
 
+
   const [highlightedUser, setHighlightedUser] = useState(null);
   const [users, setUsers] = useState([]);
   const [tasks, setTasks] = useState([]);
@@ -131,16 +132,16 @@ const REFTASK = localStorage.getItem('taskId')
           const isHighlighted = highlightedUser === user.id;
 
           return (
-            <div
-              key={user.id}
-              id={`user-${user.id}`}
-              onClick={() => navigate(`/user/specific/${user.id}`)}
-              className={`cursor-pointer bg-white p-5 rounded-xl shadow-sm border transition-all duration-300 ${
-                isHighlighted
-                  ? 'ring-4 ring-blue-500 shadow-lg'
-                  : 'hover:shadow-md hover:ring-2 hover:ring-purple-200'
-              }`}
-            >
+           <div
+  key={user.id}
+  id={`user-${user.id}`}
+  onClick={() => navigate(`/user/specific/${user.id}/${REFTASK}`)}
+  className={`cursor-pointer bg-white p-5 rounded-xl shadow-sm border transition-all duration-300 ${
+    isHighlighted
+      ? 'ring-4 ring-blue-500 shadow-lg'
+      : 'hover:shadow-md hover:ring-2 hover:ring-purple-200'
+  }`}
+>
               {/* Avatar & Name */}
               <div className="flex items-center gap-4 mb-4">
                 <img

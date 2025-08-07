@@ -3,58 +3,57 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from '../api/axiosInstance';
 
 const UserTaskDetails = () => {
-  const { id } = useParams();
+  const { id, taskId } = useParams(); // ✅ get user ID and REFTASK from route
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
+  const create_by = localStorage.getItem('id');
+  const REFTASK = taskId;
 
   const [user, setUser] = useState(null);
   const [userTasks, setUserTasks] = useState([]);
- const create_by = localStorage.getItem('id')
-const REFTASK = localStorage.getItem('taskId')
-console.log(REFTASK,)
-// or whatever REF is relevant
- // or whatever REF is relevant
-
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // ✅ Fetch user details
         const userRes = await axios.get(`/employe/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    console.log('User data:', userRes.data);
-    setUser(userRes.data);
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setUser(userRes.data);
 
-    // const taskRes = await axios.get(`/admin/alltask/${id}`, {
-    //   headers: { Authorization: `Bearer ${token}` },
-    // });
-          
-  const taskRes = await axios.get(`/admin/alltask/${create_by}/${REFTASK}`, {
-  headers: { Authorization: `Bearer ${token}` },
-});
- console.log(taskRes.data)
+        // ✅ Fetch all tasks for the org
+        const taskRes = await axios.get(`/admin/alltask/${create_by}/${REFTASK}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
-       let allTasks = [];
-if (Array.isArray(taskRes.data)) {
-  allTasks = taskRes.data;
-} else if (Array.isArray(taskRes.data.tasks)) {
-  allTasks = taskRes.data.tasks;
-} else if (Array.isArray(taskRes.data.data)) {
-  allTasks = taskRes.data.data;
-}
+        let allTasks = [];
+        if (Array.isArray(taskRes.data)) {
+          allTasks = taskRes.data;
+        } else if (Array.isArray(taskRes.data.tasks)) {
+          allTasks = taskRes.data.tasks;
+        } else if (Array.isArray(taskRes.data.data)) {
+          allTasks = taskRes.data.data;
+        }
 
-        const userId = Number(id);
+        // ✅ DEBUG - See what key is used for employee assignment
+        console.log("🔍 All Tasks Sample:", allTasks.slice(0, 3));
+
+        // ✅ Filter only this user's tasks
         const filteredTasks = allTasks.filter(
-          (task) => Number(task.user_id) === userId
+          (task) =>
+            Number(task.user_id) === Number(id) ||  // if user_id is used
+            Number(task.assigned_to) === Number(id) ||  // if assigned_to is used
+            Number(task.user?.id) === Number(id) // if nested user object is used
         );
+
         setUserTasks(filteredTasks);
       } catch (error) {
-        console.error('Error fetching user or tasks:', error);
+        console.error('❌ Error fetching user or tasks:', error);
       }
     };
 
     fetchData();
-  }, [id]);
+  }, [id, taskId]);
 
   return (
     <div className="p-6 bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 min-h-screen">
@@ -81,10 +80,8 @@ if (Array.isArray(taskRes.data)) {
                 {task.title}
               </h3>
 
-              {/* Description */}
               <p className="text-gray-800 mb-4">
-                <span className="font-semibold ">Description:</span>{' '}
-                {task.description}
+                <span className="font-semibold">Description:</span> {task.description}
               </p>
 
               <div className="text-sm space-y-1 font-medium">
@@ -92,7 +89,7 @@ if (Array.isArray(taskRes.data)) {
                   <span className="text-gray-800">Status:</span>{' '}
                   <span
                     className={`rounded-full text-xs font-semibold ${
-                      task.status === 'completed'
+                      task.status === 'complete'
                         ? 'text-green-600'
                         : task.status === 'inprocess'
                         ? 'text-blue-600'
@@ -114,19 +111,18 @@ if (Array.isArray(taskRes.data)) {
                 </p>
 
                 <p>
-                 <span className="text-gray-800">Priority:</span>{' '}
-<span
-  className={`text-sm font-bold ${
-    task.priority === 'High'
-      ? 'text-red-600'
-      : task.priority === 'Medium'
-      ? 'text-yellow-600'
-      : 'text-green-600'
-  }`}
->
-  {task.priority}
-</span>
-
+                  <span className="text-gray-800">Priority:</span>{' '}
+                  <span
+                    className={`text-sm font-bold ${
+                      task.priority === 'High'
+                        ? 'text-red-600'
+                        : task.priority === 'Medium'
+                        ? 'text-yellow-600'
+                        : 'text-green-600'
+                    }`}
+                  >
+                    {task.priority}
+                  </span>
                 </p>
               </div>
 

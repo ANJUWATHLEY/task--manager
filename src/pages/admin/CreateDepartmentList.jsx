@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import axios from '../../api/axiosInstance';
-import Organization from '../../pages/admin/Orignatization';
+import Organization from './Orignatization';
 
-const DepartmentList = () => {
+const CreateDepartmentList = () => {
   const [businessUnitName, setBusinessUnitName] = useState('');
   const [message, setMessage] = useState('');
   const [description, setDescription] = useState('');
@@ -26,8 +26,7 @@ const DepartmentList = () => {
       description,
     };
 
-    console.log("📤 POSTing to /organization/sub-org/" + or_id);
-    console.log("🧾 Payload being sent:", payload);
+  
 
     try {
       await axios.post(`/organization/sub-org/${or_id}`, payload);
@@ -113,4 +112,4 @@ const DepartmentList = () => {
   );
 };
 
-export default DepartmentList;
+export default CreateDepartmentList;
