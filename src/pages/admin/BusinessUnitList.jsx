@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../../api/axiosInstance';
 import { useNavigate } from 'react-router-dom';
+import { Building2 } from 'lucide-react';
+import CreateDepartmentList from './CreateDepartmentList'; // Your modal component
 
 const UnitDescription = ({ description }) => {
   const [showFullDesc, setShowFullDesc] = useState(false);
@@ -19,7 +21,7 @@ const UnitDescription = ({ description }) => {
       {isLong && (
         <button
           onClick={(e) => {
-            e.stopPropagation(); // prevent navigation on click
+            e.stopPropagation();
             toggleDescription();
           }}
           className="text-blue-600 hover:underline ml-1"
@@ -35,26 +37,27 @@ const BusinessUnitList = () => {
   const [units, setUnits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const orgRef = localStorage.getItem("orgRef");
   const or_id = localStorage.getItem("id");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchUnits = async () => {
-      try {
-        const res = await axios.get(`/organization/get-sub-org/${orgRef}`, {
-          REF: orgRef,
-        });
-        setUnits(res.data);
-        setLoading(false);
-      } catch (err) {
-        console.error("❌ Error fetching business units:", err.response?.data || err.message);
-        setError("❌ Failed to fetch business units");
-        setLoading(false);
-      }
-    };
+  const fetchUnits = async () => {
+    try {
+      const res = await axios.get(`/organization/get-sub-org/${orgRef}`, {
+        REF: orgRef,
+      });
+      setUnits(res.data);
+      setLoading(false);
+    } catch (err) {
+      console.error("❌ Error fetching business units:", err.response?.data || err.message);
+      setError("❌ Failed to fetch business units");
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchUnits();
   }, [or_id, orgRef]);
 
@@ -70,8 +73,26 @@ const BusinessUnitList = () => {
         </button>
       </div>
 
+      {/* Create Button */}
+      <div className="flex justify-end mb-6">
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg shadow-md transition"
+        >
+          <Building2 size={18} />
+          Create Department
+        </button>
+      </div>
+
+      {/* Modal */}
+      <CreateDepartmentList
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={fetchUnits}
+      />
+
       {/* Page Title */}
-      <h2 className="text-3xl font-bold text-gray-900 mb-8">Business Units</h2>
+      <h2 className="text-3xl font-bold text-gray-900 mb-8">Department</h2>
 
       {/* States */}
       {loading ? (

@@ -1,54 +1,58 @@
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import NavbarPublic from './components/NavbarPublic';
 import EmployeeNavbar from './components/EmployeeNavbar';
 import AdminLayout from './components/AdminLayout';
+import ManagerLayout from './components/ManagerLayout';
+import TopBar from './components/TopBar';
+
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
-
 import ResetPasswordPage from './pages/ResetPasswordPage';
-import CompletedTasksPage from './pages/admin/CompletedTasksPage';
+
 import AdminDashboard from './pages/admin/Dashboard';
 import ManageUsers from './pages/admin/ManageUsers';
-import InviteForm from './pages/admin/InviteForm';
 import CreateTasksPage from './pages/admin/CreateTasksPage';
 import ViewTasksPage from './pages/admin/ViewTasksPage';
+import CompletedTasksPage from './pages/admin/CompletedTasksPage';
+import GroupTasksPage from './pages/admin/GroupTasksPage';
+import AdminProfile from './pages/admin/AdminProfile';
+import InviteForm from './pages/admin/InviteForm';
 import User from './pages/admin/User';
 import ViewSingleTask from './pages/admin/ViewSingleTask';
+import UserTaskDetailsPage from './pages/admin/UserTaskDetailsPage';
+import AdminUpdateTaskForm from './pages/admin/AdminUpdateTaskForm';
+import CreateDepartmentList from './pages/admin/CreateDepartmentList';
+
+import OrganizationDetails from './pages/admin/OrganizationDetails';
+import CreateOrganization from './pages/admin/CreateOrganization';
+import JoinOrganization from './pages/admin/JoinOrganization';
+import BusinessUnitList from './pages/admin/BusinessUnitList';
+import BusinessUnitDetails from './pages/admin/BusinessUnitDetails';
+
 import InviteTaskPage from './components/InviteTaskPage';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import ManagerUserTaskDetails from './pages/manager/ManagerUserTaskDetails';
+import OrganizationChoice from './components/OrganizationChoice';
+
 import ManagerDashboard from './pages/manager/Dashboard';
 import TaskForm from './pages/manager/TaskForm';
 import TeamView from './pages/manager/TeamView';
-import GroupTasksPage from './pages/admin/GroupTasksPage';
+import ManagerTaskForm from './pages/manager/ManagerTaskForm';
+import ManagerTaskList from './pages/manager/ManagerTaskList';
+import AssignedTasksPage from './pages/manager/AssignedTasksPage';
+import GrouptaskPage from './pages/manager/GrouptaskPage';
+import ManagerUserTaskDetails from './pages/manager/ManagerUserTaskDetails';
+import ManagerUpdateTaskForm from './pages/manager/ManagerUpdateTaskForm';
+
 import EmployeeDashboard from './pages/employee/Dashboard';
 import TaskSubmission from './pages/employee/TaskSubmission';
 import MyTasks from './pages/employee/MyTasks';
 import Profile from './pages/employee/Profile';
 import TaskDetailsPage from './pages/employee/TaskDetailsPage';
-import AdminUpdateTaskForm from './pages/admin/AdminUpdateTaskForm';
-import ManagerUpdateTaskForm from './pages/manager/ManagerUpdateTaskForm';
-
-import AssignedTasksPage from './pages/manager/AssignedTasksPage';
-import AdminProfile from './pages/admin/AdminProfile';
-import GrouptaskPage from './pages/manager/GrouptaskPage';
-import TopBar from './components/TopBar';
-import ManagerLayout from './components/ManagerLayout';
-import UserTaskDetailsPage from './pages/admin/UserTaskDetailsPage';
-import ManagerTaskForm from './pages/manager/ManagerTaskForm';
-import ManagerTaskList from './pages/manager/ManagerTaskList';
-import CreateDepartmentList from './pages/admin/CreateDepartmentList';
-import OrganizationDetails from './pages/admin/OrganizationDetails';
-import OrganizationChoice from './components/OrganizationChoice';
-import CreateOrganization from './pages/admin/CreateOrganization';
-import JoinOrganization from './pages/admin/JoinOrganization';
-import Organization from './pages/admin/Orignatization';
-import BusinessUnitList from './pages/admin/BusinessUnitList';
-import BusinessUnitDetails from './pages/admin/BusinessUnitDetails';
 
 function App() {
   const location = useLocation();
@@ -57,7 +61,7 @@ function App() {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    const userRole = localStorage.getItem('role'); // Stored during login
+    const userRole = localStorage.getItem('role');
     setIsLoggedIn(!!token);
     setRole(userRole);
   }, [location.pathname]);
@@ -70,17 +74,13 @@ function App() {
     '/reset-password',
   ];
 
-  // ✅ Clean Navbar rendering logic
   const renderNavbar = () => {
-  if (noNavbarRoutes.includes(location.pathname)) return null;
-  if (!isLoggedIn) return <NavbarPublic />;
-
-  if (role === 'employee') return <EmployeeNavbar />;
-  if (role === 'admin' || role === 'manager') return <TopBar />;
-
-  return null;
-};
-
+    if (noNavbarRoutes.includes(location.pathname)) return null;
+    if (!isLoggedIn) return <NavbarPublic />;
+    if (role === 'employee') return <EmployeeNavbar />;
+    if (role === 'admin' || role === 'manager') return <TopBar />;
+    return null;
+  };
 
   return (
     <>
@@ -98,65 +98,55 @@ function App() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="manage-users" element={<ManageUsers />} />
-         <Route path="departments" element={<CreateDepartmentList />} />
+          <Route path="departments" element={<CreateDepartmentList />} />
           <Route path="tasks" element={<CreateTasksPage />} />
           <Route path="view-tasks" element={<ViewTasksPage />} />
-        <Route path="/admin/user" element={<User />} />
-        <Route path="/admin/completed-tasks" element={<CompletedTasksPage />} /> 
-         <Route path="/admin/group-tasks" element={<  GroupTasksPage />} />
-         <Route path="/admin/detail" element={<AdminProfile />} />
-         <Route path="/admin/invite" element={<InviteForm />} />
-         </Route>
-        <Route path="/invite/:token" element={<InviteTaskPage />} />
+          <Route path="user" element={<User />} />
+          <Route path="user/:id" element={<User />} />
+          <Route path="completed-tasks" element={<CompletedTasksPage />} />
+          <Route path="group-tasks" element={<GroupTasksPage />} />
+          <Route path="detail" element={<AdminProfile />} />
+          <Route path="invite" element={<InviteForm />} />
+        </Route>
+
         <Route path="/admin/viewtask/:taskId" element={<ViewSingleTask />} />
-        <Route path="/admin/detail" element={<AdminProfile />} />
-        <Route path="/admin/user/:id" element={<User />} />
-       <Route path="/user/specific/:id/:taskId" element={<UserTaskDetailsPage />} />
-       
-         {/* Organization routes */}
+        <Route path="/admin/update-task/:id" element={<AdminUpdateTaskForm />} />
+        <Route path="/user/specific/:id/:taskId" element={<UserTaskDetailsPage />} />
+
+        {/* Organization Routes */}
         <Route path="/create-organization" element={<CreateOrganization />} />
         <Route path="/join-organization" element={<JoinOrganization />} />
-        <Route path="/organization" element={<Organization />} />
+     
         <Route path="/organization/getUser/:orgid" element={<OrganizationDetails />} />
-        
-        <Route path="/admin/update-task/:id" element={<AdminUpdateTaskForm />} />
-       {/*manager  */}
-<Route path="/manager" element={<ManagerLayout />}>
-  <Route path="dashboard" element={<ManagerDashboard />} />  
-  <Route path="task-form" element={<TaskForm />} />
-  <Route path="team-view" element={<TeamView />} />
-  <Route path="create" element={<ManagerTaskForm />} />
-  <Route path="assigned-tasks" element={<AssignedTasksPage />} />
-  <Route path="group-tasks" element={<  GrouptaskPage />} />
-<Route path="/manager/update-task/:id" element={<ManagerUpdateTaskForm />} />
-   <Route path="viewuser/:id" element={<ManagerTaskList />} />
-   
-   <Route path="/manager/user/:id" element={<ManagerUserTaskDetails />} />
+        <Route path="/organization-choice" element={<OrganizationChoice />} />
+        <Route path="/invite/:token" element={<InviteTaskPage />} />
 
-</Route>
- <Route path="/organization-choice" element={<OrganizationChoice />} />
-<Route path="/business-unit/:id" element={<BusinessUnitDetails />} />
+        {/* Manager Routes */}
+        <Route path="/manager" element={<ManagerLayout />}>
+          <Route path="dashboard" element={<ManagerDashboard />} />
+          <Route path="task-form" element={<TaskForm />} />
+          <Route path="team-view" element={<TeamView />} />
+          <Route path="create" element={<ManagerTaskForm />} />
+          <Route path="assigned-tasks" element={<AssignedTasksPage />} />
+          <Route path="group-tasks" element={<GrouptaskPage />} />
+          <Route path="update-task/:id" element={<ManagerUpdateTaskForm />} />
+          <Route path="viewuser/:id" element={<ManagerTaskList />} />
+          <Route path="user/:id" element={<ManagerUserTaskDetails />} />
+        </Route>
 
-
-
-
-
+        {/* Business Units */}
+        <Route path="/businessUnitList" element={<BusinessUnitList />} />
+        <Route path="/business-unit/:id" element={<BusinessUnitDetails />} />
 
         {/* Employee Routes */}
-   
         <Route path="/employee/dashboard" element={<EmployeeDashboard />} />
         <Route path="/employee/task-submission" element={<TaskSubmission />} />
         <Route path="/employee/mytask" element={<MyTasks />} />
         <Route path="/employee/profile" element={<Profile />} />
-         <Route path="/task/:id" element={<TaskDetailsPage />} />
-        <Route path='/businessUnitList' element={<BusinessUnitList />} />
-        {/* Shared/Utility Routes */}
-      
+        <Route path="/task/:id" element={<TaskDetailsPage />} />
       </Routes>
-  <ToastContainer position="top-center" autoClose={2000} />
 
-
-
+      <ToastContainer position="top-center" autoClose={2000} />
     </>
   );
 }

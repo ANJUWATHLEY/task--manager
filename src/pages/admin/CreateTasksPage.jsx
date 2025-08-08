@@ -12,7 +12,7 @@ import {
   X,
 } from "lucide-react";
 
-const CreateTasksPage = () => {
+const CreateTasksPage = ( {onClose}) => {
   const [users, setUsers] = useState([]);
   const [filterRole, setFilterRole] = useState("all");
   const [showAssigneeDropdown, setShowAssigneeDropdown] = useState(false);
@@ -100,25 +100,28 @@ const CreateTasksPage = () => {
   });
 
   return (
-    <div className="bg-gray-50 min-h-screen py-10 px-4">
+   
+ 
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="bg-white shadow-lg rounded-2xl p-8 max-w-3xl mx-auto space-y-6"
-        encType="multipart/form-data"
+className="space-y-5  "
+
+      encType="multipart/form-data"
       >
         {/* Header */}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-gray-700">
             Create New Task
           </h2>
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="text-gray-500 hover:text-red-500 p-1"
-            title="Go Back"
-          >
-            <X size={22} />
-          </button>
+         <button
+  type="button"
+  onClick={onClose}
+  className="text-gray-500 hover:text-red-500 p-1"
+  title="Close"
+>
+  <X size={22} />
+</button>
+
         </div>
 
         {/* Title */}
@@ -293,7 +296,9 @@ const CreateTasksPage = () => {
           </button>
         </div>
       </form>
-    </div>
+         
+ 
+
   );
 };
 

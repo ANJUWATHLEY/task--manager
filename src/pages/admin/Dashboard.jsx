@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../../api/axiosInstance';
 import { useNavigate } from 'react-router-dom';
+import CreateTasksPage from './CreateTasksPage';
 
 import {
   Users, ClipboardCheck, CheckCircle, LayoutDashboard,
@@ -17,12 +18,11 @@ const AdminDashboard = () => {
   const [tasks, setTasks] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [loading, setLoading] = useState(true);
-
+  const [createtask , setCreateTask] = useState(false);
   const token = localStorage.getItem('token');
   const id = localStorage.getItem('id');
   const role = localStorage.getItem('role');
   const orgid = localStorage.getItem('orgRef');
-
   const [userRef, setUserRef] = useState(null);
 
   const navigate = useNavigate();
@@ -154,6 +154,34 @@ const AdminDashboard = () => {
     <div className="min-h-screen flex bg-gray-50">
       <main className="flex-1 p-8">
         {/* Stat Cards */}
+       <button
+  onClick={() => setCreateTask(true)}
+  className="mb-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+>
+  Create Task
+</button>
+
+{createtask && (
+  <div className="fixed inset-0 flex items-start justify-center z-50 pointer-events-none">
+    <div className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-xl mt-10 relative max-h-[90vh] overflow-y-auto pointer-events-auto">
+      <CreateTasksPage onClose={() => setCreateTask(false)} />
+    </div>
+  </div>
+)}
+<div className="flex justify-end -mt-12">
+  <button
+    onClick={() => {
+      navigator.clipboard.writeText(orgid);
+      alert('Invite code copied to clipboard!');
+    }}
+    className="mb-8 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+  >
+    Invite Code
+  </button>
+</div>
+
+
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard
             title="Total Employees"
