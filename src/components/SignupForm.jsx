@@ -7,7 +7,6 @@ const SignupForm = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("employee");
   const [otpSent, setOtpSent] = useState(false);
   const [otpFromServer, setOtpFromServer] = useState("");
   const [isOtpVerified, setIsOtpVerified] = useState(false);
@@ -52,18 +51,16 @@ const SignupForm = () => {
     }
 
     try {
-      const res = await axios.post("/user/register", {
+      await axios.post("/user/register", {
         name,
         email,
         password,
-        role,
       });
 
       alert("✅ Signup successful! Please login.");
       setName("");
       setEmail("");
       setPassword("");
-      setRole("employee");
       setOtpSent(false);
       setOtpFromServer("");
       setIsOtpVerified(false);
@@ -144,18 +141,6 @@ const SignupForm = () => {
             onChange={(e) => setPassword(e.target.value)}
             className="w-full px-4 py-4 border border-gray-200 rounded-xl bg-gray-50 hover:bg-white placeholder-gray-400 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
           />
-
-          {/* Role */}
-          <select
-            required
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            className="w-full px-4 py-4 border border-gray-200 rounded-xl bg-gray-50 hover:bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-          >
-            <option value="admin">Admin</option>
-            <option value="manager">Manager</option>
-            <option value="employee">Employee</option>
-          </select>
 
           {/* Signup Button */}
           <button

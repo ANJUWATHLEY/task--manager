@@ -19,7 +19,7 @@ const ViewTasksPage = () => {
 
   const navigate = useNavigate();
   const create_by = localStorage.getItem('id');
-  const REFTASK = localStorage.getItem('taskId');
+  const REFTASK = localStorage.getItem('taskId')
   const token = localStorage.getItem('token');
 
   const isOverdue = (dateStr) => {
@@ -35,7 +35,7 @@ const ViewTasksPage = () => {
       const res = await axios.get(`/admin/alltask/${create_by}/${REFTASK}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
+     console.log(res)
       const data = Array.isArray(res.data) ? res.data : res.data.tasks || [];
 
       const formatted = data.map((item) => ({
@@ -145,7 +145,7 @@ return (
         </div>
 
         {/* Status Filters */}
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-3  ml-11 pl-25 flex-wrap">
           {['all', 'Pending', 'inprocess', 'complete', 'overdue'].map((status) => (
             <button
               key={status}
@@ -294,7 +294,7 @@ return (
               <p>Assigned To: <span className="font-bold">{task.user_name}</span></p>
 
               {/* Priority */}
-              <div className="flex items-center gap-3 mt-2">
+              <div className="flex items-center gap-2 mt-2 ">
                 <p className="font-bold">Priority:</p>
                 {['High', 'Medium', 'Low'].map((level) => (
                   <label

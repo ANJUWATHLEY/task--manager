@@ -7,89 +7,83 @@ const LoginForm = () => {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
- const getOrgRef = (user) =>
-  user?.Member_org || user?.orgRef || user?.orgId || user?.orgid || user?.organizationId || null;
+  // ✅ Org reference find karne ka helper
+  const getOrgRef = (user) =>
+    user?.orgRef || user?.orgId || user?.orgid || user?.organizationId || null;
 
+  // ✅ Role-based navigation
   const goAfterLogin = (user) => {
     const orgRef = getOrgRef(user);
+    const Member_org = user?.Member_org;
 
-    // Admin flow
-    if (user.role === "admin") {
-      if (!orgRef) return navigate("/create-organization", { replace: true });
-      return navigate("/admin/dashboard", { replace: true });
+    if (Member_org && !orgRef) {
+      return navigate("/employee/dashboard", { replace: true }); // Employee
+    }
+    if (!Member_org && orgRef) {
+      return navigate("/admin/dashboard", { replace: true }); // Admin
+    }
+    if (!Member_org && !orgRef) {
+      return navigate("/organization-choice", { replace: true }); // Org selection
     }
 
-    // Manager / Employee (optional: if orgRef missing, force join page)
-    if (user.role === "manager") {
-      if (!orgRef) return navigate("/join-organization", { replace: true });
-      return navigate("/manager/dashboard", { replace: true });
-    }
-
-     if (user.role === "employee") {
-    if (!orgRef) {
-      return navigate("/join-organization", { replace: true });
-    } else {
-      return navigate("/employee/dashboard", { replace: true });
-    }
-  }
-
-
-    
+    // Agar dono hai → default fallback
     return navigate("/", { replace: true });
   };
-const handleLogin = async (e) => {
-  e.preventDefault();
-  try {
-    const res = await axios.post("/user/login", { email, password });
-    const { token, user } = res.data;
 
-    console.log("Member Org Ref:", res.data.user.Member_org);
-    
-    const orgRef = getOrgRef(user);
-    const taskId = user.taskTable || null;
-    const user_table = user.userTable || null;
+  // ✅ Login handler
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.post("/user/login", { email, password });
+      const { token, user } = res.data;
 
-    // Save core values
-    localStorage.setItem("token", token);
-    localStorage.setItem("role", user.role);
-    localStorage.setItem("id", user.id || user._id);
-    localStorage.setItem("Member_org", user.Member_org);
-    if (orgRef) localStorage.setItem("orgRef", orgRef);
-    if (taskId) localStorage.setItem("taskId", taskId);
-    if (user_table) localStorage.setItem("user_table", user_table);
-  
+      console.log("Member Org Ref:", user?.Member_org);
 
-    // ✅ NEW: Fetch full org info using orgRef
-    if (orgRef) {
-      try {
-        const orgRes = await axios.get(`/organization/getUser/${orgRef}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-   
-        const orgData = orgRes.data;
+      const orgRef = getOrgRef(user);
+      const taskId = user?.taskTable || null;
+      const user_table = user?.userTable || null;
 
-        // Save the user_table coming from organization data (overwrite if needed)
-        if (orgData?.user_table) {
-          localStorage.setItem("user_table", orgData.user_table);
+      // Save core values in localStorage
+      if (token) localStorage.setItem("token", token);
+      if (user?.id || user?._id)
+        localStorage.setItem("id", user.id || user._id);
+      if (user?.Member_org)
+        localStorage.setItem("Member_org", user.Member_org);
+      if (orgRef) localStorage.setItem("orgRef", orgRef);
+      if (taskId) localStorage.setItem("taskId", taskId);
+      if (user_table) localStorage.setItem("user_table", user_table);
+
+      // ✅ Fetch full org info if orgRef exists
+      if (orgRef) {
+        try {
+          const orgRes = await axios.get(`/organization/getUser/${orgRef}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          const orgData = orgRes.data;
+
+          if (orgData?.user_table) {
+            localStorage.setItem("user_table", orgData.user_table);
+          }
+
+          localStorage.setItem("org_data", JSON.stringify(orgData));
+        } catch (orgErr) {
+          console.warn("Failed to fetch org details:", orgErr);
         }
-
-        // Optionally store full org data if you need it later
-        localStorage.setItem("org_data", JSON.stringify(orgData));
-      } catch (orgErr) {
-        console.warn("Failed to fetch org details:", orgErr);
       }
+
+      alert("Login successful");
+      setEmail("");
+      setPassword("");
+
+      goAfterLogin(user);
+    } catch (err) {
+      console.error("Login Error:", err.response?.data || err.message);
+      alert(
+        err.response?.data?.message || "Login failed! Check your credentials."
+      );
     }
-
-    alert("Login successful");
-    setEmail("");
-    setPassword("");
-
-    goAfterLogin(user);
-  } catch (err) {
-    console.error("Login Error:", err.response?.data || err.message);
-    alert(err.response?.data?.message || "Login failed! Check your credentials.");
-  }
-};
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-purple-100 px-4">
@@ -134,7 +128,10 @@ const handleLogin = async (e) => {
 
         <p className="mt-8 text-center text-gray-600">
           Don’t have an account?{" "}
-          <Link to="/signup" className="text-blue-500 hover:underline font-semibold">
+          <Link
+            to="/signup"
+            className="text-blue-500 hover:underline font-semibold"
+          >
             Signup
           </Link>
         </p>

@@ -24,6 +24,11 @@ const CreateDepartmentList = ({ isOpen, onClose, onSuccess }) => {
       organization_type: organizationType,
       description,
     };
+ 
+  console.table(payload); 
+
+
+
 
     try {
       await axios.post(`/organization/sub-org/${or_id}`, payload);

@@ -23,7 +23,7 @@ const BusinessUnitDetails = () => {
         const res = await axios.get(`/organization/get-sub-org/${orgRef}`, {
           headers: { REF: orgRef }
         });
-
+    console.log(res)
         const found = res.data.find((u) => u.id === parseInt(id));
         setUnit(found);
 

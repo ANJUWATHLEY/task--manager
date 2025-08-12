@@ -74,13 +74,19 @@ function App() {
     '/reset-password',
   ];
 
-  const renderNavbar = () => {
-    if (noNavbarRoutes.includes(location.pathname)) return null;
-    if (!isLoggedIn) return <NavbarPublic />;
-    if (role === 'employee') return <EmployeeNavbar />;
-    if (role === 'admin' || role === 'manager') return <TopBar />;
-    return null;
-  };
+ const renderNavbar = () => {
+  if (noNavbarRoutes.includes(location.pathname)) return null;
+  if (!isLoggedIn) return <NavbarPublic />;
+
+  const Member_org = localStorage.getItem("Member_org");
+  const orgRef = localStorage.getItem("orgRef");
+
+  if (Member_org && !orgRef) return <EmployeeNavbar />; 
+  if (!Member_org && orgRef) return <TopBar />;         
+  if (!Member_org && !orgRef) return null;              
+  return null;                                         
+};
+
 
   return (
     <>

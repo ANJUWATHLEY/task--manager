@@ -1,24 +1,28 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Search, User, LogOut, Building2, Users, Layers3 } from 'lucide-react';
-import axiosInstance from '../api/axiosInstance';
+import axios from '../api/axiosInstance';
 import { Link, useNavigate } from 'react-router-dom';
+import Fuse from 'fuse.js';
 
 const TopBar = () => {
   const [data, setData] = useState('');
   const [allTasks, setAllTasks] = useState([]);
   const [filteredTasks, setFilteredTasks] = useState([]);
   const [openDropdown, setOpenDropdown] = useState(false);
+
   const navigate = useNavigate();
-
-  const role = localStorage.getItem('role');
   const orgid = localStorage.getItem("orgRef");
+  const create_by = localStorage.getItem('id');
+  const REFTASK = localStorage.getItem('taskId');
+  const token = localStorage.getItem('token');
 
+  // Fetch all tasks on mount
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const url = '/admin/alltask';
-        const res = await axiosInstance.get(url);
-
+        const res = await axios.get(`/admin/alltask/${create_by}/${REFTASK}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         const tasks = Array.isArray(res.data?.tasks)
           ? res.data.tasks
           : Array.isArray(res.data)
@@ -34,25 +38,32 @@ const TopBar = () => {
     fetchTasks();
   }, []);
 
+  // Initialize Fuse.js when allTasks changes
+  const fuse = useMemo(() => {
+    return new Fuse(allTasks, {
+      keys: ['title', 'status', 'priority', 'user_name', 'des'],
+      threshold: 0.3, // 0 = exact match, 1 = anything
+    });
+  }, [allTasks]);
+
+  // Search handler
   const handleSearch = (query) => {
-    const lower = query.toLowerCase();
-    const filtered = allTasks.filter(
-      (task) =>
-        task.title?.toLowerCase().includes(lower) ||
-        task.status?.toLowerCase().includes(lower) ||
-        task.priority?.toLowerCase().includes(lower) ||
-        task.user_name?.toLowerCase().includes(lower) ||
-        task.des?.toLowerCase().includes(lower)
-    );
-    setFilteredTasks(filtered);
+    if (!query.trim()) {
+      setFilteredTasks(allTasks);
+      return;
+    }
+    const results = fuse.search(query).map(result => result.item);
+    setFilteredTasks(results);
   };
 
+  // Input change with search
   const handleInputChange = (e) => {
     const value = e.target.value;
     setData(value);
     handleSearch(value);
   };
 
+  // When a search result is clicked
   const handleSearchClick = (task) => {
     const status = task.status?.toLowerCase();
     const base = '/admin';
@@ -66,6 +77,7 @@ const TopBar = () => {
     setData('');
   };
 
+  // Logout
   const handleLogout = () => {
     localStorage.clear();
     navigate('/login');

@@ -4,36 +4,32 @@ import axios from '../../api/axiosInstance';
 
 const JoinOrganization = () => {
   const [inviteCode, setInviteCode] = useState('');
-  const [role, setRole] = useState('employee'); // Default: employee
   const navigate = useNavigate();
   const id = localStorage.getItem('id');
 
   const handleJoin = async (e) => {
     e.preventDefault();
 
-    if (!inviteCode || !role) {
-      alert('Please enter invite code and select role.');
+    if (!inviteCode) {
+      alert('Please enter invite code.');
       return;
     }
 
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.post(`/employe/${inviteCode}`, 
-        { id, role }, // send role too if needed in backend
+      const res = await axios.post(
+        `/employe/${inviteCode}`,
+        { id }, // role removed
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
       );
-console.log(res.data)
-      alert('Successfully joined organization!');
+      console.log(res.data);
 
-      if (role === 'manager') {
-        navigate('/manager/dashboard');
-      } else {
-        navigate('/employee/dashboard');
-      }
+      alert('Successfully joined organization!');
+      navigate('/employee/dashboard'); // default redirect now
 
     } catch (err) {
       console.error('Join Error:', err.response?.data || err.message);
@@ -52,19 +48,6 @@ console.log(res.data)
         </h2>
 
         <div className="space-y-4">
-          <div>
-            <label className="block font-semibold mb-2 text-gray-700">Select Role</label>
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              required
-              className="w-full px-4 py-3 border rounded-lg bg-gray-50"
-            >
-              <option value="employee">Employee</option>
-              <option value="manager">Manager</option>
-            </select>
-          </div>
-
           <input
             type="text"
             placeholder="Enter Invite Code"
