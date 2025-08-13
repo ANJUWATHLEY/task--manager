@@ -28,7 +28,7 @@ import ViewSingleTask from './pages/admin/ViewSingleTask';
 import UserTaskDetailsPage from './pages/admin/UserTaskDetailsPage';
 import AdminUpdateTaskForm from './pages/admin/AdminUpdateTaskForm';
 import CreateDepartmentList from './pages/admin/CreateDepartmentList';
-
+import AssignRoleForm from './pages/admin/AssignRoleForm';
 import OrganizationDetails from './pages/admin/OrganizationDetails';
 import CreateOrganization from './pages/admin/CreateOrganization';
 import JoinOrganization from './pages/admin/JoinOrganization';
@@ -113,8 +113,9 @@ function App() {
           <Route path="group-tasks" element={<GroupTasksPage />} />
           <Route path="detail" element={<AdminProfile />} />
           <Route path="invite" element={<InviteForm />} />
+        
         </Route>
-
+  <Route path="/assign-role" element={<AssignRoleForm />} />
         <Route path="/admin/viewtask/:taskId" element={<ViewSingleTask />} />
         <Route path="/admin/update-task/:id" element={<AdminUpdateTaskForm />} />
         <Route path="/user/specific/:id/:taskId" element={<UserTaskDetailsPage />} />

@@ -69,7 +69,6 @@ const CreateTasksPage = ( {onClose}) => {
     userids: [selectedUser.id], // send array directly
     // task_image: not included here (needs FormData if uploading file)
   };
-
   try {
     const response = await axiosInstance.post("/admin/createtask", taskPayload, {
       headers: {

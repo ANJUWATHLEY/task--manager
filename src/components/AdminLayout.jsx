@@ -35,7 +35,7 @@ const AdminLayout = () => {
             { icon: Eye, label: 'View Tasks', path: '/admin/view-tasks' },
             { icon: UserCog, label: 'Users', path: '/admin/user' },
             { icon: ClipboardCheck, label: 'Completed Tasks', path: '/admin/completed-tasks' },
-            { icon: Briefcase, label: 'Departments', path: '/admin/departments' },
+            { icon: Briefcase, label: 'New User', path: '/assign-role' },
             { icon: Group, label: 'Group Task ', path: '/admin/group-tasks' },
             { icon: User, label: 'Invite Users', path: '/admin/invite' },
 

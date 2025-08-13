@@ -205,7 +205,7 @@ const AdminDashboard = () => {
           />
          <StatCard
   title="Completed Tasks"
-  value={completedTasks.length} // ✅ Corrected
+  value={completedTasks.length} 
   icon={CheckCircle}
   color="text-green-600"
   bgColor="bg-green-100"
