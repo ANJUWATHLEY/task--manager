@@ -38,6 +38,7 @@ const AdminDashboard = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
+      
       const userTable = response.data?.data?.[0]?.user_table;
       if (userTable) {
         localStorage.setItem('user_table', userTable);

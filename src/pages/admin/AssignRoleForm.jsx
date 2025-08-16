@@ -11,7 +11,7 @@ const AssignRoleForm = () => {
   const [subOrgUserTable, setSubOrgUserTable] = useState(""); // store sub-org user_table
 
   const token = localStorage.getItem("token");
-  const USERREF = localStorage.getItem("user_table"); // main org ka table name
+  const USERREF = localStorage.getItem("user_table"); 
   const orgRef = localStorage.getItem("orgRef");
 
   console.log("🔑 LocalStorage Values →", { token, USERREF, orgRef });

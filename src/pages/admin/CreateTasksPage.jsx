@@ -3,104 +3,133 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../api/axiosInstance";
 import { toast } from "react-toastify";
-import {
-  UserPlus,
-  Filter,
-  CalendarDays,
-  Flag,
-  ImagePlus,
-  X,
-} from "lucide-react";
+import { UserPlus, Filter, CalendarDays, Flag, ImagePlus, X } from "lucide-react";
 
-const CreateTasksPage = ( {onClose}) => {
+const CreateTasksPage = ({ onClose }) => {
   const [users, setUsers] = useState([]);
   const [filterRole, setFilterRole] = useState("all");
-  const [showAssigneeDropdown, setShowAssigneeDropdown] = useState(false);
+  const [departments, setDepartments] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [showRoleFilter, setShowRoleFilter] = useState(false);
-
-  const hasFetchedOnce = useRef(false);
+  const [department, setDepartment] = useState("");
+  const [selectedTaskTable, setSelectedTaskTable] = useState("");
+  const orgRef = localStorage.getItem("orgRef");
   const adminId = localStorage.getItem("id");
-  const USERREF = localStorage.getItem("user_table"); // e.g., USERS4053
+  const USERREF = localStorage.getItem("user_table");
   const token = localStorage.getItem("token");
-  const taskId = localStorage.getItem("taskId");
-  const navigate = useNavigate();
- console.log("USERREF:", USERREF, "taskId:", taskId);
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm();
+  const { register, handleSubmit, reset, formState: { errors } } = useForm();
+const [showAssigneeDropdown, setShowAssigneeDropdown] = useState(false);
+const [showRoleFilter, setShowRoleFilter] = useState(false);
 
+  // ✅ Fetch departments
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchDepartments = async () => {
       try {
-        const res = await axiosInstance.get(`/admin/allemploye/${USERREF}`, {
+        const res = await axiosInstance.get(`/organization/get-sub-org/${orgRef}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setUsers(res.data);
-        if (!hasFetchedOnce.current) {
-          toast.success("✅ Users loaded");
-          hasFetchedOnce.current = true;
-        }
-      } catch {
-        toast.error("❌ Failed to load users");
+        setDepartments(res.data);
+      } catch (error) {
+        toast.error("Failed to load departments");
       }
     };
-    fetchUsers();
-  }, []);
+    fetchDepartments();
+  }, [orgRef, token]);
 
- const onSubmit = async (data) => {
-  if (!selectedUser) {
-    toast.error("Please select an assignee.");
-    return;
-  }
+  // ✅ If no departments, fetch all users
+  useEffect(() => {
+    const fetchUsersIfNoSubOrg = async () => {
+      if (departments.length === 0) {
+        try {
+          const res = await axiosInstance.get(`/admin/allemploye/${USERREF}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          setUsers(res.data);
+        } catch (error) {
+          toast.error("Failed to load users");
+        }
+      }
+    };
+    fetchUsersIfNoSubOrg();
+  }, [departments, USERREF, token]);
 
-  const taskPayload = {
-    title: data.title,
-    description: data.description || "",
-    assign_date: data.assign_date,
-    deadline_date: data.deadline_date,
-    priority: data.priority,
-    create_by: adminId,
-    reftask: taskId,
-    userids: [selectedUser.id], // send array directly
-    // task_image: not included here (needs FormData if uploading file)
+  // ✅ On department change
+  const handleDepartmentChange = async (e) => {
+    const selectedDeptId = e.target.value;
+    setDepartment(selectedDeptId);
+
+    const deptData = departments.find((d) => String(d.id) === selectedDeptId);
+
+    if (deptData?.task_table) {
+      setSelectedTaskTable(deptData.task_table);
+    }
+
+    let userTableToFetch = deptData?.user_table || USERREF;
+    try {
+      const res = await axiosInstance.get(`/admin/allemploye/${userTableToFetch}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setUsers(res.data);
+    } catch (error) {
+      setUsers([]);
+      toast.error("Failed to load users");
+    }
   };
-  try {
-    const response = await axiosInstance.post("/admin/createtask", taskPayload, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
 
-    toast.success("✅ Task created successfully");
-    reset();
-    setSelectedUser(null);
-  } catch (error) {
-    console.error("❌ Error creating task:", error);
-    toast.error("❌ Error creating task");
-  }
-};
+  // ✅ Create task
+  const onSubmit = async (data) => {
+    if (!selectedUser) {
+      toast.error("Please select an assignee.");
+      return;
+    }
 
+    const reftask =
+      selectedTaskTable?.trim() ||
+      selectedUser?.task_table ||
+      USERREF;
+
+    if (!reftask) {
+      toast.error("Task table not found.");
+      return;
+    }
+
+    const taskPayload = {
+      title: data.title,
+      description: data.description || "",
+      assign_date: data.assign_date,
+      deadline_date: data.deadline_date,
+      priority: data.priority,
+      create_by: adminId,
+      reftask: reftask,
+      userids: [selectedUser.id],
+    };
+
+    try {
+      await axiosInstance.post("/admin/createtask", taskPayload, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      toast.success("✅ Task created successfully");
+      reset();
+      setSelectedUser(null);
+    } catch (error) {
+      toast.error("❌ Error creating task");
+    }
+  };
+
+  // ✅ Filter users
   const filteredUsers = users.filter((user) => {
     const matchesRole =
       filterRole === "all" ||
       (user.role && user.role.toLowerCase() === filterRole.toLowerCase());
-
     const matchesSearch =
       user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email?.toLowerCase().includes(searchTerm.toLowerCase());
-
     return matchesRole && matchesSearch;
   });
-
   return (
-   
- 
       <form
         onSubmit={handleSubmit(onSubmit)}
 className="space-y-5  "
@@ -142,6 +171,21 @@ className="space-y-5  "
           rows={4}
           className="w-full border px-4 py-2 rounded-md text-sm resize-none focus:outline-none focus:ring-1 focus:ring-purple-400"
         />
+           <div>
+          <label className="block font-medium mb-1">Select Department</label>
+          <select
+            value={department}
+            onChange={handleDepartmentChange}
+            className="w-full border rounded p-2"
+          >
+            <option value="">-- Select --</option>
+            {departments.map((dept) => (
+              <option key={dept.id} value={dept.id}>
+                {dept.name || dept.businessUnitName}
+              </option>
+            ))}
+          </select>
+        </div>
 
         {/* Fields Row */}
         <div className="flex flex-wrap gap-4 items-start mt-4">
@@ -284,8 +328,6 @@ className="space-y-5  "
             />
           </div>
         </div>
-
-        {/* Submit Button */}
         <div className="flex justify-end pt-6">
           <button
             type="submit"
@@ -295,10 +337,6 @@ className="space-y-5  "
           </button>
         </div>
       </form>
-         
- 
-
   );
 };
-
 export default CreateTasksPage;

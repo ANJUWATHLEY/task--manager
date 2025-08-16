@@ -27,6 +27,7 @@ const MyTasks = () => {
         ...item,
         assign_date: item.assign_date?.split('T')[0] || '',
         deadline_date: item.deadline_date?.split('T')[0] || '',
+        status: item.status?.toLowerCase(),
       }));
 
       setTasks(formatted);
@@ -39,11 +40,11 @@ const MyTasks = () => {
     fetchMyTasks();
   }, []);
 
-  const handleStatusUpdateInProcess = async (taskId) => {
+  const handleStatusUpdate = async (taskId, status) => {
     try {
       await axios.put(
-        `/employe/inprocess/${taskId}`,
-        { REFTASK, userid, status: 'inprocess' },
+        `/employe/${status}/${taskId}`,
+        { REFTASK, userid, status },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       fetchMyTasks();
@@ -52,25 +53,6 @@ const MyTasks = () => {
       alert('Failed to update task status.');
     }
   };
-
-const handleStatusUpdateCompleted = async (taskId) => {
-  try {
-  
-
-    const res = await axios.put(
-      `/employe/complete/${taskId}`,
-      { REFTASK, userid, status: 'complete' },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
-
-    console.log("✅ Completed Response:", res.data);
-    fetchMyTasks();
-  } catch (error) {
-    console.error('❌ Error updating task:', error.response?.data || error.message);
-    alert('Failed to update task status.');
-  }
-};
-
 
   const getPriorityColor = (priority) => {
     switch (priority?.toLowerCase()) {
@@ -86,75 +68,72 @@ const handleStatusUpdateCompleted = async (taskId) => {
   };
 
   return (
-    <div className="p-8 min-h-screen bg-[#f4f6fa] font-sans">
+    <div className="p-4 sm:p-8 min-h-screen bg-gray-50 font-sans">
       {tasks.length === 0 ? (
-        <p className="text-gray-500">No tasks assigned to you yet.</p>
+        <p className="text-gray-500 text-center mt-10">No tasks assigned to you yet.</p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {tasks.map((task, index) => {
-            const status = task.status?.toLowerCase();
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {tasks.map((task) => (
+            <div
+              key={task.id}
+              className="bg-white rounded-xl shadow p-5 border border-gray-200 hover:shadow-md transition"
+            >
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">{task.title}</h3>
+              <p className="text-gray-700 text-sm mb-2">
+                {task.description ? task.description : 'No description'}
+                <button
+                  onClick={() => navigate(`/task/${task.id}`, { state: { task } })}
+                  className="text-blue-600 underline ml-2"
+                >
+                  View Details
+                </button>
+              </p>
 
-            return (
-              <div
-                key={index}
-                className="bg-white rounded-2xl shadow p-6 border border-gray-200 transition-transform transform hover:scale-105 hover:shadow-xl hover:bg-blue-50 cursor-pointer"
-              >
-                <h3 className="text-lg font-bold text-blue-700 mb-2">{task.title}</h3>
-                <div className="text-sm text-gray-700 space-y-1">
-                  <p>
-                    Description: <span className="capitalize">{task.description}</span>
-                    <button
-                      onClick={() => navigate(`/task/${task.id}`, { state: { task } })}
-                      className="text-blue-600 underline text-sm hover:text-blue-800 mt-3 ml-2"
-                    >
-                      View Details
-                    </button>
-                  </p>
-                  <p>Status: <span className="font-semibold capitalize">{task.status}</span></p>
-                  <p>Assign Date: {task.assign_date}</p>
-                  <p>Deadline: <span className="text-red-500">{task.deadline_date}</span></p>
-                  <p>
-                    Priority:{' '}
-                    <span className={`font-medium capitalize ${getPriorityColor(task.priority)}`}>
-                      {task.priority}
-                    </span>
-                  </p>
-                </div>
-
-                <div className="flex gap-2 mt-4 flex-wrap">
-                  {status === 'pending' && (
-                    <button
-                      className="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-full text-sm"
-                      onClick={() => handleStatusUpdateInProcess(task.id)}
-                    >
-                      Accept
-                    </button>
-                  )}
-
-                  {status === 'inprocess' && (
-                    <button
-                      className="bg-orange-500 text-white px-4 py-2 rounded-full text-sm cursor-default"
-                      disabled
-                    >
-                      In-Process
-                    </button>
-                  )}
-
-                  <button
-                    className={`${
-                      status === 'complete'
-                        ? 'bg-green-300 cursor-not-allowed'
-                        : 'bg-green-500 hover:bg-green-600'
-                    } text-white px-4 py-2 rounded-full text-sm`}
-                    onClick={() => handleStatusUpdateCompleted(task.id)}
-                    disabled={status === 'complete'}
-                  >
-                    Completed
-                  </button>
-                </div>
+              <div className="text-sm text-gray-700 space-y-1">
+                <p>Status: <span className="font-medium capitalize">{task.status}</span></p>
+                <p>Assign Date: {task.assign_date}</p>
+                <p>Deadline: <span className="text-red-500">{task.deadline_date}</span></p>
+                <p>
+                  Priority:{' '}
+                  <span className={`font-medium capitalize ${getPriorityColor(task.priority)}`}>
+                    {task.priority || 'None'}
+                  </span>
+                </p>
               </div>
-            );
-          })}
+
+              <div className="flex flex-wrap gap-2 mt-4">
+                {task.status === 'pending' && (
+                  <button
+                    className="bg-gray-800 hover:bg-gray-900 text-white px-4 py-2 rounded-full text-sm"
+                    onClick={() => handleStatusUpdate(task.id, 'inprocess')}
+                  >
+                    Accept
+                  </button>
+                )}
+
+                {task.status === 'inprocess' && (
+                  <button
+                    className="bg-gray-400 text-white px-4 py-2 rounded-full text-sm cursor-default"
+                    disabled
+                  >
+                    In-Process
+                  </button>
+                )}
+
+                <button
+                  className={`${
+                    task.status === 'complete'
+                      ? 'bg-gray-300 cursor-not-allowed'
+                      : 'bg-green-600 hover:bg-green-700'
+                  } text-white px-4 py-2 rounded-full text-sm`}
+                  onClick={() => handleStatusUpdate(task.id, 'complete')}
+                  disabled={task.status === 'complete'}
+                >
+                  Completed
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

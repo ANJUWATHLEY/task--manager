@@ -1,181 +1,197 @@
-import React, { useEffect, useState } from 'react';
-import axios from '../../api/axiosInstance';
-import { useParams } from 'react-router-dom';
-import { Search, Link, Copy, Plus } from 'lucide-react';
+import React, { useEffect, useState } from "react";
+import axiosInstance from "../../api/axiosInstance";
+import { useParams } from "react-router-dom";
+import { Plus } from "lucide-react";
 
 const InviteForm = () => {
-  const { id } = useParams(); // Organization ID from URL
+  const { id } = useParams();
   const [organization, setOrganization] = useState(null);
-  const [data, setData] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showOptions, setShowOptions] = useState(false); // Dropdown for Add Member
+  const [users, setUsers] = useState([]);
+  const [departments, setDepartments] = useState([]);
+  const [showSendOptions, setShowSendOptions] = useState(false);
 
-  const token = localStorage.getItem('token');
-  const USERREF = localStorage.getItem('user_table');
-  const orgRef = localStorage.getItem('orgRef');
+  const orgRef = localStorage.getItem("orgRef");
+  const USERREF = localStorage.getItem("user_table");
+  console.log("User Reference:", USERREF);
+  const token = localStorage.getItem("token");
 
-  // Fetch organization by ID
+  // Fetch users if no departments
+  useEffect(() => {
+    const fetchUsersIfNoSubOrg = async () => {
+      if (departments.length === 0) {
+        try {
+          const res = await axiosInstance.get(`/admin/allemploye/${USERREF}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          console.log(res.data)
+          setUsers(res.data);
+        } catch (error) {
+          console.error("Failed to load users", error);
+        }
+      }
+    };
+    fetchUsersIfNoSubOrg();
+  }, [departments, USERREF, token]);
+
+  // Fetch organization details
   useEffect(() => {
     const fetchOrganization = async () => {
       try {
-        const res = await axios.get(`/organization/getUser/${id}`);
-        setOrganization(res.data);
-      } catch (error) {
-        console.error('Error fetching organization:', error);
-      }
-    };
-    fetchOrganization();
-  }, [id]);
-
-  // Fetch employee list
-  useEffect(() => {
-    const getAllData = async () => {
-      try {
-        const res = await axios.get(`/admin/allemploye/${USERREF}`, {
+        const res = await axiosInstance.get(`/organization/getUser/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setData(res.data);
-        setFilteredData(res.data);
-      } catch (err) {
-        console.error('Error fetching employees:', err);
+        setOrganization(res.data);
+      } catch (error) {
+        console.error("Error fetching organization:", error);
       }
     };
-    getAllData();
-  }, []);
+    if (id) {
+      fetchOrganization();
+    }
+  }, [id, token]);
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(orgRef);
-    alert('Invite link copied!');
+  // Send via WhatsApp
+  const handleSendWhatsApp = () => {
+    const inviteMessage = `Hey! Please join our organization using this code: ${orgRef}`;
+    const url = `https://wa.me/?text=${encodeURIComponent(inviteMessage)}`;
+    window.open(url, "_blank");
+    setShowSendOptions(false);
   };
 
-  const handleSearch = (e) => {
-    const query = e.target.value.toLowerCase();
-    setSearchQuery(query);
-    const filtered = data.filter((item) =>
-      item.fullname?.toLowerCase().includes(query)
-    );
-    setFilteredData(filtered);
+  // Send via Email
+  const handleSendEmail = () => {
+    const subject = "Invitation to Join Organization";
+    const body = `Hello,\n\nPlease join our organization using this invite code: ${orgRef}`;
+    const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.open(mailtoLink, "_blank");
+    setShowSendOptions(false);
   };
 
   return (
-    <div className="p-6 bg-gradient-to-br from-gray-50 to-purple-100 min-h-screen">
+    <div className="p-4 sm:p-6">
+      <h2 className="text-2xl font-semibold mb-6 text-gray-800">
+        Organization Members
+      </h2>
 
-      {/* Header and Invite Code Section */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-6">
-        {/* Search */}
-        <div className="flex gap-2 items-center">
-          <div className="relative">
-            <Search className="absolute left-2 top-2.5 text-gray-500" size={18} />
+      {/* Invite Code Section */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6 relative">
+        <div>
+          <label className="text-gray-700 font-medium block mb-2">
+            Invite Code:
+          </label>
+          <div className="flex flex-wrap items-center gap-2">
             <input
-              type="text"
-              value={searchQuery}
-              onChange={handleSearch}
-              placeholder="Search by name..."
-              className="pl-8 pr-2 py-2 border rounded-md w-[200px] outline-purple-400"
-            />
-          </div>
-        </div>
-
-        {/* Invite Code and Share Options */}
-        <div className="flex flex-wrap items-center gap-3 relative">
-          <div className="relative w-[280px]">
-            <Link className="absolute left-2 top-2.5 text-gray-500" size={18} />
-            <input
-              type="text"
-              value={orgRef}
               readOnly
-              className="pl-8 pr-2 py-2 border rounded-md w-full bg-gray-50 text-gray-600"
+              value={orgRef || ""}
+              className="w-full sm:w-64 px-3 py-2 text-sm border rounded-md bg-white"
             />
-          </div>
-
-          {/* Copy Button */}
-          <button
-            onClick={handleCopy}
-            className="bg-blue-600 text-white px-3 py-1 rounded-md flex items-center gap-1 hover:bg-blue-700"
-          >
-            <Copy size={16} /> Copy
-          </button>
-
-          {/* Add Member Dropdown */}
-          <div className="relative">
             <button
-              onClick={() => setShowOptions(!showOptions)}
-              className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
+              onClick={() => {
+                navigator.clipboard.writeText(orgRef);
+                alert("Invite code copied to clipboard!");
+              }}
+              className="px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700"
             >
-              <Plus size={18} />
-              Add Member
+              Copy
             </button>
+          <div className="flex justify-end">
+              <button
+                onClick={() => setShowSendOptions(!showSendOptions)}
+                className="flex items-center px-4 py-2 bg-blue-500 text-white rounded gap-2 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition"
+              >
+                <Plus size={18} />
+                Add Member
+              </button>
 
-            {showOptions && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 shadow-lg rounded-lg z-50">
-                <a
-                  href={`https://wa.me/?text=You're invited to join our organization! Use this invite code: ${orgRef}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block px-4 py-2 text-sm text-gray-800 hover:bg-gray-100"
-                >
-                  Share via WhatsApp
-                </a>
-                <a
-                  href={`mailto:?subject=Organization Invite&body=You're invited to join our organization. Use this invite code: ${orgRef}`}
-                  className="block px-4 py-2 text-sm text-gray-800 hover:bg-gray-100"
-                >
-                  Share via Email
-                </a>
-              </div>
-            )}
+              {showSendOptions && (
+                <div className="absolute top-full mt-2 w-48 bg-white border rounded-lg shadow-lg z-10">
+                  <button
+                    onClick={handleSendWhatsApp}
+                    className="w-full text-left px-4 py-2 hover:bg-green-50 text-green-600"
+                  >
+                     Send via WhatsApp
+                  </button>
+                  <button
+                    onClick={handleSendEmail}
+                    className="w-full text-left px-4 py-2 hover:bg-yellow-50 text-yellow-600"
+                  >
+                     Send via Email
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
       {/* Organization Details */}
       {organization && (
-        <div className="bg-white shadow rounded-lg p-4 mb-6">
-          <h3 className="text-lg font-semibold mb-2">{organization.name}</h3>
-          <p>Email: {organization.email}</p>
-          <p>Mobile: {organization.mobile}</p>
-          <p>Type: {organization.organization_type}</p>
+        <div className="mb-6 p-4 border rounded-lg bg-gray-50">
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">
+            {organization.name}
+          </h3>
+          <p className="text-sm text-gray-600">Email: {organization.email}</p>
+          <p className="text-sm text-gray-600">Mobile: {organization.mobile}</p>
+          <p className="text-sm text-gray-600">
+            Type: {organization.organization_type}
+          </p>
         </div>
       )}
 
-      {/* Employee Table */}
-      <div className="bg-white rounded-xl shadow overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Name</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Email</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Joined</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {filteredData.length > 0 ? (
-              filteredData.map((item) => (
-                <tr key={item.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 text-sm font-medium text-gray-900">{item.name}</td>
-                  <td className="px-4 py-3 text-sm text-gray-600">{item.email}</td>
+      {/* Members Table */}
+      {users.length > 0 && (
+        <div className="overflow-x-auto">
+          <table className="min-w-full border border-gray-200 rounded-lg shadow-sm">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                  Name
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                  Email
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                  Role
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                  Join Date
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((user) => (
+                <tr
+                  key={user.id}
+                  className="border-t hover:bg-gray-50 transition"
+                >
+                  <td className="px-4 py-3 text-sm text-gray-800">
+                    {user.name}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-600">
+                    {user.email}
+                  </td>
+                  <td className="px-4 py-3 text-sm text-blue-600 font-medium">
+                    {user.role || "N/A"}
+                  </td>
                   <td className="px-4 py-3 text-sm text-gray-500">
-                    {item.created_at
-                      ? new Date(item.created_at).toLocaleDateString('en-IN', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric',
+                    {user.created_at
+                      ? new Date(user.created_at).toLocaleDateString("en-IN", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
                         })
-                      : 'N/A'}
+                      : "N/A"}
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="3" className="px-4 py-6 text-center text-gray-500">
-                  No employees found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {users.length === 0 && (
+        <p className="text-gray-500 mt-4">No members found.</p>
+      )}
     </div>
   );
 };

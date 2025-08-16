@@ -5,13 +5,15 @@ import {
   ClipboardCheck,
   Hourglass,
   XCircle,
-  Search,
   Eye,
-  Info
+  Info,
+  ChevronDown
 } from 'lucide-react';
 
 const EmployeeDashboard = () => {
   const [tasks, setTasks] = useState([]);
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [statusDropdown, setStatusDropdown] = useState(false);
   const token = localStorage.getItem('token');
   const userId = localStorage.getItem('id');
   const Member_org = localStorage.getItem('Member_org');
@@ -24,22 +26,18 @@ const EmployeeDashboard = () => {
         if (match) {
           const [, , number] = match;
           REFTASK = 'TASK' + number;
-        } else {
-          console.error('Invalid Member_org format');
-          return;
-        }
+        } else return;
 
         const res = await axios.get(`/employe/${userId}/${REFTASK}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
-console.log(res.data);
+
         const data = Array.isArray(res.data) ? res.data : res.data.tasks || [];
         const formatted = data.map((item) => ({
           ...item,
           assign_date: item.assign_date?.split('T')[0] || '',
           deadline_date: item.deadline_date?.split('T')[0] || '',
+          status: item.status.toLowerCase(),
         }));
 
         setTasks(formatted);
@@ -52,133 +50,109 @@ console.log(res.data);
   }, []);
 
   const totalTasks = tasks.length;
-  const todo = tasks.filter((t) => t.status === 'PENDING').length;
+  const todo = tasks.filter((t) => t.status === 'pending').length;
   const inProgress = tasks.filter((t) => t.status === 'inprocess').length;
   const review = tasks.filter((t) => t.status === 'review').length;
-  const done = tasks.filter((t) => t.status === 'done').length;
+  const done = tasks.filter((t) => t.status === 'complete').length;
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'todo':
-        return 'text-red-600';
+      case 'pending':
+        return ' text-red-700';
       case 'inprocess':
-        return 'text-yellow-600';
+        return ' text-yellow-700';
       case 'review':
-        return 'text-blue-600';
-      case 'done':
-        return 'text-green-600';
+        return ' text-blue-700';
+      case 'complete':
+        return ' text-green-700';
       default:
-        return 'text-gray-600';
+        return 'bg-gray-100 text-gray-700';
     }
   };
 
+  const filteredTasks =
+    filterStatus === 'all'
+      ? tasks
+      : tasks.filter((t) => t.status === filterStatus);
+
   return (
-    <div className="min-h-screen bg-[#f0f4ff] px-10 py-8">
+    <div className="min-h-screen bg-[#f0f4ff] px-4 sm:px-8 lg:px-16 py-8">
       {/* Task Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6 mb-10">
-
-        {/* Total */}
-        <div className="bg-white rounded-xl shadow-md p-6 text-center hover:bg-blue-100 transition relative group">
-          <ClipboardCheck className="mx-auto text-blue-500" size={36} />
-          <p className="text-2xl font-bold mt-2">{totalTasks}</p>
-          <p className="text-sm text-gray-500">Total Tasks</p>
-          <div className="absolute top-2 right-2">
-            <Info size={16} className="text-gray-400 group-hover:text-black" />
-            <div className="absolute hidden group-hover:block bg-white border p-2 text-xs shadow rounded-md w-40 z-10">
-              Sabhi assign kiye gaye tasks ka total.
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-10">
+        {[
+          { label: 'Total', count: totalTasks, icon: ClipboardCheck, color: 'blue', key: 'all' },
+          { label: 'To Do', count: todo, icon: XCircle, color: 'blue', key: 'pending' },
+          { label: 'In Progress', count: inProgress, icon: Hourglass, color: 'blue', key: 'inprocess' },
+          { label: 'Review', count: review, icon: Eye, color: 'blue', key: 'review' },
+          { label: 'Complete', count: done, icon: CheckCircle, color: 'blue', key: 'complete' },
+        ].map((card, i) => {
+          const Icon = card.icon;
+          return (
+            <div
+              key={i}
+              onClick={() => setFilterStatus(card.key)}
+              className={`cursor-pointer bg-white rounded-xl shadow-md p-6 text-center hover:shadow-xl transition relative group border-l-4 border-${card.color}-500`}
+            >
+              <Icon className={`mx-auto text-${card.color}-500`} size={36} />
+              <p className="text-2xl font-bold mt-2">{card.count}</p>
+              <p className="text-sm text-gray-500">{card.label}</p>
             </div>
-          </div>
-        </div>
-
-        {/* To Do */}
-        <div className="bg-red-50 rounded-xl shadow-md p-6 text-center hover:bg-blue-100 transition relative group">
-          <XCircle className="mx-auto text-red-600" size={36} />
-          <p className="text-2xl font-bold mt-2">{todo}</p>
-          <p className="text-sm text-gray-500">To Do</p>
-          <div className="absolute top-2 right-2">
-            <Info size={16} className="text-gray-400 group-hover:text-black" />
-            <div className="absolute hidden group-hover:block bg-white border p-2 text-xs shadow rounded-md w-40 z-10">
-              Abhi tak start nahi kiye gaye tasks.
-            </div>
-          </div>
-        </div>
-
-        {/* In Progress */}
-        <div className="bg-yellow-50 rounded-xl shadow-md p-6 text-center hover:bg-blue-100 transition relative group">
-          <Hourglass className="mx-auto text-yellow-600" size={36} />
-          <p className="text-2xl font-bold mt-2">{inProgress}</p>
-          <p className="text-sm text-gray-500">In Progress</p>
-          <div className="absolute top-2 right-2">
-            <Info size={16} className="text-gray-400 group-hover:text-black" />
-            <div className="absolute hidden group-hover:block bg-white border p-2 text-xs shadow rounded-md w-40 z-10">
-              Employee is working on these tasks.
-            </div>
-          </div>
-        </div>
-
-        {/* Review */}
-        <div className="bg-blue-50 rounded-xl shadow-md p-6 text-center hover:bg-blue-100 transition relative group">
-          <Eye className="mx-auto text-blue-600" size={36} />
-          <p className="text-2xl font-bold mt-2">{review}</p>
-          <p className="text-sm text-gray-500">Review</p>
-          <div className="absolute top-2 right-2">
-            <Info size={16} className="text-gray-400 group-hover:text-black" />
-            <div className="absolute hidden group-hover:block bg-white border p-2 text-xs shadow rounded-md w-40 z-10">
-              Completed by employee, awaiting admin approval.
-            </div>
-          </div>
-        </div>
-
-        {/* Done */}
-        <div className="bg-green-50 rounded-xl shadow-md p-6 text-center hover:bg-blue-100 transition relative group">
-          <CheckCircle className="mx-auto text-green-600" size={36} />
-          <p className="text-2xl font-bold mt-2">{done}</p>
-          <p className="text-sm text-gray-500">Done</p>
-          <div className="absolute top-2 right-2">
-            <Info size={16} className="text-gray-400 group-hover:text-black" />
-            <div className="absolute hidden group-hover:block bg-white border p-2 text-xs shadow rounded-md w-40 z-10">
-              Admin reviewed and approved as completed.
-            </div>
-          </div>
-        </div>
+          );
+        })}
       </div>
 
       {/* Recent Task Table */}
-      <div className="p-6 rounded-xl shadow-md bg-blue-50">
-        <h2 className="text-2xl font-semibold text-blue-700 mb-4">
-          Your Recent Tasks
-        </h2>
+      <div className="p-4 sm:p-6 rounded-xl shadow-md bg-white overflow-x-auto">
+        <h2 className="text-2xl font-semibold text-blue-700 mb-4">Your Recent Tasks</h2>
 
-        {tasks.length === 0 ? (
+        {filteredTasks.length === 0 ? (
           <p className="text-gray-600">No tasks found.</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-base">
-              <thead className="bg-blue-100 text-gray-800">
-                <tr>
-                  <th className="py-3 px-4 text-left">Title</th>
-                  <th className="py-3 px-4 text-left">Status</th>
-                  <th className="py-3 px-4 text-left">Assigned</th>
-                  <th className="py-3 px-4 text-left">Deadline</th>
-                </tr>
-              </thead>
-              <tbody>
-                {tasks.slice(0, 5).map((task, i) => (
-                  <tr
-                    key={i}
-                    className="border-b border-blue-200 hover:bg-blue-100 transition"
+          <table className="min-w-full text-base border-collapse">
+            <thead className="bg-blue-100 text-gray-800">
+              <tr>
+                <th className="py-3 px-4 text-left">Title</th>
+                <th className="py-3 px-4 text-left relative">
+                  Status
+                  <button
+                    onClick={() => setStatusDropdown(!statusDropdown)}
+                    className="ml-2 p-1 rounded hover:bg-gray-200"
                   >
-                    <td className="py-3 px-4 font-semibold text-gray-800">{task.title}</td>
-                    <td className={`py-3 px-4 font-medium capitalize ${getStatusColor(task.status)}`}>
-                      {task.status}
-                    </td>
-                    <td className="py-3 px-4 text-gray-700">{task.assign_date}</td>
-                    <td className="py-3 px-4 text-red-500">{task.deadline_date}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    <ChevronDown size={16} />
+                  </button>
+                  {statusDropdown && (
+                    <div className="absolute top-full left-0 mt-1 bg-white border shadow-md rounded-md z-10 w-32">
+                      {['all', 'pending', 'inprocess', 'review', 'complete'].map((status, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => { setFilterStatus(status); setStatusDropdown(false); }}
+                          className="block w-full text-left px-4 py-2 hover:bg-gray-100 capitalize"
+                        >
+                          {status === 'all' ? 'All' : status.replace(/([a-z])([A-Z])/g, '$1 $2')}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </th>
+                <th className="py-3 px-4 text-left">Assigned</th>
+                <th className="py-3 px-4 text-left">Deadline</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredTasks.slice(0, 5).map((task, i) => (
+                <tr key={i} className="border-b border-gray-200 hover:bg-blue-50 transition">
+                  <td className="py-3 px-4 font-semibold text-gray-800">{task.title}</td>
+                  <td>
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(task.status)}`}>
+                      {task.status.charAt(0).toUpperCase() + task.status.slice(1)}
+                    </span>
+                  </td>
+                  <td className="py-3 px-4 text-gray-700">{task.assign_date}</td>
+                  <td className="py-3 px-4 text-red-500">{task.deadline_date}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         )}
       </div>
     </div>
