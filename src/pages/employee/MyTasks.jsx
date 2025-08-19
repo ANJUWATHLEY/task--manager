@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
-import {  MoreVertical } from "lucide-react"; // icons
 
 const MyTasks = () => {
   const [tasks, setTasks] = useState([]);
@@ -10,6 +9,7 @@ const MyTasks = () => {
   const Member_org = localStorage.getItem("Member_org");
   const navigate = useNavigate();
 
+  // ✅ Ref Task Generate
   let REFTASK = "";
   const match = Member_org?.match(/^([a-zA-Z]+)(\d+)$/);
   if (match) {
@@ -17,21 +17,41 @@ const MyTasks = () => {
     REFTASK = "TASK" + number;
   }
 
+  // ✅ Fetch Tasks
   const fetchMyTasks = async () => {
     try {
-      const res = await axios.get(`/employe/${userid}/${REFTASK}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      if (REFTASK) {
+        const [res1, res2] = await Promise.all([
+          axios.get(`/employe/${userid}/${REFTASK}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axios.get(`/employe/${userid}/${REFTASK}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
 
-      const data = Array.isArray(res.data) ? res.data : res.data.tasks || [];
-      const formatted = data.map((item) => ({
-        ...item,
-        assign_date: item.assign_date?.split("T")[0] || "",
-        deadline_date: item.deadline_date?.split("T")[0] || "",
-        status: item.status?.toLowerCase(),
-      }));
+        console.log("res1:", res1.data);
+        console.log("res2:", res2.data);
 
-      setTasks(formatted);
+        const data1 = Array.isArray(res1.data) ? res1.data : res1.data.tasks || [];
+        const data2 = Array.isArray(res2.data) ? res2.data : res2.data.tasks || [];
+
+        // ✅ Merge + Clean Data
+        const combined = [...data1, ...data2]
+          .map((item) => ({
+            ...item,
+            id: item.id || item.taskid || item._id, // fix key issue
+            assign_date: item.assign_date?.split("T")[0] || "",
+            deadline_date: item.deadline_date?.split("T")[0] || "",
+            status: item.status ? item.status.toLowerCase() : "pending",
+          }))
+          .filter(
+            (task, index, self) =>
+              index === self.findIndex((t) => t.id === task.id) // remove duplicates
+          );
+
+        setTasks(combined);
+      }
     } catch (error) {
       console.error(
         "❌ Error fetching employee tasks:",
@@ -44,6 +64,7 @@ const MyTasks = () => {
     fetchMyTasks();
   }, []);
 
+  // ✅ Update Status
   const handleStatusUpdate = async (taskId, status) => {
     try {
       await axios.put(
@@ -58,7 +79,7 @@ const MyTasks = () => {
     }
   };
 
-  // Status badge colors
+  // ✅ Status badge colors
   const getStatusColor = (status) => {
     switch (status) {
       case "pending":
@@ -72,7 +93,7 @@ const MyTasks = () => {
     }
   };
 
-  // Priority badge colors
+  // ✅ Priority badge colors
   const getPriorityColor = (priority) => {
     switch (priority?.toLowerCase()) {
       case "high":
@@ -99,78 +120,64 @@ const MyTasks = () => {
               key={task.id}
               className="bg-white rounded-xl shadow-md border border-gray-200 p-5 hover:shadow-lg transition flex flex-col justify-between"
             >
-              {/* Top badges row */}
+              {/* ✅ Top badges */}
               <div className="flex items-center gap-7 mb-4">
-  <span
-    className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${getStatusColor(
-      task.status
-    )}`}
-  >
-    {task.status}
-  </span>
-  <span
-    className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${getPriorityColor(
-      task.priority
-    )}`}
-  >
-    {task.priority || "None"}
-  </span>
-</div>
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${getStatusColor(
+                    task.status
+                  )}`}
+                >
+                  {task.status}
+                </span>
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${getPriorityColor(
+                    task.priority
+                  )}`}
+                >
+                  {task.priority || "None"}
+                </span>
+              </div>
 
+              {/* ✅ Title + Description */}
+              <div className="mb-3">
+                <h3 className="text-lg font-semibold text-gray-800 line-clamp-1">
+                  {task.title}
+                </h3>
+                <div>
+                  <p className="text-gray-600 text-sm line-clamp-2 inline">
+                    {task.description
+                      ? task.description.length > 100
+                        ? `${task.description.slice(0, 100)}... `
+                        : task.description
+                      : "No description"}
+                  </p>
+                  {task.description && task.description.length > 10 && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        navigate(`/task/${task.id}`, { state: { task } })
+                      }
+                      className="text-blue-600 underline text-sm inline ml-1"
+                    >
+                      Read more
+                    </button>
+                  )}
+                </div>
+              </div>
 
-              {/* Title + Description */}
-          <div className="mb-3">
-  <h3 className="text-lg font-semibold text-gray-800 line-clamp-1">
-    {task.title}
-  </h3>
+              {/* ✅ Dates */}
+              <div className="flex justify-between text-sm text-gray-500 mb-4">
+                <div className="flex flex-col items-start">
+                  <span className="font-medium text-gray-700">Assign Date</span>
+                  <span>{task.assign_date}</span>
+                </div>
+                <div className="flex flex-col items-start ml-4">
+                  <span className="font-medium text-gray-700">Deadline</span>
+                  <span className="text-red-500">{task.deadline_date}</span>
+                </div>
+              </div>
 
-  {/* ✅ Description with 2 lines only */}
-  {/* Description wrapper */}
-<div>
-  <p className="text-gray-600 text-sm line-clamp-2 inline">
-    {task.description
-      ? task.description.length > 100
-        ? `${task.description.slice(0, 100)}... `
-        : task.description
-      : "No description"}
-  </p>
-
-  {task.description && task.description.length > 10 && (
-    <button
-      type="button"
-      onClick={() => navigate(`/task/${task.id}`, { state: { task } })}
-      className="text-blue-600 underline text-sm inline ml-1"
-    >
-      Read more
-    </button>
-  )}
-</div>
-
-
-</div>
-
-
-              {/* Dates row */}
-             <div className="flex justify-between text-sm text-gray-500 mb-4">
-  {/* Assign Date */}
-  <div className="flex flex-col items-start">
-    <span className="font-medium text-gray-700">Assign Date</span>
-    <span className="flex items-center gap-1">
-      {task.assign_date}
-    </span>
-  </div>
-
-  {/* Deadline */}
-  <div className="flex flex-col items-start ml-4">
-    <span className="font-medium   text-gray-700">Deadline</span>
-    <span className="flex items-center gap-1 text-red-500">
-      {task.deadline_date}
-    </span>
-  </div>
-</div>
-
-
-              {/* Action buttons */}
+              {/* ✅ Action buttons */}
               <div>
                 {task.status === "pending" && (
                   <button
@@ -180,7 +187,6 @@ const MyTasks = () => {
                     Accept
                   </button>
                 )}
-
                 {task.status === "inprocess" && (
                   <button
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm"
@@ -189,7 +195,6 @@ const MyTasks = () => {
                     Mark Complete
                   </button>
                 )}
-
                 {task.status === "complete" && (
                   <span className="w-full inline-block bg-green-100 text-green-700 px-4 py-2 rounded-lg text-sm text-center font-medium">
                     Completed ✅

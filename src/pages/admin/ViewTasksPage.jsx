@@ -31,6 +31,10 @@ const ViewTasksPage = () => {
   };
 
   const fetchTasks = async () => {
+   
+   console.log(create_by);
+   console.log(REFTASK);
+   
     try {
       const res = await axios.get(`/admin/alltask/${create_by}/${REFTASK}`, {
         headers: { Authorization: `Bearer ${token}` },

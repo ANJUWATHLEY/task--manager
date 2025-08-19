@@ -11,12 +11,12 @@ const AssignRoleForm = () => {
   const [subOrgUserTable, setSubOrgUserTable] = useState(""); // store sub-org user_table
 
   const token = localStorage.getItem("token");
-  const USERREF = localStorage.getItem("user_table"); 
+  const USERREF = localStorage.getItem("user_table");
   const orgRef = localStorage.getItem("orgRef");
 
   console.log("🔑 LocalStorage Values →", { token, USERREF, orgRef });
 
-  // Fetch only "NEW" role users (Main org users)
+  // ✅ Fetch only "NEW" role users (Main org users)
   const fetchUsers = async () => {
     try {
       const userRes = await axios.get(`/admin/allemploye/${USERREF}`, {
@@ -33,36 +33,52 @@ const AssignRoleForm = () => {
     }
   };
 
-  // Fetch Departments (Sub-org list)
+  // ✅ Fetch Departments (Sub-org list)
   const fetchDepartments = async () => {
     try {
       const res = await axios.get(`/organization/get-sub-org/${orgRef}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      console.log("🏢 Departments API Response:", res.data);
       setDepartments(res.data);
     } catch (error) {
       console.error("❌ Error fetching departments:", error);
     }
   };
 
-  // Handle Department change → set department id + subOrgUserTable
+  // ✅ Handle Department change → set department id + subOrgUserTable
   const handleDepartmentChange = (e) => {
     const selectedDeptId = e.target.value;
     setDepartment(selectedDeptId);
 
-    // find department ka data
     const deptData = departments.find((d) => String(d.id) === selectedDeptId);
-    if (deptData && deptData.user_table) {
-      console.log("📦 Found sub-org user_table:", deptData.user_table);
-      setSubOrgUserTable(deptData.user_table);
-    } else {
-      setSubOrgUserTable("");
+
+    if (deptData) {
+      // check multiple possible field names
+      const userTableRef =
+        deptData.user_table || deptData.userTable || deptData.USERSREF;
+
+      if (userTableRef) {
+        console.log("📦 Found sub-org user_table:", userTableRef);
+        setSubOrgUserTable(userTableRef);
+      } else {
+        console.warn("⚠️ No user_table field found in deptData:", deptData);
+        setSubOrgUserTable("");
+      }
     }
   };
 
-  // Handle Submit
+  // ✅ Handle Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    console.log("🎯 Form Values →", {
+      selectedUser,
+      role,
+      department,
+      subOrgUserTable,
+    });
+
     if (!selectedUser || !role || !department || !subOrgUserTable) {
       alert("Please fill all fields and select a valid department");
       return;
@@ -70,12 +86,13 @@ const AssignRoleForm = () => {
 
     const payload = {
       role,
-      USERSREF: subOrgUserTable, // ✅ EXACT key name backend expects
+      USERSREF: subOrgUserTable,
+      department_id: department, // ✅ backend exact key
+      task_table: subOrgUserTable,
     };
 
-    console.log("PUT Request URL:", `/admin/updatemprole/${selectedUser}`);
-    console.log("PUT Payload:", payload);
-    console.log("Headers:", { Authorization: `Bearer ${token}` });
+    // console.log("🚀 PUT Request URL:", `/admin/updatemprole/${selectedUser}`);
+    console.log(payload);
 
     try {
       const updateRes = await axios.put(
@@ -86,14 +103,14 @@ const AssignRoleForm = () => {
         }
       );
 
-      alert("Role assigned successfully!");
+      alert("✅ Role assigned successfully!");
       setSelectedUser("");
       setRole("");
       setDepartment("");
       setSubOrgUserTable("");
       fetchUsers(); // refresh list
     } catch (error) {
-      console.error("❌ Error assigning role:", error);
+      console.error("❌ Error assigning role:", error.response?.data || error);
     }
   };
 
