@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "../api/axiosInstance";
-
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { User, Mail, Lock, } from "lucide-react";
 const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -144,59 +148,67 @@ const LoginForm = () => {
     }
   };
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-purple-100 px-4">
-      <form
-        onSubmit={handleLogin}
-        className="w-full max-w-md bg-white p-8 rounded-2xl shadow-2xl border border-gray-100"
-      >
-        <h2 className="text-3xl font-bold text-center mb-6 text-gray-800 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+  
+   return (
+  <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-purple-100 px-4">
+    <Card className="w-full max-w-md p-8 shadow-2xl border border-gray-100">
+      <CardHeader className="text-center mb-6">
+        <CardTitle className="text-3xl font-extrabold text-gray-900 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
           Login
-        </h2>
+        </CardTitle>
+        <p className="text-gray-500 mt-2">Enter your credentials to access your account</p>
+      </CardHeader>
 
-        <div className="space-y-6">
-          <input
-            type="email"
-            placeholder="Email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-4 border border-gray-200 rounded-xl bg-gray-50 placeholder-gray-400 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+      <CardContent>
+        <form className="space-y-6" onSubmit={handleLogin}>
+          <div>
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              leadingIcon={<Mail className="w-5 h-5 text-gray-400" />}
+             
+            />
+          </div>
 
-          <input
-            type="password"
-            placeholder="Password"
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-4 border border-gray-200 rounded-xl bg-gray-50 placeholder-gray-400 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          <div>
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="bg-gray-50"
+            />
+          </div>
 
-          <button
-            type="submit"
-            className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-4 rounded-xl font-semibold hover:scale-105 transition"
-          >
+          <Button type="submit" className="w-full py-4 text-lg font-semibold hover:scale-105 transition">
             Login
-          </button>
+          </Button>
 
-          <p className="text-sm text-blue-600 text-center hover:underline">
+          <p className="text-center text-sm text-blue-600 hover:underline">
             <Link to="/forgot-password">Forgot Password?</Link>
           </p>
-        </div>
+        </form>
+      </CardContent>
 
-        <p className="mt-8 text-center text-gray-600">
-          Don’t have an account?{" "}
-          <Link
-            to="/signup"
-            className="text-blue-500 hover:underline font-semibold"
-          >
-            Signup
-          </Link>
-        </p>
-      </form>
-    </div>
-  );
+      <div className="mt-8 text-center text-gray-600">
+        Don’t have an account?{" "}
+        <Link to="/signup" className="text-blue-500 font-semibold hover:underline">
+          Signup
+        </Link>
+      </div>
+    </Card>
+  </div>
+);
+
+  
 };
 
 export default LoginForm;
