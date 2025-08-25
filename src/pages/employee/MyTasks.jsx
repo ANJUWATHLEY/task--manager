@@ -1,6 +1,8 @@
+// src/pages/MyTasks.jsx
 import React, { useEffect, useState } from "react";
 import axios from "../../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
+import { Hourglass, CheckCircle, AlertTriangle, Star, Zap } from 'lucide-react';
 
 const MyTasks = () => {
   const [tasks, setTasks] = useState([]);
@@ -9,49 +11,63 @@ const MyTasks = () => {
   const Member_org = localStorage.getItem("Member_org");
   const navigate = useNavigate();
 
-  // ✅ Ref Task Generate
-  let REFTASK = "";
-  const match = Member_org?.match(/^([a-zA-Z]+)(\d+)$/);
-  if (match) {
-    const [, , number] = match;
-    REFTASK = "TASK" + number;
-  }
-
   // ✅ Fetch Tasks
   const fetchMyTasks = async () => {
     try {
-      if (REFTASK) {
-        const [res1, res2] = await Promise.all([
-          axios.get(`/employe/${userid}/${REFTASK}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          axios.get(`/employe/${userid}/${REFTASK}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-        ]);
+      if (!userid || !token) return;
 
-        console.log("res1:", res1.data);
-        console.log("res2:", res2.data);
+      const res = await axios.get(`/employe/${userid}/${Member_org}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-        const data1 = Array.isArray(res1.data) ? res1.data : res1.data.tasks || [];
-        const data2 = Array.isArray(res2.data) ? res2.data : res2.data.tasks || [];
+      console.log("📌 MyTasks API response:", res.data);
 
-        // ✅ Merge + Clean Data
-        const combined = [...data1, ...data2]
-          .map((item) => ({
-            ...item,
-            id: item.id || item.taskid || item._id, // fix key issue
-            assign_date: item.assign_date?.split("T")[0] || "",
-            deadline_date: item.deadline_date?.split("T")[0] || "",
-            status: item.status ? item.status.toLowerCase() : "pending",
-          }))
-          .filter(
-            (task, index, self) =>
-              index === self.findIndex((t) => t.id === task.id) // remove duplicates
-          );
-
-        setTasks(combined);
+      // ✅ Store REFTASK (task_table) in localStorage as string
+      if (res.data.task_table) {
+        localStorage.setItem(
+          "REFTASK",
+          typeof res.data.task_table === "string"
+            ? res.data.task_table
+            : JSON.stringify(res.data.task_table)
+        );
       }
+      const REFTASK = localStorage.getItem("REFTASK");
+      console.log("REFTASK:", REFTASK);
+
+      // ✅ Extract tasks (handle multiple response keys)
+      const allData =
+        Array.isArray(res.data.user) && res.data.user.length > 0
+          ? res.data.user
+          : Array.isArray(res.data.usertable) && res.data.usertable.length > 0
+          ? res.data.usertable
+          : Array.isArray(res.data)
+          ? res.data
+          : [];
+
+      console.log("✅ Extracted task array:", allData);
+
+      // ✅ Normalize + clean tasks
+      const combined = allData
+        .map((item) => ({
+          ...item,
+          id: item.id || item.taskid || item._id || item.task_id || null,
+          title: item.title || "Untitled Task",
+          description: cleanDescription(item.description),
+          assign_date: item.assign_date
+            ? item.assign_date.split("T")[0]
+            : "—",
+          deadline_date: item.deadline_date
+            ? item.deadline_date.split("T")[0]
+            : "—",
+          status: item.status ? String(item.status).toLowerCase() : "pending",
+          priority: item.priority || "none",
+        }))
+        .filter(
+          (task, index, self) =>
+            task.id && index === self.findIndex((t) => t.id === task.id)
+        );
+
+      setTasks(combined);
     } catch (error) {
       console.error(
         "❌ Error fetching employee tasks:",
@@ -60,26 +76,45 @@ const MyTasks = () => {
     }
   };
 
+  // ✅ Clean up weird description text
+  const cleanDescription = (desc) => {
+    if (!desc || typeof desc !== "string") return "No description provided";
+    return desc.replace(/"description":/gi, "").replace(/["{}]/g, "").trim();
+  };
+
   useEffect(() => {
     fetchMyTasks();
-  }, []);
+  }, [userid, Member_org]);
 
   // ✅ Update Status
   const handleStatusUpdate = async (taskId, status) => {
     try {
+      const storedRefTask = localStorage.getItem("REFTASK") || "";
+      const REFTASK = storedRefTask;
+
+      console.log("🔹 Updating Task:", taskId);
+      console.log("🔹 Status:", status);
+      console.log("🔹 REFTASK:", REFTASK);
+      console.log("🔹 userid:", userid);
+
+      // ✅ Send status, REFTASK & userid in body
       await axios.put(
         `/employe/${status}/${taskId}`,
-        { REFTASK, userid, status },
+        { status, REFTASK, userid }, // FIXED ✅
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      fetchMyTasks();
+
+      fetchMyTasks(); // Refresh tasks
     } catch (error) {
-      console.error("❌ Error updating task:", error.response?.data || error.message);
+      console.error(
+        "❌ Error updating task:",
+        error.response?.data || error.message
+      );
       alert("Failed to update task status.");
     }
   };
 
-  // ✅ Status badge colors
+  // ✅ Badge helpers
   const getStatusColor = (status) => {
     switch (status) {
       case "pending":
@@ -93,9 +128,8 @@ const MyTasks = () => {
     }
   };
 
-  // ✅ Priority badge colors
   const getPriorityColor = (priority) => {
-    switch (priority?.toLowerCase()) {
+    switch (String(priority).toLowerCase()) {
       case "high":
         return "bg-red-100 text-red-700";
       case "medium":
@@ -120,21 +154,21 @@ const MyTasks = () => {
               key={task.id}
               className="bg-white rounded-xl shadow-md border border-gray-200 p-5 hover:shadow-lg transition flex flex-col justify-between"
             >
-              {/* ✅ Top badges */}
+              {/* ✅ Badges */}
               <div className="flex items-center gap-7 mb-4">
                 <span
                   className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${getStatusColor(
                     task.status
                   )}`}
                 >
-                  {task.status}
+                  {task.status.charAt(0).toUpperCase() + task.status.slice(1)}
                 </span>
                 <span
-                  className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${getPriorityColor(
+                  className={`px-3 py-1 rounded-full text-xs font-medium capitalize  ${getPriorityColor(
                     task.priority
                   )}`}
                 >
-                  {task.priority || "None"}
+                  {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
                 </span>
               </div>
 
@@ -145,13 +179,11 @@ const MyTasks = () => {
                 </h3>
                 <div>
                   <p className="text-gray-600 text-sm line-clamp-2 inline">
-                    {task.description
-                      ? task.description.length > 100
-                        ? `${task.description.slice(0, 100)}... `
-                        : task.description
-                      : "No description"}
+                    {task.description.length > 100
+                      ? `${task.description.slice(0, 100)}... `
+                      : task.description}
                   </p>
-                  {task.description && task.description.length > 10 && (
+                  {task.description.length > 100 && (
                     <button
                       type="button"
                       onClick={() =>
@@ -177,7 +209,7 @@ const MyTasks = () => {
                 </div>
               </div>
 
-              {/* ✅ Action buttons */}
+              {/* ✅ Actions */}
               <div>
                 {task.status === "pending" && (
                   <button
@@ -192,7 +224,7 @@ const MyTasks = () => {
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm"
                     onClick={() => handleStatusUpdate(task.id, "complete")}
                   >
-                    Mark Complete
+                    inprocess
                   </button>
                 )}
                 {task.status === "complete" && (

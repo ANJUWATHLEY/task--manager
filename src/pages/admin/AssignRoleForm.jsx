@@ -11,15 +11,15 @@ const AssignRoleForm = () => {
   const [subOrgUserTable, setSubOrgUserTable] = useState(""); // store sub-org user_table
 
   const token = localStorage.getItem("token");
-  const USERREF = localStorage.getItem("user_table");
+  const USERSREF = localStorage.getItem("user_table");
   const orgRef = localStorage.getItem("orgRef");
-
-  console.log("🔑 LocalStorage Values →", { token, USERREF, orgRef });
+  
+  console.log("🔑 LocalStorage Values →", { token,USERSREF, orgRef });
 
   // ✅ Fetch only "NEW" role users (Main org users)
   const fetchUsers = async () => {
     try {
-      const userRes = await axios.get(`/admin/allemploye/${USERREF}`, {
+      const userRes = await axios.get(`/admin/allemploye/${USERSREF}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -86,9 +86,9 @@ const AssignRoleForm = () => {
 
     const payload = {
       role,
-      USERSREF: subOrgUserTable,
-      department_id: department, // ✅ backend exact key
-      task_table: subOrgUserTable,
+    USERSREF,
+     // ✅ backend exact key
+      sub_org : subOrgUserTable,
     };
 
     // console.log("🚀 PUT Request URL:", `/admin/updatemprole/${selectedUser}`);

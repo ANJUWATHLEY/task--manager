@@ -128,6 +128,8 @@ export default function SignupForm() {
     try {
       setLoadingOtp(true);
       const res = await axios.post("/user/otp", { email });
+      console.log(res.data);
+      
       if (res.data) {
         setOtpSent(true);
         setOtpFromServer(String(res.data));

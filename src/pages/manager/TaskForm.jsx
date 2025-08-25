@@ -1,5 +1,6 @@
-import { useForm } from 'react-hook-form';
-import axios from '../../api/axiosInstance';
+import { useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
+import axios from "../../api/axiosInstance";
 
 const TaskForm = () => {
   const {
@@ -9,24 +10,44 @@ const TaskForm = () => {
     formState: { errors },
   } = useForm();
 
+  const [roles, setRoles] = useState([]); // backend se dynamic roles
+  const token = localStorage.getItem("token");
+
+  // ✅ Roles fetch
+  const fetchRoles = async () => {
+    try {
+      const res = await axios.get("/roles", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // Agar data array hai to direct le lo warna res.data.roles
+      setRoles(Array.isArray(res.data) ? res.data : res.data.roles || []);
+    } catch (err) {
+      console.error("❌ Roles Fetch Error:", err.response?.data || err.message);
+    }
+  };
+
+  // ✅ Submit Task
   const submitTask = async (data) => {
     try {
-      const token = localStorage.getItem('token');
-
-      const res = await axios.post('/manager/task', data, {
+      const res = await axios.post("/manager/task", data, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      console.log('✅ Task Created:', res.data);
-      alert('Task created successfully ✅');
+      console.log("✅ Task Created:", res.data);
+      alert("Task created successfully ✅");
       reset();
     } catch (error) {
-      console.error('❌ Task Error:', error.response?.data || error.message);
-      alert('Failed to create task');
+      console.error("❌ Task Error:", error.response?.data || error.message);
+      alert("Failed to create task");
     }
   };
+
+  useEffect(() => {
+    fetchRoles();
+  }, []);
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-100 to-purple-100 px-4">
@@ -42,7 +63,7 @@ const TaskForm = () => {
         <input
           type="text"
           placeholder="Task Title"
-          {...register('title', { required: true })}
+          {...register("title", { required: true })}
           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
         />
         {errors.title && (
@@ -52,33 +73,33 @@ const TaskForm = () => {
         {/* Description */}
         <textarea
           placeholder="Task Description"
-          {...register('des')}
+          {...register("des")}
           rows="3"
           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
         ></textarea>
 
         {/* Status */}
         <select
-          {...register('status', { required: true })}
+          {...register("status", { required: true })}
           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
         >
           <option value="">Select Status</option>
-          <option value="process">Process</option>
+          <option value="pending">Pending</option>
           <option value="in_process">In Process</option>
-          <option value="complete">Complete</option>
+          <option value="completed">Completed</option>
         </select>
         {errors.status && (
           <p className="text-sm text-red-500">Status is required</p>
         )}
 
-        {/* Assigned Date */}
+        {/* Assign Date */}
         <div>
           <label className="text-sm font-medium text-gray-700 mb-1 block">
             Assign Date
           </label>
           <input
             type="date"
-            {...register('assinedate', { required: true })}
+            {...register("assign_date", { required: true })}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -90,19 +111,22 @@ const TaskForm = () => {
           </label>
           <input
             type="date"
-            {...register('deadlinedata', { required: true })}
+            {...register("deadline_date", { required: true })}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
-        {/* Role */}
+        {/* Dynamic Role Dropdown */}
         <select
-          {...register('role', { required: true })}
+          {...register("role", { required: true })}
           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
         >
           <option value="">Assign to Role</option>
-          <option value="employee">Employee</option>
-          <option value="manager">Manager</option>
+          {roles.map((role) => (
+            <option key={role.id || role._id} value={role.name}>
+              {role.name}
+            </option>
+          ))}
         </select>
         {errors.role && (
           <p className="text-sm text-red-500">Role is required</p>

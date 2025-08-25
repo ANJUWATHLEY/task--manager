@@ -53,6 +53,7 @@ import TaskSubmission from './pages/employee/TaskSubmission';
 import MyTasks from './pages/employee/MyTasks';
 import Profile from './pages/employee/Profile';
 import TaskDetailsPage from './pages/employee/TaskDetailsPage';
+import DynamicDashboard from './pages/manager/DynamicDashboard';
 
 function App() {
   const location = useLocation();
@@ -140,7 +141,9 @@ function App() {
           <Route path="viewuser/:id" element={<ManagerTaskList />} />
           <Route path="user/:id" element={<ManagerUserTaskDetails />} />
         </Route>
-
+         <Route path="viewuser/:id" element={<ManagerTaskList />} />
+          <Route path="dynamic/dashboard" element={<DynamicDashboard />} />    
+          {/*  SENT D IF NEED  */}
         {/* Business Units */}
         <Route path="/businessUnitList" element={<BusinessUnitList />} />
         <Route path="/business-unit/:id" element={<BusinessUnitDetails />} />

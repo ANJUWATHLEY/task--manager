@@ -1,3 +1,4 @@
+// src/pages/EmployeeDashboard.jsx
 import React, { useEffect, useState } from 'react';
 import axios from '../../api/axiosInstance';
 import {
@@ -6,7 +7,6 @@ import {
   Hourglass,
   XCircle,
   Eye,
-  Info,
   ChevronDown
 } from 'lucide-react';
 
@@ -21,34 +21,39 @@ const EmployeeDashboard = () => {
   useEffect(() => {
     const fetchMyTasks = async () => {
       try {
-        let REFTASK = '';
-        const match = Member_org?.match(/^([a-zA-Z]+)(\d+)$/);
-        if (match) {
-          const [, , number] = match;
-          REFTASK = 'TASK' + number;
-        } else return;
+        if (!userId || !token) return;
 
-        const res = await axios.get(`/employe/${userId}/${REFTASK}`, {
+        const res = await axios.get(`/employe/${userId}/${Member_org}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        const data = Array.isArray(res.data) ? res.data : res.data.tasks || [];
-        const formatted = data.map((item) => ({
+        console.log("📌 Dashboard API response:", res.data);
+
+        // ✅ Normalize response (same as MyTasks)
+        const rawData = Array.isArray(res.data)
+          ? res.data
+          : res.data.user || []; // <-- fix here
+
+        const formatted = rawData.map((item) => ({
           ...item,
-          assign_date: item.assign_date?.split('T')[0] || '',
-          deadline_date: item.deadline_date?.split('T')[0] || '',
-          status: item.status.toLowerCase(),
+          id: item.id || item.taskid || item._id || item.task_id,
+          title: item.title || 'Untitled Task',
+          description: item.description || 'No description',
+          assign_date: item.assign_date?.split('T')[0] || '—',
+          deadline_date: item.deadline_date?.split('T')[0] || '—',
+          status: item.status ? String(item.status).toLowerCase() : 'pending',
         }));
 
         setTasks(formatted);
       } catch (error) {
-        console.error('Error fetching employee tasks:', error);
+        console.error('❌ Error fetching employee tasks:', error.response?.data || error.message);
       }
     };
 
     fetchMyTasks();
-  }, []);
+  }, [userId, Member_org, token]);
 
+  // ✅ Stats
   const totalTasks = tasks.length;
   const todo = tasks.filter((t) => t.status === 'pending').length;
   const inProgress = tasks.filter((t) => t.status === 'inprocess').length;
@@ -58,15 +63,15 @@ const EmployeeDashboard = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'pending':
-        return ' text-red-700';
+        return 'text-red-700 bg-red-100 px-3 py-1 rounded-full';
       case 'inprocess':
-        return ' text-yellow-700';
+        return 'text-yellow-700 bg-yellow-100 px-3 py-1 rounded-full';
       case 'review':
-        return ' text-blue-700';
+        return 'text-blue-700 bg-blue-100 px-3 py-1 rounded-full';
       case 'complete':
-        return ' text-green-700';
+        return 'text-green-700 bg-green-100 px-3 py-1 rounded-full';
       default:
-        return 'bg-gray-100 text-gray-700';
+        return 'text-gray-700 bg-gray-100 px-3 py-1 rounded-full';
     }
   };
 
@@ -81,10 +86,10 @@ const EmployeeDashboard = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-10">
         {[
           { label: 'Total', count: totalTasks, icon: ClipboardCheck, color: 'blue', key: 'all' },
-          { label: 'To Do', count: todo, icon: XCircle, color: 'blue', key: 'pending' },
-          { label: 'In Progress', count: inProgress, icon: Hourglass, color: 'blue', key: 'inprocess' },
+          { label: 'To Do', count: todo, icon: XCircle, color: 'red', key: 'pending' },
+          { label: 'In Progress', count: inProgress, icon: Hourglass, color: 'yellow', key: 'inprocess' },
           { label: 'Review', count: review, icon: Eye, color: 'blue', key: 'review' },
-          { label: 'Complete', count: done, icon: CheckCircle, color: 'blue', key: 'complete' },
+          { label: 'Complete', count: done, icon: CheckCircle, color: 'green', key: 'complete' },
         ].map((card, i) => {
           const Icon = card.icon;
           return (
@@ -128,7 +133,7 @@ const EmployeeDashboard = () => {
                           onClick={() => { setFilterStatus(status); setStatusDropdown(false); }}
                           className="block w-full text-left px-4 py-2 hover:bg-gray-100 capitalize"
                         >
-                          {status === 'all' ? 'All' : status.replace(/([a-z])([A-Z])/g, '$1 $2')}
+                          {status === 'all' ? 'All' : status}
                         </button>
                       ))}
                     </div>
@@ -142,9 +147,9 @@ const EmployeeDashboard = () => {
               {filteredTasks.slice(0, 5).map((task, i) => (
                 <tr key={i} className="border-b border-gray-200 hover:bg-blue-50 transition">
                   <td className="py-3 px-4 font-semibold text-gray-800">{task.title}</td>
-                  <td>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(task.status)}`}>
-                      {task.status.charAt(0).toUpperCase() + task.status.slice(1)}
+                  <td className="py-3 px-4">
+                    <span className={getStatusColor(task.status)}>
+                      {task.status}
                     </span>
                   </td>
                   <td className="py-3 px-4 text-gray-700">{task.assign_date}</td>

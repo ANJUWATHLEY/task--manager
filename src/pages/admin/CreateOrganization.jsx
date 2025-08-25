@@ -1,122 +1,175 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from '../../api/axiosInstance';
+// src/pages/admin/CreateOrganization.jsx
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "../../api/axiosInstance";
+
+import { Button } from "../../components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "../../components/ui/card";
+import { Input } from "../../components/ui/input";
+import { Label } from "../../components/ui/label";
+
+// Lucide Icons
+import {
+  Building2,
+  Mail,
+  Phone,
+  BriefcaseBusiness,
+  FileText,
+  PlusCircle,
+} from "lucide-react";
 
 const CreateOrganization = () => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [type, setType] = useState('');
-  const [description, setDescription] = useState('');
-const [inviteCode, setInviteCode] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [type, setType] = useState("");
+  const [description, setDescription] = useState("");
+
   const navigate = useNavigate();
-const id = localStorage.getItem('id');
+  const id = localStorage.getItem("id");
+
   const handleCreate = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token');
-const payload = {
-  name,
-  email,
-  mobile: phone,
-  organization_type: type,
-  description,
-};
+      const token = localStorage.getItem("token");
+      const payload = {
+        name,
+        email,
+        mobile: phone,
+        organization_type: type,
+        description,
+      };
 
-const res = await axios.post(`/organization/create/${id}`, payload, {
-  headers: {
-    Authorization: `Bearer ${token}`,
-  },
-});
+      const res = await axios.post(`/organization/create/${id}`, payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-
- console.log("Form Data:", {
-    name,
-    email,
-    phone,
-    type,
-    description
-  });
-      alert('Organization created successfully!');
-    localStorage.setItem("orgRef", res.data.ref);
-    console.log("Ref Stored:", localStorage.getItem("orgRef"));
+      alert("✅ Organization created successfully!");
+      localStorage.setItem("orgRef", res.data.ref);
       navigate(`/admin/dashboard`);
     } catch (err) {
-      console.error('Create Org Error:', err.response?.data || err.message);
-      alert('Failed to create organization. Please try again.');
+      console.error("Create Org Error:", err.response?.data || err.message);
+      alert("❌ Failed to create organization. Please try again.");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-purple-100 px-4">
-      <form
-        onSubmit={handleCreate}
-        className="w-full max-w-lg bg-white p-10 rounded-3xl shadow-2xl"
-      >
-        <h2 className="text-4xl font-bold text-center mb-8 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          Create Organization
-        </h2>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 px-4">
+      <Card className="w-full max-w-lg p-8 shadow-2xl rounded-2xl">
+        <CardHeader>
+          <CardTitle>
+            <h2 className="text-3xl font-bold text-center text-blue-600">
+              Create Organization
+            </h2>
+          </CardTitle>
+        </CardHeader>
 
-        <div className="space-y-6">
-          <input
-            type="text"
-            placeholder="Organization Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-            className="w-full px-4 py-3 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
+        <CardContent>
+          <form onSubmit={handleCreate} className="space-y-5">
+            {/* Org Name */}
+            <div>
+              <Label htmlFor="name">Organization Name</Label>
+              <div className="flex items-center border rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-blue-500">
+                <Building2 className="w-5 h-5 text-blue-500 mr-2" />
+                <input
+                  id="name"
+                  type="text"
+                  placeholder="Enter organization name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  className="flex-1 bg-transparent outline-none"
+                />
+              </div>
+            </div>
 
-          <input
-            type="email"
-            placeholder="Organization Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="w-full px-4 py-3 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
+            {/* Email */}
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <div className="flex items-center border rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-blue-500">
+                <Mail className="w-5 h-5 text-blue-500 mr-2" />
+                <input
+                  id="email"
+                  type="email"
+                  placeholder="Enter organization email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="flex-1 bg-transparent outline-none"
+                />
+              </div>
+            </div>
 
-          <input
-            type="tel"
-            placeholder="Mobile Number"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            pattern="[0-9]{10}"
-            required
-            className="w-full px-4 py-3 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
+            {/* Phone */}
+            <div>
+              <Label htmlFor="phone">Mobile Number</Label>
+              <div className="flex items-center border rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-blue-500">
+                <Phone className="w-5 h-5 text-blue-500 mr-2" />
+                <input
+                  id="phone"
+                  type="tel"
+                  placeholder="Enter 10-digit mobile number"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  pattern="[0-9]{10}"
+                  required
+                  className="flex-1 bg-transparent outline-none"
+                />
+              </div>
+            </div>
 
-          <select
-            value={type}
-            onChange={(e) => setType(e.target.value)}
-            required
-            className="w-full px-4 py-3 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          >
-            <option value="">Select Organization Type</option>
-            <option value="IT Services">IT Services</option>
-            <option value="Sales">Sales</option>
-            <option value="Food">Food</option>
-            <option value="Healthcare">Healthcare</option>
-            <option value="Education">Education</option>
-            <option value="Other">Other</option>
-          </select>
+            {/* Type */}
+            <div>
+              <Label htmlFor="type">Organization Type</Label>
+              <div className="flex items-center border rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-blue-500">
+                <BriefcaseBusiness className="w-5 h-5 text-blue-500 mr-2" />
+                <select
+                  id="type"
+                  value={type}
+                  onChange={(e) => setType(e.target.value)}
+                  required
+                  className="flex-1 bg-transparent outline-none"
+                >
+                  <option value="">Select Type</option>
+                  <option value="IT Services">IT Services</option>
+                  <option value="Sales">Sales</option>
+                  <option value="Food">Food</option>
+                  <option value="Healthcare">Healthcare</option>
+                  <option value="Education">Education</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
 
-          <textarea
-            placeholder="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={4}
-            className="w-full px-4 py-3 border rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          ></textarea>
+            {/* Description */}
+            <div>
+              <Label htmlFor="description">Description</Label>
+              <div className="flex items-start border rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-blue-500">
+                <FileText className="w-5 h-5 text-blue-500 mr-2 mt-1" />
+                <textarea
+                  id="description"
+                  placeholder="Write something about the organization..."
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={4}
+                  className="flex-1 bg-transparent outline-none resize-none"
+                />
+              </div>
+            </div>
 
-          <button
-            type="submit"
-            className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-xl font-semibold hover:scale-105 transition"
-          >
-            Create Organization
-          </button>
-        </div>
-      </form>
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              className="w-full py-3 text-lg font-semibold flex items-center justify-center gap-2"
+            >
+              <PlusCircle className="w-5 h-5" />
+              Create Organization
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 };

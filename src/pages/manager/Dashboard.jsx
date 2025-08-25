@@ -10,14 +10,18 @@ import {
   AreaChart, Area, CartesianGrid, XAxis, YAxis
 } from 'recharts';
 
-const ManagerDashboard = () => {
+const Dashboard = () => {
   const [employees, setEmployees] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [userDetail, setUserDetail] = useState(null);
 
   const token = localStorage.getItem('token');
   const navigate = useNavigate();
   const id = localStorage.getItem('id');
+  const rawRole = localStorage.getItem('role'); // backend se mila role (dynamic)
+
+  const role = rawRole?.toLowerCase(); // ab mapping ki zarurat nahi hai
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -27,22 +31,25 @@ const ManagerDashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const employeeRes = await axios.get('/manager/allemploye', {
+        // 🔹 Ye role dynamic hoga, jo backend se aaya hai
+        // API design is tarah se karo -> /{role}/...
+        const employeeRes = await axios.get(`/${role}/allemploye`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+
         const employeesData = Array.isArray(employeeRes.data)
           ? employeeRes.data
           : employeeRes.data.employees || [];
 
-        const taskRes = await axios.get('/manager/alltask', {
+        const taskRes = await axios.get(`/${role}/alltask`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        const managerDetail = await axios.get(`/manager/detail/${id}`, {
+        const userRes = await axios.get(`/${role}/detail/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
-        console.log('Manager detail:', managerDetail.data);
+        setUserDetail(userRes.data);
 
         const tasksData = Array.isArray(taskRes.data)
           ? taskRes.data
@@ -57,9 +64,12 @@ const ManagerDashboard = () => {
       }
     };
 
-    fetchData();
-  }, [token]);
+    if (role) {
+      fetchData();
+    }
+  }, [token, role, id]);
 
+  // 🔹 Task calculations
   const completedTasks = tasks.filter(task => task.status?.toLowerCase() === 'completed');
   const pendingTasks = tasks.filter(task => task.status?.toLowerCase() === 'pending');
   const inProgressTasks = tasks.filter(task => task.status?.toLowerCase() === 'inprocess');
@@ -78,13 +88,11 @@ const ManagerDashboard = () => {
     const month = new Date(0, i).toLocaleString('default', { month: 'short' });
     const completed = completedTasks.filter(task => {
       if (!task.updated_at) return false;
-      const taskMonth = new Date(task.updated_at).getMonth();
-      return taskMonth === i;
+      return new Date(task.updated_at).getMonth() === i;
     }).length;
     const inProgress = inProgressTasks.filter(task => {
       if (!task.updated_at) return false;
-      const taskMonth = new Date(task.updated_at).getMonth();
-      return taskMonth === i;
+      return new Date(task.updated_at).getMonth() === i;
     }).length;
     return { month, completed, inProgress };
   });
@@ -123,6 +131,15 @@ const ManagerDashboard = () => {
   return (
     <div className="min-h-screen flex bg-gray-50">
       <main className="flex-1 p-8">
+        {/* User Info */}
+        {userDetail && (
+          <div className="mb-6 p-4 bg-white rounded-xl shadow border">
+            <h2 className="text-lg font-bold">Welcome, {userDetail.name}</h2>
+            <p className="text-sm text-gray-600">Your role: <span className="font-semibold capitalize">{role}</span></p>
+          </div>
+        )}
+
+        {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard
             title="Total Employees"
@@ -224,4 +241,4 @@ const ManagerDashboard = () => {
   );
 };
 
-export default ManagerDashboard;
+export default Dashboard;
